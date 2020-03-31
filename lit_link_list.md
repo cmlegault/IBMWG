@@ -8,4 +8,4 @@ A collection of links to papers broken into separate groups with short synopsis 
 * [Klaer](https://www.sciencedirect.com/science/article/abs/pii/S0165783612002561) et al. 2012 applies an average length-based approach in Australia
 * [Fay](https://www.sciencedirect.com/science/article/abs/pii/S0165783611001640) et al. 2011 examines spatial impact on MSE for a stock
 * [DLMtool](https://www.datalimitedtoolkit.org/) provides a large number of possible index-based methods and a framework for conducting closed-loop simulations
-* [Then](https://doi:10.1093/icesjms/fsx177) et al. 2019 introduces a length-based method
+* [Then](https://doi:10.1093/icesjms/fsx177) et al. 2018 introduces a length-based method
