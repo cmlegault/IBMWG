@@ -18,7 +18,7 @@ A collection of links to papers broken into separate groups with short synopsis 
 ### Retrospective patterns
 * [Brooks and Legault](https://doi.org/10.1139/cjfas-2015-0163) 2016 uses NEFSC stocks to demonstrate a way to compare effects of different parts of projections - found starting point errors due to retrospective patterns biggest problem
 * [Deroba](https://doi.org/10.1080/02755947.2014.882452) 2014 uses simulations based on Atlantic herring to compare ignoring and rho-adjusting assessment estimates
-* [Hurtado-Ferro](https://doi.org/10.1093/icesjms/fsu198) 2015 uses SS3sim to compare impacts of changes in M, growth, and selectivity on Mohn's rho and derives rules of thumb for significant retrospective pattern for different life histories
+* [Hurtado-Ferro](https://doi.org/10.1093/icesjms/fsu198) et al. 2015 uses SS3sim to compare impacts of changes in M, growth, and selectivity on Mohn's rho and derives rules of thumb for significant retrospective pattern for different life histories
 * [Legault](https://repository.library.noaa.gov/view/noaa/3611) 2009 examines wide range of factors that can cause retrospective patterns and some possible fixes
 * [Miller and Legault](https://doi.org/10.1016/j.fishres.2016.08.002) 2019 provides variance of Mohn's rho through bootstrapping and recommends always adjusting for retrospective pattern
 * [Mohn](https://doi.org/10.1006/jmsc.1999.0481) 1999 presents Mohn's rho - note the original formulation uses sum of the peels while current use is mean of the peels
