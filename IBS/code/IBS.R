@@ -292,6 +292,41 @@ plot3 <- ggplot(filter(tsdf, realization <=3), aes(x=year, y=value, color=as.fac
 print(plot3)
 ggsave(filename="..\\plots\\compareTimeSeriesRealizations.png", plot=plot3)
 
+# take a look at the retros
+retrodf <- data.frame(realization = integer(),
+                      variable = character(),
+                      peel = integer(),
+                      year = integer(),
+                      value = double())
+for (ibrlz in 1:nbaserealizations){
+  for (ipeel in 0:n.peels){
+    fname <- paste0(mydir, "run2realization", ibrlz, "_00", ipeel, ".rdat")
+    asap <- dget(fname)
+    thisdf <- data.frame(realization = ibrlz,
+                         variable = "SSB",
+                         peel = ipeel,
+                         year = asap$parms$styr:asap$parms$endyr,
+                         value = asap$SSB)
+    retrodf <- rbind(retrodf, thisdf)
+  }
+}
+retrotextdf <- rhodf %>%
+  filter(scenario == "Misreporting") %>%
+  mutate(realization = as.numeric(row.names(.))) %>%
+  mutate(rhotext = as.character(round(value, 2))) %>%
+  mutate(year = 1980, value = 100000, peel=0)
+
+plot4 <- ggplot(filter(retrodf, realization <=9), aes(x=year, y=value, group=peel)) +
+  geom_line() +
+  facet_wrap(~realization) +
+  geom_text(data = filter(retrotextdf, realization <=9), aes(x=year, y=value, label=rhotext)) +
+  expand_limits(y=0) +
+  ylab("SSB") +
+  scale_x_continuous(breaks = seq(1970, 2020, 20)) +
+  theme_bw()
+print(plot4)
+ggsave(filename="..\\plots\\SSBretroplots.png", plot=plot4)
+
 ## still to do, if go down this path
 
 # select index based approach(es?)
