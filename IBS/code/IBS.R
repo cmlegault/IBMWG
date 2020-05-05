@@ -2,6 +2,11 @@
 # Index Based Simulator
 # demonstration for IBMWG
 
+# if needed
+# library(devtools)
+# devtools::install_github("cmlegault/ASAPplots")
+# devtools::install_github("cmlegault/rose")
+
 library(ggplot2)
 library(dplyr)
 library(ASAPplots)
