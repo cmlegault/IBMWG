@@ -167,7 +167,6 @@ for (ibrlz in 1:nbaserealizations){
 # optionally create ASAP input files from base period to check retros
 run_ASAPs <- TRUE
 if (run_ASAPs == TRUE){
-  print("Beginning ASAP runs for base period...")
   orig.dir <- getwd()
   setwd("..\\ASAPruns")
   n.peels <- 5
@@ -179,6 +178,7 @@ if (run_ASAPs == TRUE){
   survey2ESS <- 200
   
   initial.dat <- ASAPplots::ReadASAP3DatFile("initial_file.dat")
+  print("Beginning ASAP runs for base period...")
   
   for (ibrlz in 1:nbaserealizations){
     asap.dat <- initial.dat
@@ -227,8 +227,9 @@ if (run_ASAPs == TRUE){
     print(paste0("Realization ", ibrlz, ": Mohn's rho for SSB = ", Mohnsrhossb[ibrlz]))
   }
   setwd(orig.dir)
+  Mohnsrhossb
 }
-Mohnsrhossb
+
 
 # select index based approach(es?)
 
