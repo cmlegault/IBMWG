@@ -227,9 +227,48 @@ if (run_ASAPs == TRUE){
     print(paste0("Realization ", ibrlz, ": Mohn's rho for SSB = ", Mohnsrhossb[ibrlz]))
   }
   setwd(orig.dir)
-  Mohnsrhossb
 }
 
+## some plots to show what is going on under the hood
+
+# compare runs 1 and 2 (run 1 has no misreporting, run 2 has misreporting)
+mydir <- "C:\\Users\\chris.legault\\Documents\\Working\\Index-based Research Track 2020\\IBS\\ASAPruns\\"
+Mohnsrhossb1 <- rep(NA, nbaserealizations)
+Mohnsrhossb2 <- rep(NA, nbaserealizations)
+for (ibrlz in 1:nbaserealizations){
+  fname1 <- paste0(mydir, "run1realization", ibrlz, ".dat")
+  fname2 <- paste0(mydir, "run2realization", ibrlz, ".dat")
+  Mohnsrhossb1[ibrlz] <- rose::calcSSBrho(fname1, n.peels)
+  Mohnsrhossb2[ibrlz] <- rose::calcSSBrho(fname2, n.peels)
+}
+rhodf <- data.frame(scenario = rep(c("No misreporting", "Misreporting"), each = nbaserealizations),
+                    variable = "Mohn's Rho for SSB",
+                    value = c(Mohnsrhossb1, Mohnsrhossb2))
+plot1 <- ggplot(rhodf, aes(x=scenario, y=value)) +
+  geom_boxplot() +
+  geom_hline(yintercept = 0, color = "blue", linetype=2) +
+  ylab("Mohn's Rho for SSB") +
+  theme_bw()
+print(plot1)
+ggsave(filename="..\\plots\\compareMohnRhoSSB.png", plot=plot1)
+
+# compare true catch in weight to reported catch in weight
+trueY <- apply(saveres[[nbaserealizations]]$CAA[1:nbaseyears, ] * WAA[1:nbaseyears, ], 1, sum) * 0.001 # last term to convert to metric tons
+reportedY <- saveres[[nbaserealizations]]$Yield[1:nbaseyears]
+ydf <- data.frame(year = seq(startyear, (startyear + nbaseyears - 1)),
+                  variable = "Catch in metric tons",
+                  scenario = rep(c("True", "Reported"), each = nbaseyears),
+                  value = c(trueY, reportedY))
+plot2 <- ggplot(ydf, aes(x=year, y=value, color=scenario)) +
+  geom_point() +
+  geom_line() +
+  ylab("Catch in metric tons") +
+  expand_limits(y=0) +
+  theme_bw()
+print(plot2)
+ggsave(filename="..\\plots\\compareReportedTrueCatch.png", plot=plot1)
+
+## still to do, if go down this path
 
 # select index based approach(es?)
 
