@@ -22,3 +22,18 @@ Thursday April 30, 1:00-2:0
 https://meet.google.com/pox-nmnm-wfd
 +1 513-783-1477‬ PIN: ‪947 348 951‬#‬
 
+Thursday May 7, 1:00 - 3:00 (note longer meeting time in May, may not need full 2 hours)
+https://meet.google.com/hmo-iipk-rvo
++1 740-573-5330‬ PIN: ‪572 960 505‬#‬
+
+Thursday May 14, 1:00 - 3:00 (note longer meeting time in May, may not need full 2 hours)
+https://meet.google.com/hmo-iipk-rvo
++1 740-573-5330‬ PIN: ‪572 960 505‬#‬
+
+Thursday May 21, 1:00 - 3:00 (note longer meeting time in May, may not need full 2 hours)
+https://meet.google.com/hmo-iipk-rvo
++1 740-573-5330‬ PIN: ‪572 960 505‬#‬
+
+Thursday May 28, 1:00 - 3:00 (note longer meeting time in May, may not need full 2 hours)
+https://meet.google.com/hmo-iipk-rvo
++1 740-573-5330‬ PIN: ‪572 960 505‬#‬
