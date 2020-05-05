@@ -266,7 +266,31 @@ plot2 <- ggplot(ydf, aes(x=year, y=value, color=scenario)) +
   expand_limits(y=0) +
   theme_bw()
 print(plot2)
-ggsave(filename="..\\plots\\compareReportedTrueCatch.png", plot=plot1)
+ggsave(filename="..\\plots\\compareReportedTrueCatch.png", plot=plot2)
+
+# examine variability in the 10 realizations for Yield and both surveys
+tsdf <- data.frame(realization = integer(),
+                   variable = character(),
+                   year = integer(),
+                   value = double())
+for (ibrlz in 1:nbaserealizations){
+  thisdf <- data.frame(realization = ibrlz,
+                       variable = rep(c("Yield", "Survey1B", "Survey2B"), each = nbaseyears),
+                       year = seq(startyear, (startyear + nbaseyears - 1)),
+                       value = c(saveres[[ibrlz]]$Yield[1:nbaseyears],
+                                 saveres[[ibrlz]]$survey1B[1:nbaseyears],
+                                 saveres[[ibrlz]]$survey2B[1:nbaseyears]))
+  tsdf <- rbind(tsdf, thisdf)
+}
+plot3 <- ggplot(filter(tsdf, realization <=3), aes(x=year, y=value, color=as.factor(realization))) +
+  geom_point() +
+  geom_line() +
+  facet_grid(variable~realization) +
+  expand_limits(y=0) +
+  theme_bw() +
+  theme(legend.position = "none")
+print(plot3)
+ggsave(filename="..\\plots\\compareTimeSeriesRealizations.png", plot=plot3)
 
 ## still to do, if go down this path
 
