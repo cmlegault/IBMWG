@@ -286,3 +286,42 @@ grid.newpage()
 grid.table(rsums)
 
 dev.off()
+
+# compute autocorrelation in recruitment
+recdf <- data.frame(stock = character(),
+                    sgroup = character(),
+                    variable = character(),
+                    year = integer(),
+                    value = double())
+for (i in 1:nstocks){
+  asap <- dget(fnames[i])
+  years <- seq(asap$parms$styr, asap$parms$endyr)
+  recruits <- asap$N.age[, 1]
+  thisdf <- data.frame(stock = stocks[i],
+                       sgroup = sgroup[i],
+                       variable = "Recruits",
+                       year = years,
+                       value = recruits)
+  recdf <- rbind(recdf, thisdf)
+}
+recdf
+ggplot(recdf, aes(x=year, y=value, color=stock)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~stock, scales = "free") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+ardf <- recdf %>%
+  group_by(stock, sgroup) %>%
+  summarize(ar1 = acf(value, lag.max=1, plot=FALSE)$acf[, , 1][2])
+ggplot(ardf, aes(x=ar1, y=stock)) +
+  geom_point() +
+  theme_bw()
+mardf <- ardf %>%
+  group_by(sgroup) %>%
+  summarize(meanar1 = mean(ar1))
+rfdf <- filter(ardf, sgroup %in% c("roundfish", "flatfish")) 
+mean(rfdf$ar1)
+# use 0.4 for autocorrelation from mean of roundfish and flatfish
+
