@@ -325,3 +325,39 @@ rfdf <- filter(ardf, sgroup %in% c("roundfish", "flatfish"))
 mean(rfdf$ar1)
 # use 0.4 for autocorrelation from mean of roundfish and flatfish
 
+# examine ESS for fishery and surveys
+vpastocks <- c("CCGOM_YT", "GB_HADDOCK", "GB_WINTER", "PLAICE")
+essdf <- data.frame(stock = character(),
+                    sgroup = character(),
+                    variable = character(),
+                    gear = character(),
+                    value = integer())
+for (i in 1:nstocks){
+  if (!(stocks[i] %in% vpastocks)){
+    asap <- dget(fnames[i])
+    ess1 <- as.vector(asap$fleet.catch.Neff.init)
+    fisheryess <- mean(ess1[ess1 > 0])
+    ess2 <- as.vector(asap$index.Neff.init)
+    ess3 <- ifelse(any(ess2 > 0), mean(ess2[ess2 > 0]), 0)
+    surveyess <- ess3
+    
+    if (fisheryess * surveyess > 0){
+      thisdf <- data.frame(stock = stocks[i],
+                           sgroup = sgroup[i],
+                           variable = "ess",
+                           gear = c("fishery", "survey"),
+                           value = c(fisheryess, surveyess))
+      essdf <- rbind(essdf, thisdf)
+    }
+  }
+}
+essdf
+ggplot(essdf, aes(x=value, y=stock, color=gear)) +
+  geom_point() +
+  theme_bw()
+
+essdf %>%
+  group_by(sgroup, gear) %>%
+  summarize(ess = mean(value))
+# based on roundfish and flatfish, 
+# fishery ess = 50, survey ess = 25 seems reasonable
