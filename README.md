@@ -39,3 +39,8 @@ https://meet.google.com/hmo-iipk-rvo
 Thursday May 28, 1:00 - 3:00
 https://meet.google.com/hmo-iipk-rvo
 +1 740-573-5330‬ PIN: ‪572 960 505‬#‬
+
+June Meetings all Thursday 1:00 - 2:50  
+https://meet.google.com/jwq-jnoy-gbv  
++1 319-332-7329‬ PIN: ‪257 651 945‬#  
+
