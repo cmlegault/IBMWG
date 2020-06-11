@@ -26,7 +26,7 @@ will want to abstract more of the set up from this as it's the same for each sim
 ```{r}
 #dimension problem
 nbase = 2 #number of scenarios
-nsim = 2
+nsim = 5
 nprojyrs <- 40
 
 #generate seeds
@@ -70,6 +70,8 @@ system.time(mse_output <- mse_setup %>%
                             ~do_wham_mse_sim(seed = .x,
                                              input = .y,
                                              nprojyrs = nprojyrs))))
+
+#saveRDS(mse_output, file = "just1_srds.rds")
 ```
 
 pull out some parts of the output
