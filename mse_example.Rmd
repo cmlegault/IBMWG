@@ -27,6 +27,7 @@ will want to abstract more of the set up from this as it's the same for each sim
 #dimension problem
 nbase = 2 #number of scenarios
 nsim = 2
+nprojyrs <- 40
 
 #generate seeds
 sim.seeds <- sample(1:1000000,
@@ -34,19 +35,33 @@ sim.seeds <- sample(1:1000000,
                     replace = FALSE)
 
 #set up output tibble
-mse_output <- tibble(iscen = rep(1:nbase, each = nsim),
+mse_setup <- tibble(iscen = rep(1:nbase, each = nsim),
                      isim = rep(1:nsim, times = nbase),
                      seed = sim.seeds)
 
+#function to change some part of thhe input for a given scenario
+change_element <- function(x, object="catch_cv", changeto = c(0.2, 0.1)) {
+  x[[object]] <- changeto
+  return(x)
+}
+
 #get inputs for scenarios
 input_lists <- tibble(iscen = 1:nbase) %>% 
-  mutate(input = map(1:nbase, ~get_input(.x)))
-mse_output <- mse_output %>% 
+  mutate(input = map(1:nbase, ~get_input(.x))) %>% 
+  #modify some element of the input for scenario 2
+  mutate(input = case_when(
+    iscen == 2 ~ map(input, ~change_element(., "catch_cv", c(0.2, 0.1))),
+    TRUE ~ input)) %>% 
+  I()
+
+#join scenario inputs to simulation output tibble
+mse_setup <- mse_setup %>% 
   left_join(input_lists) 
 
+
 #do the MSE for all simulations and scenarios
-future::plan(future::multiprocess)
-mse_output <- mse_output %>% 
+future::plan(future::multisession)
+system.time(mse_output <- mse_setup %>% 
 #   mutate(wham = purrr::pmap(list(seed, input),
 #                              ~do_wham_mse_sim(seed = .x,
 #                                               input = .y,
@@ -54,19 +69,18 @@ mse_output <- mse_output %>%
   mutate(wham = furrr::future_pmap(list(seed, input),
                             ~do_wham_mse_sim(seed = .x,
                                              input = .y,
-                                             nprojyrs = 40)))
+                                             nprojyrs = nprojyrs))))
 ```
 
 pull out some parts of the output
 calculate some performance metrics
 
 ```{r}
-nprojyrs <- 40
 mse_results <- mse_output %>% 
   mutate(om_ssb = map(wham,
                   ~pluck(.x$sim_data_series[[nprojyrs+1]]$SSB)),
          refpts = map(wham, "refpts"),
-         ssb_metrics = pmap(list(om_ssb, refpts), get_ssb_metrics, nprojyrs = 40))
+         ssb_metrics = pmap(list(om_ssb, refpts), get_ssb_metrics, nprojyrs = nprojyrs))
 ```
 
 `mse_results` is a tibble containing the results, and vectors of the OM SSB, and a list of SSB performance metrics (fudging using SSBlim as SSBMSY for this demo)
