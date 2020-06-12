@@ -27,12 +27,12 @@ change_M_om = function(wham_input = NULL, M_new_ratio = 3, n_ramp_years = 10, ye
 {
   #proportions at age shouldn't be affected
   if(is.null(wham_input)) stop("need wham_input")
-  if(length(new_M) != wham_input$data$n_ages) stop("new Ms supplied do not match the number of ages")
+  #if(length(new_M) != wham_input$data$n_ages) stop("new Ms supplied do not match the number of ages")
   logM = logMout = t(wham_input$par$M0 + wham_input$par$M_a + t(wham_input$par$M_re))
   ramp_ratio = seq(1, M_new_ratio, length.out = n_ramp_years)
   rampyears = wham_input$years==year_change - (n_ramp_years-1):0
-  logM_out[rampyears,] = logM_out[rampyears,] + log(ramp_ratio)
-  logM_out[wham_input$years>=year_change,] = logM_out[wham_input$years>=year_change,] + log(M_new_ratio) 
+  logMout[rampyears,] = logMout[rampyears,] + log(ramp_ratio)
+  logMout[wham_input$years>year_change,] = logMout[wham_input$years>year_change,] + log(M_new_ratio) 
   print(exp(logMout))
   Mre = logMout - logM
   #print(Mre)  
