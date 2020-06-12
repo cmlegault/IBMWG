@@ -2,16 +2,16 @@
 # modded from simnple_example2.R
 
 #get the input list for a given scenario
-get_input <- function(iscen = 1) {
+get_input <- function(iscen = 1, na = 10, nf = 2, ni = 2, LVB_pars = c(100,0.3), LW_pars = c(exp(-11),3)) {
+  #nf=2 #number of fleets (we only need 1)
+  #ni=2 #number of indices
+  #na = 10 #number of ages
   input = list()
-  na = 10 #number of ages
   input$modyears = 1970:2019 #50 years
   input$maturity = 1/(1 + exp(-1*(1:na - 5))) #maturity at age
   input$fracyr_spawn = 0.25 #when spawning occurs within annual time step
-  L = 100*(1-exp(-0.3*(1:na - 0))) #make up LVB growth
-  W = exp(-11)*L^3 #make up L-W function to give WAA
-  nf=2 #number of fleets (we only need 1)
-  ni=2 #number of indices
+  L = LVB_pars[1]*(1-exp(-LVB_pars[2]*(1:na - 0))) #make up LVB growth
+  W = LW_pars[1]*L^LW_pars[2] #make up L-W function to give WAA
   input$waa_catch = t(matrix(W, na, nf)) #WAA for each fleet
   input$waa_indices = t(matrix(W, na, ni)) #WAA for each index
   input$waa_totcatch = input$waa_ssb = input$waa_jan1 = rbind(W) #WAA for total catch, SSB, Jan 1 pop
