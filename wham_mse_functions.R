@@ -131,7 +131,7 @@ for(i in 1:nprojyrs)
   advice[[i+1]] <- catch_advice
 }
 
-  results <- list(sim_data_series = sim_data_series,
+  results <- list(sim_data_series = sim_data_series[[41]],
                   advice = advice,
                   refpts = refpts,
                   input = input_i,
