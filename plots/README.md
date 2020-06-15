@@ -1,0 +1,1 @@
+This folder will get big quickly. A subfolder system will be developed in the future to make it easier to find specific graphics.
