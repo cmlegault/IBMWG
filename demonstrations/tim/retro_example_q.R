@@ -28,7 +28,7 @@ proj.list = list(n.yrs=40, use.last.F=TRUE, use.avg.F=FALSE, use.FXSPR=FALSE,
                                               cont.ecov=TRUE, use.last.ecov=FALSE, avg.ecov.yrs=NULL, proj.ecov=NULL, cont.Mre=NULL)
 
 qratio = 1/5 #ratio of true q to observed q
-input$q = input$q*qratio #increase F during base period to get higher F, could specify this without regard to catch misreporting ratio
+input$q = input$q*qratio #decrease q during base period
 om = prepare_wham_om_input(input, recruit_model = recruit_model, selectivity=sel.list, NAA_re = NAA.list)
 om_wham = fit_wham(om, do.fit = FALSE)
 set.seed(123)
