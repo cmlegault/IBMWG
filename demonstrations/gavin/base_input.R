@@ -3,6 +3,7 @@
 # but this gets the defaults
 
 # 2020/06/25 - recruitment parameters need fixing
+# 2020/07/01 - TJM modded so BH can take steepness as input, agreed on OM vals now complete
 
 get_base_input <- function() {
   input <- list()
@@ -46,11 +47,11 @@ get_base_input <- function() {
   input$N1 <- 10000*exp(-(0:(na-1))*input$M[1]) #Initial numbers at age
   #recruit_model = 2 #random devations around mean. 3 = BH (mean_rec_pars = a,b R = aS/(1 + bS)), 4 = Ricker (mean_rec_pars = a,b)
   recruit_model = 3 #Beverton-Holt
-  input$use_steepness = 0 #don't use steepness
-  #input$use_steepness = 1 #mean_rec_pars = h,R0
+  #input$use_steepness = 0 #don't use steepness
+  input$use_steepness = 1 #mean_rec_pars = h,R0
   input$mean_rec_pars = numeric(c(0,1,2,2)[recruit_model])
-  a = 4*0.7/(0.3*25.8) #h=0.7, phi0=25.8
-  b = (a - 1/25.8)/exp(10) #R0 = exp(10)
+  a <- 0.75 #a = 4*0.7/(0.3*25.8) #h=0.7, phi0=25.8
+  b <- 10000 #b = (a - 1/25.8)/exp(10) #R0 = exp(10)
   if(recruit_model == 2) input$mean_rec_pars[] = exp(10)
   if(recruit_model == 3) input$mean_rec_pars[] = c(a, b)
   if(recruit_model == 4) input$mean_rec_pars[2] = exp(-10)
