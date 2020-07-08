@@ -3,6 +3,7 @@ Ctot = c(21408,	30425,	30470,	26264,	24837,	23577,	24598,	11231,	9028,	12914,	15
          12482,	14734,	13867,	17079,	15138,	20146,	15695,	16473,	19224,	20958,	19293,	17868,	14773,	
          12909,	14307,	15408,	17487,	16163,	17483,	15275)
 
+
 #index avg. spring / fall kg / tow for summer flounder 1982-2014
 Itot <- c(1.005, 0.5, 0.515,  1.035, 0.635,  0.33, 0.395,  0.16, 0.23, 0.26,0.475, 0.26,0.405, 0.645, 0.56, 0.765, 1.17, 
   1.335, 1.76, 1.855, 1.845, 2.175, 2.745, 1.71, 1.565, 2.81, 1.5, 1.9, 1.471, 2.147, 1.703, 1.5415, 1.693)
@@ -105,7 +106,10 @@ y$DLM_Z_yrs<-3
 y$M_CC_yrs<-3
 y$M_CC_Fmin<-0.05
 
-
+#for expanded survey; this will be a vector of 2 from WHAM; fix later
+y$q=0.00001  #made up q just for testing
+y$expand_method=1 #1 to use average of recent exploitation rates for catch advice; nothing else implemented yet
+y$expand_yrs=3 #if method=1 then number of years to average for exploitation rates.
 
 #-----------------------------------------
 
@@ -355,3 +359,16 @@ planBsmoothfxn<-function(y){
 
 planB<-planBsmoothfxn(y=y)
 
+####Expanded survey biomass
+ExpandSurvey<-function(y){
+  expanded=y$index/y$q
+  if(y$expand_method==1){
+    exploit=y$catch/expanded
+    #ifelse(exploit>1,print("Warning: Exploitation > 1"),print("Exploit OK, <1"))
+    meanexploit<-mean(exploit[(length(exploit)-(y$expand_yrs-1)):length(exploit)])
+    catch.advice=expanded[length(expanded)]*meanexploit
+  } else { print("expanded survey F method undefined") }
+  
+  return(catch.advice)
+}
+ExpandSurveyAdvice<-ExpandSurvey(y=y)
