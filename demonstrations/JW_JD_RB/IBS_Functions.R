@@ -111,6 +111,9 @@ y$q=0.00001  #made up q just for testing
 y$expand_method=1 #1 to use average of recent exploitation rates for catch advice; nothing else implemented yet
 y$expand_yrs=3 #if method=1 then number of years to average for exploitation rates.
 
+#for AIM
+y$fscalar=1
+
 #-----------------------------------------
 
 
@@ -372,3 +375,117 @@ ExpandSurvey<-function(y){
   return(catch.advice)
 }
 ExpandSurveyAdvice<-ExpandSurvey(y=y)
+
+
+####AIM; courtesy of Liz Brooks
+run.aim <- function(catch, index, I.smooth=5, F.smooth=3, center=T, F.scalar, plot=F ) {
+  #catch is a vector of total catch in biomass
+  #index is a vector of index of abundance
+  #I.smooth is number of years of index to smooth over (5 years default)
+  #F.smooth is number of years of relative F to smooth over (3 years default)
+  #center T or F to center the lags on the midpoint of smoothing interval for relative F, or lag backwards
+  #F.scalar is a constant that scales relative F to calculate catch as index[nyears]*relativeF*F.scalar
+  
+  # NOTE: assumes same number of years in catch and index vector!!   
+  
+  nyears <- length(index)
+  dc <- dim(catch)
+  if(is.null(dc)==F)  catch <- apply(catch,1,sum)
+  
+  # Calculate Replacement Ratio (rr)
+  rr= rep(NA, nyears)
+  denom=1.0
+  for (rrloop in (1+I.smooth):nyears) {
+    
+    denom= sum(index[(rrloop-I.smooth):(rrloop-1)])/I.smooth
+    rr[rrloop]=index[rrloop]/denom
+  } #end rrloop  
+  
+  
+  
+  # Calculate Relative F (ff)
+  
+  if (center==T) {
+    ff= rep(NA, nyears)
+    denom=1.0
+    ctr = trunc(F.smooth/2)
+    
+    for (floop in 1:nyears) {
+      if (floop==1  )  {
+        denom= sum(index[1:2])/2
+        ff[floop]=catch[floop]/denom
+      }
+      
+      if ((floop)>1  &  (floop+F.smooth-ctr-1)<=(nyears)  ) {
+        denom= sum(index[(floop-ctr):(floop+F.smooth-ctr-1)])/F.smooth
+        
+        ff[floop]=catch[floop]/denom
+      }
+      
+      if ((floop+F.smooth-ctr -1)>(nyears)   ) {
+        divis = length(index[(floop-ctr):nyears])
+        denom= sum(index[(floop-ctr):nyears])/divis
+        ff[floop]=catch[floop]/denom
+      }
+    } #end floop
+    
+  } #end ctr if statement
+  
+  if (center==F) {
+    ff= rep(NA, nyears)
+    denom=1.0
+    
+    for (floop in F.smooth:nyears) {
+      
+      denom= sum(index[(floop-F.smooth+1):floop])/F.smooth
+      ff[floop]=catch[floop]/denom
+      
+    } #end floop
+    
+  } #end ctr if statement
+  
+  
+  
+  ## autocorrelation in index
+  ind.ac <- acf(index, lag.max=1, plot=F)
+  
+  #cross-correlation between catch and index
+  catch.ind.ccf <- ccf(catch, index, lag.max=5, plot=F) 
+  
+  
+  #Replacement ratio regression
+  df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
+  ln.rr <- lm(R~F, data=df)
+  reg.pars <- summary(ln.rr)
+  
+  #Solve for ln(relative F) where ln(Replacement ratio) =0    
+  #fstart = log(ff[1])
+  fstart = log(ff[which(is.na(ff)==F)] [10])
+  
+  get.r.int <- function(fstart) {
+    tmp.r <- reg.pars$coefficients[1,1] +  reg.pars$coefficients[2,1]*fstart 
+    return(abs(tmp.r)  )
+  }   # end get.yield.f.min function
+  
+  repl.f <- nlminb( start=fstart , objective=get.r.int, lower=min(log(ff), na.rm=T), upper=max(log(ff), na.rm=T),
+                    control=list(eval.max=500, iter.max=200  )   )
+  
+  if (plot==T){
+    plot(log(ff), log(rr))   
+    lines(x=log(ff), y=(reg.pars$coefficients[1,1] +  reg.pars$coefficients[2,1]*log(ff)), col='red')
+    abline(h=0)
+    abline(v=0)
+    points(x=(repl.f$par), y=(reg.pars$coefficients[1,1] +  reg.pars$coefficients[2,1]*repl.f$par), pch=19, col='red')
+  } #end plot-test
+  
+  # retransform repl.f (median)
+  rel.f.soln <- exp(repl.f$par)
+  proj.catch <- F.scalar*rel.f.soln*index[nyears]
+  aim.settings <- list(F.smooth=F.smooth, I.smooth=I.smooth, center=center, nyears=nyears)
+  aim.list <- list(proj.catch=proj.catch, F.replacement=rel.f.soln, repl.ratio=rr, rel.F=ff, ccf=catch.ind.ccf, reg.pars=reg.pars, repl.f.calc=repl.f, aim.settings=aim.settings )
+  
+  return(aim.list )
+  
+} #end run.aim function
+####End AIM function
+aim<-run.aim(catch=y$catch,y$index,F.scalar=y$fscalar)
