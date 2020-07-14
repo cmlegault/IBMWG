@@ -114,6 +114,13 @@ y$expand_yrs=3 #if method=1 then number of years to average for exploitation rat
 #for AIM
 y$fscalar=1
 
+##For JJD spr
+y$nages=8
+y$mat.age=c(0,0.1,1,1,1,1,1,1)
+y$M.age=rep(0.2,y$nages)
+y$sel.age=c(0,0.1,0.2,0.5,1,1,1,1)
+y$spawn.time=1
+
 #-----------------------------------------
 
 
@@ -489,3 +496,42 @@ run.aim <- function(catch, index, I.smooth=5, F.smooth=3, center=T, F.scalar, pl
 } #end run.aim function
 ####End AIM function
 aim<-run.aim(catch=y$catch,y$index,F.scalar=y$fscalar)
+
+
+###JJD SPR from ASAPPlots
+#-------Spawners per recruit -----------------------------
+s.per.recr<-function(nages,mat.age,M.age, F.mult, sel.age, spawn.time ) {
+  
+  spr=0.0
+  cum.survive=1.0
+  z=0.0
+  for (i in 1:(nages-1)  ) {
+    z=M.age[i] + F.mult*sel.age[i]
+    z.ts=(M.age[i]+F.mult*sel.age[i])*spawn.time
+    spr=spr+cum.survive*mat.age[i]*exp(-z.ts)
+    cum.survive=cum.survive*exp(-z )
+    
+  }
+  
+  z= M.age[nages] + F.mult*sel.age[nages]
+  z.ts=(M.age[nages]+F.mult*sel.age[nages])*spawn.time
+  spr=spr + mat.age[nages]*cum.survive*exp(-z.ts)/( 1- exp(-z ) )
+  
+  return(spr)
+  
+}
+
+spr0<- s.per.recr(nages=y$nages, mat.age=y$mat.age, M.age= y$M.age, F.mult=0, sel.age=y$sel.age, spawn.time=y$spawn.time)
+F.start <-0.11  # starting guess for optimization routine to find F_SPR%
+
+  t.spr <- 0.4
+  
+  spr.f <- function(F.start) {
+    abs(s.per.recr(nages=y$nages, mat.age=y$mat.age, M.age= y$M.age, F.mult=F.start, sel.age=y$sel.age, spawn.time=y$spawn.time)/spr0 - t.spr )
+  }
+  yyy <- nlminb(start=F.start, objective=spr.f, lower=0, upper=3)
+  f.spr.vals <- yyy$par
+  
+ #test<-s.per.recr(nages=y$nages, mat.age=y$mat.age, M.age= y$M.age, F.mult=f.spr.vals, sel.age=y$sel.age, spawn.time=y$spawn.time)
+ #test/spr0
+###end SPR as done by JJD; adapted from ASAPPlots
