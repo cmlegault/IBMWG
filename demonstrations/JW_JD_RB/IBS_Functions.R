@@ -52,35 +52,65 @@ CAA <- matrix(data = c(
 #	this section should take the components of y and create a single index, a single catch, single catch at age, etc... 
 #	so that the same inputs go into the different index based methods and changes can be made once, here.
 
+load("ywham.RData")
+
 #	should create single index that is consistent for all index based methods
-seasonal_index<-rbind(y$agg_indices, y$agg_indices_proj)	#	seasonal indices as two columns.  rbind to combine base period with feedback period
-#	HOW TO COMBINE SEASONAL INDICES
-y$index<-?
+	#	combining base period and projection period into single object
+y$seasonal_index<-rbind(y$agg_indices, y$agg_indices_proj)	#	seasonal indices as two columns.  rbind to combine base period with feedback period
+#	check: HOW TO COMBINE SEASONAL INDICES ???
+#		as a place holder, took mean of fall 2019 and spring 2020
+	temp.index<-data.frame(spr=c(y$seasonal_index[,1],0),fall=c(0,y$seasonal_index[,2]))
+y$index<-rowMeans(temp.index[1:(nrow(temp.index)-1),])	#	check:Should this start at row 2?,  I had it start at row one so that the number of years stays consistent with catch even though year one only has one survey, not two with this particular method
+
 
 #	should create single catch that is consistent for all index based methods
 y$catch<-rbind(y$agg_catch, y$agg_catch_proj)	#assuming one fleet
+#	y$catch<-y$catch[,1]	#	looks like two fleets mistakenly got coded.  Simply selecting the first one
 
-#	creating abundance at age from two survey indices in simple base R
-survey_one_base<-y$agg_indices[,1]*y$index_paa[,,1]	#	base period and projections are two different objects within the list, index_paa is #D array (assuming row=yrs, col=ages, third dimension = two surveys)
-survey_two_base<-y$agg_indices[,2]*y$index_paa[,,2]
 
-survey_one_proj<-y$agg_indices_proj[,1]*y$index_paa_proj[,,1]
-survey_two_proj<-y$agg_indices_proj[,2]*y$index_paa_proj[,,2]
+obs_survey_NAA_func<-function(y){
+base_yr<-nrow(y$agg_indices)	#	yrs in base period
+proj_yr<-nrow(y$agg_indices_proj)	#	yrs in feedback period, updates every run
 
-caa_survey_one<-rbind(survey_one_base,survey_one_proj)
-caa_survey_two<-rbind(survey_two_base,survey_two_proj)
+#	base period and projections are two different objects within the list, index_paa is 3D array (first dimension is which survey)
+#	survey N = survey B/(prop at age in N * weight at age)
+survey_one_N_base<-y$agg_indices[,1]/rowSums(y$index_paa[1,,]*y$waa[y$waa_pointer_indices[1],1:base_yr,])	
+survey_two_N_base<-y$agg_indices[,2]/rowSums(y$index_paa[2,,]*y$waa[y$waa_pointer_indices[2],1:base_yr,])
+
+survey_one_N_proj<-y$agg_indices_proj[,1]/rowSums(y$index_paa_proj[1,,]*y$waa[y$waa_pointer_indices[1],(base_yr+1):sum(base_yr,proj_yr),])	#	base period and projections are two different objects within the list, index_paa is 3D array 
+survey_two_N_proj<-y$agg_indices_proj[,2]/rowSums(y$index_paa_proj[2,,]*y$waa[y$waa_pointer_indices[2],(base_yr+1):sum(base_yr,proj_yr),])
+
+#	survey NAA = survey N * proportion at age in N
+caa_survey_one_base<-survey_one_N_base*y$index_paa[1,,]
+caa_survey_two_base<-survey_two_N_base*y$index_paa[2,,]
+
+caa_survey_one_proj<-survey_one_N_proj*y$index_paa_proj[1,,]
+caa_survey_two_proj<-survey_two_N_proj*y$index_paa_proj[2,,]
+
+#	combining base period and projection
+caa_survey_one<-rbind(caa_survey_one_base,caa_survey_one_proj)
+caa_survey_two<-rbind(caa_survey_two_base,caa_survey_two_proj)
+
+caa_survey<-array(c(caa_survey_one,caa_survey_two),dim=c(nrow(caa_survey_one),ncol(caa_survey_one),2)  )
+caa_survey
+}	#	end function
+
+y$index_naa<-obs_survey_NAA_func(y)
+
 #	HOW TO COMBINE INDEX AT AGE FOR TWO DIFFERENT SEASONS
-y$CAA<?
+#	check: as a place holder to test functions simply used the spring
+y$index_naa<-y$index_naa[,,1]
 
-#	should create single natural mortality that is consistent for all index based methods
 
-y$M<-?	#y$MAA[nrow(y$MAA),]*	#	natural mortality, possiblty M weighted by biomass at age of fully selected ages
+#	check: should create single natural mortality that is consistent for all index based methods
+
+y$M<-?	#y$MAA[nrow(y$MAA),]*	#	natural mortality, possiblty mean M of mature individuals, M weighted by biomass at age of fully selected ages
 
 
 #	additional components needed in the list for each index based method, components can be changed here
 
-#	to make it functional created y list with fluke data
-y<-list(index=Itot, catch=Ctot, CAA=CAA,M=0.3, Year=yearseq)
+#	to make it functional created y list with fluke data # replaced by WHAM output 20200715
+#	y<-list(index=Itot, catch=Ctot, CAA=CAA,M=0.3, Year=yearseq)
 
 #	Islope
 y$Islope_yrsmth<-5
@@ -106,15 +136,30 @@ y$DLM_Z_yrs<-3
 y$M_CC_yrs<-3
 y$M_CC_Fmin<-0.05
 
-#for expanded survey; this will be a vector of 2 from WHAM; fix later
-y$q=0.00001  #made up q just for testing
+
+#	check
+
+#	Created a modified expanded survey function that accounts for two surveys.  
+#		It changes two things
+#	1. adds a scaler to modify the true q, we may want to add some variability to the scaler
+#	2. takes in the two surveys scales them by a q*scaler for each season
+#	2b. combines the expanded survey biomass for the two seasons into one 
+#		Currently happens in the expand function as a place holder and needs to be corrected
+#  y$q is an object from WHAM and has two values.  In Jon's original function simply selected the spring q
 y$expand_method=1 #1 to use average of recent exploitation rates for catch advice; nothing else implemented yet
 y$expand_yrs=3 #if method=1 then number of years to average for exploitation rates.
+y$expand_q_scaler<-0.5	#	proportion to scale true q can be greater than or less than one.  May want to be a bit more stocastic than simply a proportion of true (in the real world, q varies with time and space, but in the model it is constant, to be realistic may want a little variability)
+
 
 #for AIM
-y$fscalar=1
+y$AIM_fscalar = 1
+y$AIM_I_smooth=5
+y$AIM_F_smooth=3
+y$AIM_center=T
+y$AIM_Fscalar<-1
+y$AIM_plot=F
 
-##For JJD spr
+##For JJD spr	
 y$nages=8
 y$mat.age=c(0,0.1,1,1,1,1,1,1)
 y$M.age=rep(0.2,y$nages)
@@ -279,7 +324,7 @@ DLM_Z <-function(y)
   # yrs = how many years of data to use
  
 
-CAA<-	y$CAA
+CAA<-	y$index_naa		#	check, make this change
 yrs<-y$DLM_Z_yrs
 
     ny <- nrow(CAA) # total number of years in CAA matrix
@@ -328,7 +373,7 @@ M_CC = function (y)
     # Fmin is the minimum estimate of recent F to prevent very low values which causes really high target catches
   
 catch<-y$catch
-caa<-y$CAA
+CAA<-	y$index_naa
 M<-y$M
 yrs<-y$M_CC_yrs
 Fmin<-y$M_CC_Fmin
@@ -369,9 +414,9 @@ planBsmoothfxn<-function(y){
 
 planB<-planBsmoothfxn(y=y)
 
-####Expanded survey biomass
+####Expanded survey biomass	#	Jon D. original
 ExpandSurvey<-function(y){
-  expanded=y$index/y$q
+  expanded=y$index/y$q[1]		#	check:Place holder just to make function run
   if(y$expand_method==1){
     exploit=y$catch/expanded
     #ifelse(exploit>1,print("Warning: Exploitation > 1"),print("Exploit OK, <1"))
@@ -383,9 +428,37 @@ ExpandSurvey<-function(y){
 }
 ExpandSurveyAdvice<-ExpandSurvey(y=y)
 
+#------------------------
+####Expanded survey biomass		#	Bell modification
+ExpandSurvey_modified<-function(y){
+	#	modified from above
+	#	added a scaler to modify true q
+	#	expanded each survey index individually and then combined them
+	#	check:PLACE HOLDER ONLY, NEED TO DETERMINE HOW TO COMBINE SURVEYS	
+  #	expanded=y$index/y$q
+expanded_one<-y$seasonal_index[,1]/(y$q[1]*y$expand_q_scaler)
+expanded_two<-y$seasonal_index[,1]/(y$q[2]*y$expand_q_scaler)
+temp.calc<-data.frame(spr=c(expanded_one,0),fall=c(0,expanded_two))
+expanded<-rowMeans(temp.calc)[1:nrow(y$seasonal_index)]	#	assumes spring survey is available in current year
+  if(y$expand_method==1){
+    exploit=y$catch/expanded
+    #ifelse(exploit>1,print("Warning: Exploitation > 1"),print("Exploit OK, <1"))
+    meanexploit<-mean(exploit[(length(exploit)-(y$expand_yrs-1)):length(exploit)])
+    catch.advice=expanded[length(expanded)]*meanexploit
+  } else { print("expanded survey F method undefined") }
+  
+  return(catch.advice)
+}
+ExpandSurveyAdvice<-ExpandSurvey_modified(y=y)
+
+
+#------------------------
+
+
+
 
 ####AIM; courtesy of Liz Brooks
-run.aim <- function(catch, index, I.smooth=5, F.smooth=3, center=T, F.scalar, plot=F ) {
+run.aim <- function(y) {
   #catch is a vector of total catch in biomass
   #index is a vector of index of abundance
   #I.smooth is number of years of index to smooth over (5 years default)
@@ -395,6 +468,14 @@ run.aim <- function(catch, index, I.smooth=5, F.smooth=3, center=T, F.scalar, pl
   
   # NOTE: assumes same number of years in catch and index vector!!   
   
+catch<-y$catch
+index<-y$index
+I.smooth=y$AIM_I_smooth
+F.smooth=y$AIM_F_smooth
+center=y$AIM_center
+F.scalar<-y$AIM_Fscalar
+plot=y$AIM_plot
+
   nyears <- length(index)
   dc <- dim(catch)
   if(is.null(dc)==F)  catch <- apply(catch,1,sum)
@@ -495,13 +576,81 @@ run.aim <- function(catch, index, I.smooth=5, F.smooth=3, center=T, F.scalar, pl
   
 } #end run.aim function
 ####End AIM function
-aim<-run.aim(catch=y$catch,y$index,F.scalar=y$fscalar)
+
+aim<-run.aim(y)
+
+#--------------------------------------
+
+#	Alternative SPR function that uses a look up table instead of optimizing
+#	I pulled this straight from Chris L's original simulation code. 
+#	all the inputs are already part of the WHAM output. 
+#	Does not have the time of year when spawning occurs, but has everything else. 
+#	It uses one function from dplyr and that could be replaced if we want to keep it in base R
+
+library(dplyr)
+
+SPR_func<-function(y){
+# calculate F.table for use in spawner per recruit
+nsteps <- 2001
+F.table <- data.frame(Fval = double(),
+                      ypr = double(),
+                      spr = double()  )
+nages<-ncol(y$mature)
+maturityatage<-y$mature[nrow(y$mature),]	#	check: assumes using the most recent year
+M<-y$MAA[nrow(y$MAA),]		#	check: assumes we know the true M and it is not mis-specified
+#	check: which selectivity (final year?) and should we know the true value or with obs error.  This is the true value in the final year
+fisheryselectivityatage<-y$selAA[[1]][nrow(y$selAA[[1]]),]	#	number one should be the fleet selectivity
+weightsatage<-y$waa[5,nrow(y$waa[5,,]),]	#	check: I believe 5 is SSB
+ref_percentage<-y$percentSPR/100
 
 
+for (istep in 1:nsteps){
+  Fval <- (istep - 1)/1000
+  yprval <- 0.0
+  sprval <- 0.0
+  Nval <- 1.0
+  for (i in 1:nages){
+    selx <- fisheryselectivityatage[i]
+    waa <- weightsatage[i]
+    maturity <- maturityatage[i]
+    Zval <- Fval * selx  + M[i]
+    yprval <- yprval + Nval * waa * Fval * selx * (1 - exp(-Zval)) / Zval
+    sprval <- sprval + Nval * waa * maturity
+    Nval <- Nval * exp(-Zval)
+  }
+  selx <- fisheryselectivityatage[nages]
+  waa <- weightsatage[nages]
+  maturity <- maturityatage[nages]
+  Nval <- Nval / (1 - exp(-(Fval * selx + M[nages])))
+  yprval <- yprval + Nval * waa * Fval * selx * (1 - exp(-Zval)) / Zval
+  sprval <- sprval + Nval * waa * maturity
+  F.row <- data.frame(Fval = Fval,
+                      ypr = yprval,
+                      spr = sprval)
+  F.table <- rbind(F.table, F.row)
+}
+#	F.table
+spr0 <- filter(F.table, Fval == 0)$spr 
+select.row<-which.min(abs(F.table$spr-spr0*ref_percentage))
+F.table[select.row,]	#	check: likely just output the fishing mortality, Fval
+}	#	end function
+
+SPR_func(y)
+
+
+#----------------------------------
 ###JJD SPR from ASAPPlots
 #-------Spawners per recruit -----------------------------
-s.per.recr<-function(nages,mat.age,M.age, F.mult, sel.age, spawn.time ) {
-  
+s.per.recr<-function(y) {
+  #	nages,mat.age,M.age, F.mult, sel.age, spawn.time 
+nages<-ncol(y$mature)
+mat.age<-y$mature[nrow(y$mature),]	#	check: assumes using the most recent year
+M.age<-y$MAA[nrow(y$MAA),]		#	check: assumes we know the true M and it is not mis-specified
+F.mult<-y$spr_F_mult
+#	check: which selectivity (final year?) and should we know the true value or with obs error.  This is the true value in the final year
+sel.age<-y$selAA[[1]][nrow(y$selAA[[1]]),]	#	number one should be the fishery selectivity
+spawn.time<-y$spr_spawn_time
+
   spr=0.0
   cum.survive=1.0
   z=0.0
@@ -535,3 +684,5 @@ F.start <-0.11  # starting guess for optimization routine to find F_SPR%
  #test<-s.per.recr(nages=y$nages, mat.age=y$mat.age, M.age= y$M.age, F.mult=f.spr.vals, sel.age=y$sel.age, spawn.time=y$spawn.time)
  #test/spr0
 ###end SPR as done by JJD; adapted from ASAPPlots
+
+
