@@ -27,3 +27,8 @@ A collection of links to papers broken into separate groups with short synopsis 
 * [Szuwalski](https://doi.org/10.1093/icesjms/fsx159) et al. 2018 conducts three by three experiment where M, growth, and selectivity cause or fix retrospective patterns and shows management advice can be wrong when incorrect source used as fix
 * [Wiedenmann and Jensen](https://doi.org/10.1139/cjfas-2016-0484) 2018 shows that catch below quota results in F above target F in many New England groundfish stocks due to retrospective pattern
 * [Wiedenmann and Jensen](https://doi.org/10.1139/cjfas-2018-0129) 2019 demonstrates that rho-adjustment alone insufficient to end overfishing for New England groundfish stocks, changes to harvest control rule also needed
+
+### Autocorrelated Recruitment
+* [Hawkshaw and Walters](https://doi.org/10.1139/cjfas-2014-0212) 2015 concluded that correlation in that parameter shifted the optimal policy away from fixed escapement toward fixed exploitation using a Ricker curve with AR1 deviations for salmon populations
+* [Walters and Parma](https://doi.org/10.1139/f95-151) 1996 concluded that correlation in that parameter shifted the optimal policy away from fixed escapement toward fixed exploitation using autocorrelated changes in asymptote parameter of Bev-Holt curve for salmon populations
+* [Wiedenmann et al.](https://doi.org/10.1139/cjfas-2016-0381) 2017 looked at autocorrelation in recruitment (0 or 0.44 which was the mean from the Thorson et al. RAM meta-analysis), and didn't find much of an effect on long term performance for a given control rule
