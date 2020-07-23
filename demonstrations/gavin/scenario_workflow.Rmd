@@ -77,61 +77,42 @@ mse_setup
 ```
 
 
+## run the MSE
 
-## wham example 
-
-from simple_example_2.R
-`get_input()` gets the input list for a given scenario
-
-`do_wham_mse_sim()` runs a given simulation
-will want to abstract more of the set up from this as it's the same for each simulation
-
-
-## Set up some scenarios, dimensions, and run the MSE
+### add rows for each realization for each scenario
+could possibly hardwire the seeds somehow
 
 ```{r}
 #dimension problem
-nbase = 2 #number of scenarios
-nsim = 5
+nbase <- nrow(mse_setup) #number of scenarios
+nsim <- 5
 nprojyrs <- 40
 
 #generate seeds
-sim.seeds <- sample(1:1000000,
-                    nbase*nsim,
-                    replace = FALSE)
+sim_seeds <- tibble(isim = 1:nsim,
+                  seed = sample(1:1000000,
+                                nsim,
+                                replace = FALSE))
 
-#set up output tibble
-mse_setup <- tibble(iscen = rep(1:nbase, each = nsim),
-                     isim = rep(1:nsim, times = nbase),
-                     seed = sim.seeds)
-
-#function to change some part of thhe input for a given scenario
-change_element <- function(x, object="catch_cv", changeto = c(0.2, 0.1)) {
-  x[[object]] <- changeto
-  return(x)
-}
-
-#get inputs for scenarios
-input_lists <- tibble(iscen = 1:nbase) %>% 
-  mutate(input = map(1:nbase, ~get_input(.x))) %>% 
-  #modify some element of the input for scenario 2
-  mutate(input = case_when(
-    iscen == 2 ~ map(input, ~change_element(., "catch_cv", c(0.2, 0.1))),
-    TRUE ~ input)) %>% 
+#set up output tibble for each simulation
+mse_sim_setup <- mse_setup %>% 
+  mutate(sim_seeds = map(seq_len(nrow(.)),~I(sim_seeds))) %>% 
+  unnest(cols = sim_seeds) %>% 
   I()
-
-#join scenario inputs to simulation output tibble
-mse_setup <- mse_setup %>% 
-  left_join(input_lists) 
+mse_sim_setup
+```  
 
 
+### run the MSE over each row of the mse_sim_setup
+
+```{r}
 #do the MSE for all simulations and scenarios
 future::plan(future::multisession)
-system.time(mse_output <- mse_setup %>% 
+system.time(mse_output <- mse_sim_setup %>% 
 #   mutate(wham = purrr::pmap(list(seed, input),
 #                              ~do_wham_mse_sim(seed = .x,
 #                                               input = .y,
-#                                               nprojyrs = 40)))
+#                                               nprojyrs = nprojyrs)))
   mutate(wham = furrr::future_pmap(list(seed, input),
                             ~do_wham_mse_sim(seed = .x,
                                              input = .y,
