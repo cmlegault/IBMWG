@@ -32,3 +32,8 @@ A collection of links to papers broken into separate groups with short synopsis 
 * [Hawkshaw and Walters](https://doi.org/10.1139/cjfas-2014-0212) 2015 concluded that correlation in that parameter shifted the optimal policy away from fixed escapement toward fixed exploitation using a Ricker curve with AR1 deviations for salmon populations
 * [Walters and Parma](https://doi.org/10.1139/f95-151) 1996 concluded that correlation in that parameter shifted the optimal policy away from fixed escapement toward fixed exploitation using autocorrelated changes in asymptote parameter of Bev-Holt curve for salmon populations
 * [Wiedenmann et al.](https://doi.org/10.1139/cjfas-2016-0381) 2017 looked at autocorrelation in recruitment (0 or 0.44 which was the mean from the Thorson et al. RAM meta-analysis), and didn't find much of an effect on long term performance for a given control rule
+
+### Programming Practices
+* [Wilson et al.](https://doi.org/10.1371/journal.pbio.1001745) 2014 Best practices for scientific computing, short overview for large groups working with professionally trained computer programmers
+* [Wilson et al.](https://doi.org/10.1371/journal.pcbi.1005510) 2017 Good enough practices in scientific computing, a pragmatic approach to programming practices for small groups and self-taught programmers
+
