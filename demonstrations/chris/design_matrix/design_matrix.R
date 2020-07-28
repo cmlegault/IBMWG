@@ -70,3 +70,4 @@ oneoffs <- c("StockType = Pelagic-ish",
              "Use wrong M when M changes",
              "Use wrong survey q when survey q changes",
              "Reference point calculations")
+length(oneoffs)
