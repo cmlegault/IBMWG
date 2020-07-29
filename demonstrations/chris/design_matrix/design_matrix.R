@@ -15,7 +15,6 @@ retrosource <- c("Missing Catch",
                  "Selectivity Changes") 
 
 fhistory <- c("always overfishing", 
-              "under then overfishing", 
               "overfishing then fmsy")
 
 fisheryselectivity <- c("Constant", 
@@ -34,7 +33,8 @@ ibms <- c("Islope",
           "ExpandSurvey", 
           "ExpandSurvey_modified", 
           "AIM", 
-          "SPR_func", 
+          "SPR_func",
+          "JoeDLM",
           "Ensemble")
 
 catchmultiplier <- c(1.00, 
@@ -61,6 +61,7 @@ oneoffs <- c("StockType = Pelagic-ish",
              "RetroSource = Multiple Factors (TBD)",
              "RetroSource = big cohort",
              "Fhistory = always underfished",
+             "Fhistory = under then overfishing",
              "FisherySelectivity = domed",
              "All selectivities domed",
              "AutoCorrR = FALSE",
