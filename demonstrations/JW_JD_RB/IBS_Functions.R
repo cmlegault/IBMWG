@@ -1,64 +1,13 @@
-# catch in wt (mt) for summer flounder 1982-2014
-Ctot = c(21408,	30425,	30470,	26264,	24837,	23577,	24598,	11231,	9028,	12914,	15985,	13347,	15016,	
-         12482,	14734,	13867,	17079,	15138,	20146,	15695,	16473,	19224,	20958,	19293,	17868,	14773,	
-         12909,	14307,	15408,	17487,	16163,	17483,	15275)
-
-
-#index avg. spring / fall kg / tow for summer flounder 1982-2014
-Itot <- c(1.005, 0.5, 0.515,  1.035, 0.635,  0.33, 0.395,  0.16, 0.23, 0.26,0.475, 0.26,0.405, 0.645, 0.56, 0.765, 1.17, 
-  1.335, 1.76, 1.855, 1.845, 2.175, 2.745, 1.71, 1.565, 2.81, 1.5, 1.9, 1.471, 2.147, 1.703, 1.5415, 1.693)
-
-years <- length(Ctot)
-yearseq<-seq(1982,2014,1)
-# numerical catch at age for summer flounder 1982-2014
-CAA <- matrix(data = c(
-5344,	19423,	10149,	935,	328,	117,	66,	26,
-4925,	28441,	10911,	2181,	693,	323,	16,	36,
-4802,	26582,	15454,	3180,	829,	94,	5, 5,
-2078,	14623,	17979,	1767,	496,	252,	30,	5,
-1943,	17141,	11056,	3783,	316,	140,	58,	8,
-1138,	17214,	10840,	1649,	544,	25,	29,	27,
-789,	20440,	14528,	2138,	642,	121,	19,	15,
-1080,	4213,	7754,	1713,	357,	55,	9,	3,
-1458,	8497,	2217,	1011,	221,	31,	7,	2,
-449,	9382,	7162,	742,	217,	32,	3,	1,
-3043,	15085,	6507,	1143,	151,	69,	2,	1,
-952,	11924,	6118,	585,	74,	46,	19,	2,
-1922,	12503,	7697,	968,	209,	28,	13,	0,
-2119,	5914,	7563,	1245,	401,	78,	5,	1,
-281,	7286,	9889,	1914,	481,	94,	18,	3,
-66,	2669,	8519,	3305,	592,	172,	11,	4,
-101,	2346,	6667,	5333,	1035,	158,	31,	3,
-189,	2255,	6440,	4206,	1228,	358,	55,	11,
-13,	1674,	8741,	4895,	1598,	382,	83,	19,
-38,	3109,	4826,	3690,	1255,	356,	118,	28,
-176,	1934,	5773,	3924,	1317,	316,	144,	18,
-56,	2142,	5415,	4206,	1631,	588,	250,	74,
-130,	1238,	6356,	5023,	2046,	840,	346,	130,
-273,	2070,	4234,	4454,	2409,	1186,	591,	304,
-164,	1127,	5705,	3465,	1948,	950,	435,	149,
-125,	1040,	2392,	4833,	1902,	810,	386,	154,
-159,	1170,	1497,	1992,	2734,	1143,	515,	219,
-236,	1272,	2071,	2611,	2237,	1455,	468,	183,
-161,	1401,	2224,	2989,	2682,	1232,	611,	213,
-112,	720,	2045,	3464,	3328,	1674,	638,	359,
-111,	522,	1916,	3539,	2733,	1264,	573,	304,
-76,	322,	1219,	3030,	3288,	1196,	499,	211,
-136,	705,	1692,	2226,	2768,	1575,	443,	178),nrow = years,ncol=8,byrow=TRUE)
-
-#-----------------------------------------
-
 #	output of WHAM model is a large list named 'y'
 #	this section should take the components of y and create a single index, a single catch, single catch at age, etc... 
 #	so that the same inputs go into the different index based methods and changes can be made once, here.
 
-load("ywham.RData")
+load("ywham_oneflt.RData")
 
 #	should create single index that is consistent for all index based methods
 	#	combining base period and projection period into single object
 y$seasonal_index<-rbind(y$agg_indices, y$agg_indices_proj)	#	seasonal indices as two columns.  rbind to combine base period with feedback period
-#	check: HOW TO COMBINE SEASONAL INDICES ???
-#		as a place holder, took mean of fall 2019 and spring 2020
+#took mean of fall 2019 and spring 2020 as agreed on July 2 meeting
 	temp.index<-data.frame(spr=c(y$seasonal_index[,1],0),fall=c(0,y$seasonal_index[,2]))
 y$index<-rowMeans(temp.index[1:(nrow(temp.index)-1),])	#	check:Should this start at row 2?,  I had it start at row one so that the number of years stays consistent with catch even though year one only has one survey, not two with this particular method
 
@@ -101,16 +50,11 @@ y$index_naa<-obs_survey_NAA_func(y)
 #	check: as a place holder to test functions simply used the spring
 y$index_naa<-y$index_naa[,,1]
 
-
 #	check: should create single natural mortality that is consistent for all index based methods
-
 y$M<-?	#y$MAA[nrow(y$MAA),]*	#	natural mortality, possiblty mean M of mature individuals, M weighted by biomass at age of fully selected ages
 
 
 #	additional components needed in the list for each index based method, components can be changed here
-
-#	to make it functional created y list with fluke data # replaced by WHAM output 20200715
-#	y<-list(index=Itot, catch=Ctot, CAA=CAA,M=0.3, Year=yearseq)
 
 #	Islope
 y$Islope_yrsmth<-5
@@ -146,9 +90,9 @@ y$M_CC_Fmin<-0.05
 #	2b. combines the expanded survey biomass for the two seasons into one 
 #		Currently happens in the expand function as a place holder and needs to be corrected
 #  y$q is an object from WHAM and has two values.  In Jon's original function simply selected the spring q
-y$expand_method=1 #1 to use average of recent exploitation rates for catch advice; nothing else implemented yet
+y$expand_method=2 #1 to use average of recent exploitation rates for catch advice; 2 for spr based (e.g., F40%)
 y$expand_yrs=3 #if method=1 then number of years to average for exploitation rates.
-y$expand_q_scaler<-0.5	#	proportion to scale true q can be greater than or less than one.  May want to be a bit more stocastic than simply a proportion of true (in the real world, q varies with time and space, but in the model it is constant, to be realistic may want a little variability)
+y$expand_q_scaler<-0.5	#	proportion to scale true q can be greater than or less than one.  
 
 
 #for AIM
@@ -158,13 +102,6 @@ y$AIM_F_smooth=3
 y$AIM_center=T
 y$AIM_Fscalar<-1
 y$AIM_plot=F
-
-##For JJD spr	
-y$nages=8
-y$mat.age=c(0,0.1,1,1,1,1,1,1)
-y$M.age=rep(0.2,y$nages)
-y$sel.age=c(0,0.1,0.2,0.5,1,1,1,1)
-y$spawn.time=1
 
 #-----------------------------------------
 
@@ -311,9 +248,6 @@ true_Skate_CR(y)
 
 
 #--------------------
-
-
-
 # this is a modfication of the way DLMtool calculates Z from catch at age data
 # it returns Z estimate only and not a target catch.  
 # The M_CC function returns a target catch by calling this function
@@ -445,7 +379,20 @@ expanded<-rowMeans(temp.calc)[1:nrow(y$seasonal_index)]	#	assumes spring survey 
     #ifelse(exploit>1,print("Warning: Exploitation > 1"),print("Exploit OK, <1"))
     meanexploit<-mean(exploit[(length(exploit)-(y$expand_yrs-1)):length(exploit)])
     catch.advice=expanded[length(expanded)]*meanexploit
-  } else { print("expanded survey F method undefined") }
+  } 
+  if(y$expand_method==2) {
+    spr0<- s.per.recr(y=y,F.mult=0,spawn.time=y$fracyr_SSB[length(y$fracyr_SSB)])
+    F.start <-0.11  # starting guess for optimization routine to find F_SPR%
+    t.spr <- y$percentSPR/100
+    spr.f <- function(F.start) {
+      abs(s.per.recr(y=y,F.mult=F.start, spawn.time=y$fracyr_SSB[length(y$fracyr_SSB)])/spr0 - t.spr )
+    }
+    yyy <- nlminb(start=F.start, objective=spr.f, lower=0, upper=3)
+    f.spr.vals <- yyy$par #Fx%
+    Z<-mean(y$MAA[nrow(y$MAA),])+f.spr.vals #check; I took a mean across ages, but we agreed age invariant M; shouldn't be a problem
+    mu<-(f.spr.vals/Z)*(1-exp(-Z))
+    catch.advice=expanded[length(expanded)]*mu
+    }
   
   return(catch.advice)
 }
@@ -453,10 +400,6 @@ ExpandSurveyAdvice<-ExpandSurvey_modified(y=y)
 
 
 #------------------------
-
-
-
-
 ####AIM; courtesy of Liz Brooks
 run.aim <- function(y) {
   #catch is a vector of total catch in biomass
@@ -641,15 +584,14 @@ SPR_func(y)
 #----------------------------------
 ###JJD SPR from ASAPPlots
 #-------Spawners per recruit -----------------------------
-s.per.recr<-function(y) {
+s.per.recr<-function(y,F.mult=NULL,spawn.time=NULL) {
   #	nages,mat.age,M.age, F.mult, sel.age, spawn.time 
 nages<-ncol(y$mature)
 mat.age<-y$mature[nrow(y$mature),]	#	check: assumes using the most recent year
 M.age<-y$MAA[nrow(y$MAA),]		#	check: assumes we know the true M and it is not mis-specified
-F.mult<-y$spr_F_mult
+
 #	check: which selectivity (final year?) and should we know the true value or with obs error.  This is the true value in the final year
 sel.age<-y$selAA[[1]][nrow(y$selAA[[1]]),]	#	number one should be the fishery selectivity
-spawn.time<-y$spr_spawn_time
 
   spr=0.0
   cum.survive=1.0
@@ -669,20 +611,7 @@ spawn.time<-y$spr_spawn_time
   return(spr)
   
 }
-
-spr0<- s.per.recr(nages=y$nages, mat.age=y$mat.age, M.age= y$M.age, F.mult=0, sel.age=y$sel.age, spawn.time=y$spawn.time)
-F.start <-0.11  # starting guess for optimization routine to find F_SPR%
-
-  t.spr <- 0.4
-  
-  spr.f <- function(F.start) {
-    abs(s.per.recr(nages=y$nages, mat.age=y$mat.age, M.age= y$M.age, F.mult=F.start, sel.age=y$sel.age, spawn.time=y$spawn.time)/spr0 - t.spr )
-  }
-  yyy <- nlminb(start=F.start, objective=spr.f, lower=0, upper=3)
-  f.spr.vals <- yyy$par
-  
- #test<-s.per.recr(nages=y$nages, mat.age=y$mat.age, M.age= y$M.age, F.mult=f.spr.vals, sel.age=y$sel.age, spawn.time=y$spawn.time)
- #test/spr0
+ 
 ###end SPR as done by JJD; adapted from ASAPPlots
 
 
