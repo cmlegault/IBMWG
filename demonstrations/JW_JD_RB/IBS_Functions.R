@@ -1,64 +1,20 @@
-# catch in wt (mt) for summer flounder 1982-2014
-Ctot = c(21408,	30425,	30470,	26264,	24837,	23577,	24598,	11231,	9028,	12914,	15985,	13347,	15016,	
-         12482,	14734,	13867,	17079,	15138,	20146,	15695,	16473,	19224,	20958,	19293,	17868,	14773,	
-         12909,	14307,	15408,	17487,	16163,	17483,	15275)
-
-
-#index avg. spring / fall kg / tow for summer flounder 1982-2014
-Itot <- c(1.005, 0.5, 0.515,  1.035, 0.635,  0.33, 0.395,  0.16, 0.23, 0.26,0.475, 0.26,0.405, 0.645, 0.56, 0.765, 1.17, 
-  1.335, 1.76, 1.855, 1.845, 2.175, 2.745, 1.71, 1.565, 2.81, 1.5, 1.9, 1.471, 2.147, 1.703, 1.5415, 1.693)
-
-years <- length(Ctot)
-yearseq<-seq(1982,2014,1)
-# numerical catch at age for summer flounder 1982-2014
-CAA <- matrix(data = c(
-5344,	19423,	10149,	935,	328,	117,	66,	26,
-4925,	28441,	10911,	2181,	693,	323,	16,	36,
-4802,	26582,	15454,	3180,	829,	94,	5, 5,
-2078,	14623,	17979,	1767,	496,	252,	30,	5,
-1943,	17141,	11056,	3783,	316,	140,	58,	8,
-1138,	17214,	10840,	1649,	544,	25,	29,	27,
-789,	20440,	14528,	2138,	642,	121,	19,	15,
-1080,	4213,	7754,	1713,	357,	55,	9,	3,
-1458,	8497,	2217,	1011,	221,	31,	7,	2,
-449,	9382,	7162,	742,	217,	32,	3,	1,
-3043,	15085,	6507,	1143,	151,	69,	2,	1,
-952,	11924,	6118,	585,	74,	46,	19,	2,
-1922,	12503,	7697,	968,	209,	28,	13,	0,
-2119,	5914,	7563,	1245,	401,	78,	5,	1,
-281,	7286,	9889,	1914,	481,	94,	18,	3,
-66,	2669,	8519,	3305,	592,	172,	11,	4,
-101,	2346,	6667,	5333,	1035,	158,	31,	3,
-189,	2255,	6440,	4206,	1228,	358,	55,	11,
-13,	1674,	8741,	4895,	1598,	382,	83,	19,
-38,	3109,	4826,	3690,	1255,	356,	118,	28,
-176,	1934,	5773,	3924,	1317,	316,	144,	18,
-56,	2142,	5415,	4206,	1631,	588,	250,	74,
-130,	1238,	6356,	5023,	2046,	840,	346,	130,
-273,	2070,	4234,	4454,	2409,	1186,	591,	304,
-164,	1127,	5705,	3465,	1948,	950,	435,	149,
-125,	1040,	2392,	4833,	1902,	810,	386,	154,
-159,	1170,	1497,	1992,	2734,	1143,	515,	219,
-236,	1272,	2071,	2611,	2237,	1455,	468,	183,
-161,	1401,	2224,	2989,	2682,	1232,	611,	213,
-112,	720,	2045,	3464,	3328,	1674,	638,	359,
-111,	522,	1916,	3539,	2733,	1264,	573,	304,
-76,	322,	1219,	3030,	3288,	1196,	499,	211,
-136,	705,	1692,	2226,	2768,	1575,	443,	178),nrow = years,ncol=8,byrow=TRUE)
-
-#-----------------------------------------
-
 #	output of WHAM model is a large list named 'y'
 #	this section should take the components of y and create a single index, a single catch, single catch at age, etc... 
 #	so that the same inputs go into the different index based methods and changes can be made once, here.
 
-load("ywham.RData")
+load("ywham_oneflt.RData")
+
+#	create list for output of index based methods
+#	The first component for each method will be the catch, all other components from that method will be subsequent in a list
+index_methods_output<-vector('list',9)
+#	Skate_CR will likely be renamed Itarget (John W.)
+names(index_methods_output)<-c('Islope','Skate_CR','true_Skate_CR','M_CC','planBsmooth','ExpandSurvey_modified_low','ExpandSurvey_modified_high','run.aim','joe.langan')
+
 
 #	should create single index that is consistent for all index based methods
 	#	combining base period and projection period into single object
 y$seasonal_index<-rbind(y$agg_indices, y$agg_indices_proj)	#	seasonal indices as two columns.  rbind to combine base period with feedback period
-#	check: HOW TO COMBINE SEASONAL INDICES ???
-#		as a place holder, took mean of fall 2019 and spring 2020
+#took mean of fall 2019 and spring 2020 as agreed on July 2 meeting
 	temp.index<-data.frame(spr=c(y$seasonal_index[,1],0),fall=c(0,y$seasonal_index[,2]))
 y$index<-rowMeans(temp.index[1:(nrow(temp.index)-1),])	#	check:Should this start at row 2?,  I had it start at row one so that the number of years stays consistent with catch even though year one only has one survey, not two with this particular method
 
@@ -101,16 +57,13 @@ y$index_naa<-obs_survey_NAA_func(y)
 #	check: as a place holder to test functions simply used the spring
 y$index_naa<-y$index_naa[,,1]
 
-
 #	check: should create single natural mortality that is consistent for all index based methods
-
-y$M<-?	#y$MAA[nrow(y$MAA),]*	#	natural mortality, possiblty mean M of mature individuals, M weighted by biomass at age of fully selected ages
+y$M<-mean(y$MAA[1,])	#	Plan is for natural mortality to be constant with age, but possibly exhibit a ramp at some point in time series.
+				#	WHAM output enables age specific and year specific natural mortality
+				#	plan is to simply take M in year one of the base period, M prior to the ramp and average across years, but all the years should be the same. 
 
 
 #	additional components needed in the list for each index based method, components can be changed here
-
-#	to make it functional created y list with fluke data # replaced by WHAM output 20200715
-#	y<-list(index=Itot, catch=Ctot, CAA=CAA,M=0.3, Year=yearseq)
 
 #	Islope
 y$Islope_yrsmth<-5
@@ -146,9 +99,10 @@ y$M_CC_Fmin<-0.05
 #	2b. combines the expanded survey biomass for the two seasons into one 
 #		Currently happens in the expand function as a place holder and needs to be corrected
 #  y$q is an object from WHAM and has two values.  In Jon's original function simply selected the spring q
-y$expand_method=1 #1 to use average of recent exploitation rates for catch advice; nothing else implemented yet
+y$expand_method=2 #1 to use average of recent exploitation rates for catch advice; 2 for spr based (e.g., F40%)
 y$expand_yrs=3 #if method=1 then number of years to average for exploitation rates.
-y$expand_q_scaler<-0.5	#	proportion to scale true q can be greater than or less than one.  May want to be a bit more stocastic than simply a proportion of true (in the real world, q varies with time and space, but in the model it is constant, to be realistic may want a little variability)
+y$expand_q_scaler_low<-0.5	#	proportion to scale true q can be greater than or less than one.  
+y$expand_q_scaler_high<-1.5	#	proportion to scale true q can be greater than or less than one.  
 
 
 #for AIM
@@ -158,13 +112,6 @@ y$AIM_F_smooth=3
 y$AIM_center=T
 y$AIM_Fscalar<-1
 y$AIM_plot=F
-
-##For JJD spr	
-y$nages=8
-y$mat.age=c(0,0.1,1,1,1,1,1,1)
-y$M.age=rep(0.2,y$nages)
-y$sel.age=c(0,0.1,0.2,0.5,1,1,1,1)
-y$spawn.time=1
 
 #-----------------------------------------
 
@@ -222,7 +169,7 @@ cap<-y$Islope_cap
 }
 
 # default run
-Islope(y)
+index_methods_output$Islope<-Islope(y)
 
 # use a slightly more conservative option
 y$Islope_version<-2	#	ranges 1:4
@@ -244,7 +191,7 @@ Skate_CR <- function(y)
   # w is a parameter (0-1) that determines how quickly catch declines between I.target and I.threshold 
   
 index<-y$index
-catch<-y$catch
+Ctot<-y$catch
 ref_yrs<-y$Skate_CR_ref_yrs
 yrsmth<-y$Skate_CR_yrsmth
 cmult<-y$Skate_CR_cmult
@@ -276,7 +223,7 @@ w<-y$Skate_CR_w
   return(C.targ)
 }
 
-Skate_CR(y)
+index_methods_output$Skate_CR<-Skate_CR(y)
 
 #---------------------------
 #	interpretation of the skate control rule from the skate spreadsheet
@@ -306,53 +253,75 @@ percent<-y$true_Skate_CR_percent		#	proportion of output assuming it is an ABC t
   return(abc)
 }
 
-true_Skate_CR(y)
+index_methods_output$true_Skate_CR<-true_Skate_CR(y)
 
 
 
 #--------------------
-
-
-
 # this is a modfication of the way DLMtool calculates Z from catch at age data
 # it returns Z estimate only and not a target catch.  
 # The M_CC function returns a target catch by calling this function
 
 DLM_Z <-function(y) 
 {
+#	method takes abundance at age from each survey calculates catch curve and then takes the mean of the coef.
   # caa = numerical catch at age in matrix form (rows=years,cols = ages)
   # yrs = how many years of data to use
  
 
-CAA<-	y$index_naa		#	check, make this change
+CAA_one<-	y$index_naa[,,1]		#	check, make this change
+CAA_two<-	y$index_naa[,,2]		#	check, make this change
 yrs<-y$DLM_Z_yrs
 
-    ny <- nrow(CAA) # total number of years in CAA matrix
-    use.rows<-(ny-yrs+1):ny
-    Csum <- apply(CAA[use.rows, ], 2, sum,na.rm=TRUE) # sum up by column
+    ny_one <- nrow(CAA_one) # total number of years in CAA matrix
+    ny_two <- nrow(CAA_two) # total number of years in CAA matrix
+    use.rows_one<-(ny_one-yrs+1):ny_one
+    use.rows_two<-(ny_two-yrs+1):ny_two
+    Csum_one <- apply(CAA_one[use.rows_one, ], 2, sum,na.rm=TRUE) # sum up by column
+    Csum_two <- apply(CAA_two[use.rows_two, ], 2, sum,na.rm=TRUE) # sum up by column
     
-    maxage <- length(Csum) # max. age
-    AFS <- which.max(Csum)  # age at full selection
-    AFS[AFS > (maxage - 3)] <- maxage - 3 # need at least 3 ages to do the regression
+    maxage_one <- length(Csum_one) # max. age
+    maxage_two <- length(Csum_two) # max. age
+    AFS_one <- which.max(Csum_one)  # age at full selection
+    AFS_two <- which.max(Csum_two)  # age at full selection
+    AFS_one[AFS_one > (maxage_one - 3)] <- maxage_one - 3 # need at least 3 ages to do the regression
+    AFS_two[AFS_two > (maxage_two - 3)] <- maxage_two - 3 # need at least 3 ages to do the regression
     
-    y <- log(Csum[AFS:maxage]/sum(Csum[AFS:maxage], na.rm = T))
-    xc <- 1:length(y)
-    y[y == "-Inf"] <- NA
-    mod <<- lm(y ~ xc)
+    y_one <- log(Csum_one[AFS_one:maxage_one]/sum(Csum_one[AFS_one:maxage_one], na.rm = T))
+    y_two <- log(Csum_two[AFS_two:maxage_two]/sum(Csum_two[AFS_two:maxage_two], na.rm = T))
+    xc_one <- 1:length(y_one)
+    xc_two <- 1:length(y_two)
+    y_one[y_one == "-Inf"] <- NA
+    y_two[y_two == "-Inf"] <- NA
+    mod_one <<- lm(y_one ~ xc_one)
+    mod_two <<- lm(y_two ~ xc_two)
     #print(summary(mod))
-    chk <- sum(is.na(coef(mod)))
-    if(chk) 
+    chk_one <- sum(is.na(coef(mod_one)))
+    chk_two <- sum(is.na(coef(mod_two)))
+    if(chk_one) 
     {
        return(NA)
      }
     else 
     {
-       coefs <- summary(mod, weights = Csum[AFS:maxage])$coefficients[2,1:2]
+       coefs_one <- summary(mod_one, weights = Csum_one[AFS_one:maxage_one])$coefficients[2,1:2]
        #print(coefs)
-       coefs[is.nan(coefs)] <- NA
-       names(coefs) <- NULL
-       return(-coefs[1])
+       coefs_one[is.nan(coefs_one)] <- NA
+       names(coefs_one) <- NULL
     }
+    if(chk_two) 
+    {
+       return(NA)
+     }
+    else 
+    {
+       coefs_two <- summary(mod_two, weights = Csum_two[AFS_two:maxage_two])$coefficients[2,1:2]
+       #print(coefs)
+       coefs_two[is.nan(coefs_two)] <- NA
+       names(coefs_two) <- NULL
+    }
+mean_coef<-mean(c(-coefs_one[1],-coefs_two[1]))
+return(mean_coef)
 } # end DLM_Z function
 
 # default
@@ -373,7 +342,7 @@ M_CC = function (y)
     # Fmin is the minimum estimate of recent F to prevent very low values which causes really high target catches
   
 catch<-y$catch
-CAA<-	y$index_naa
+#	CAA<-	y$index_naa	#	 not needed because the y list gets passed to DLM_Z function to compute catch curve
 M<-y$M
 yrs<-y$M_CC_yrs
 Fmin<-y$M_CC_Fmin
@@ -392,13 +361,7 @@ Fmin<-y$M_CC_Fmin
     return(C.targ)
 }
 
-# assuming M = 0.25
-y$M<-0.25
-M_CC(y)
-
-# changing M = 0.15
-y$M<-0.15
-M_CC(y)
+index_methods_output$M_CC<-M_CC(y)
 
 
 ####plan B smooth
@@ -412,7 +375,7 @@ planBsmoothfxn<-function(y){
   return(list("multiplier"=planBsmooth$multiplier,"planBsmoothall"=planBsmooth))
 }
 
-planB<-planBsmoothfxn(y=y)
+index_methods_output$planBsmooth<-planBsmoothfxn(y=y)
 
 ####Expanded survey biomass	#	Jon D. original
 ExpandSurvey<-function(y){
@@ -430,14 +393,15 @@ ExpandSurveyAdvice<-ExpandSurvey(y=y)
 
 #------------------------
 ####Expanded survey biomass		#	Bell modification
-ExpandSurvey_modified<-function(y){
+ExpandSurvey_modified_low<-function(y){
 	#	modified from above
 	#	added a scaler to modify true q
 	#	expanded each survey index individually and then combined them
 	#	check:PLACE HOLDER ONLY, NEED TO DETERMINE HOW TO COMBINE SURVEYS	
+	#	currently takes the mean of spring survey at time T and fall survey at time T-1
   #	expanded=y$index/y$q
-expanded_one<-y$seasonal_index[,1]/(y$q[1]*y$expand_q_scaler)
-expanded_two<-y$seasonal_index[,1]/(y$q[2]*y$expand_q_scaler)
+expanded_one<-y$seasonal_index[,1]/(y$q[1]*y$expand_q_scaler_low)
+expanded_two<-y$seasonal_index[,1]/(y$q[2]*y$expand_q_scaler_low)
 temp.calc<-data.frame(spr=c(expanded_one,0),fall=c(0,expanded_two))
 expanded<-rowMeans(temp.calc)[1:nrow(y$seasonal_index)]	#	assumes spring survey is available in current year
   if(y$expand_method==1){
@@ -445,18 +409,61 @@ expanded<-rowMeans(temp.calc)[1:nrow(y$seasonal_index)]	#	assumes spring survey 
     #ifelse(exploit>1,print("Warning: Exploitation > 1"),print("Exploit OK, <1"))
     meanexploit<-mean(exploit[(length(exploit)-(y$expand_yrs-1)):length(exploit)])
     catch.advice=expanded[length(expanded)]*meanexploit
-  } else { print("expanded survey F method undefined") }
+  } 
+  if(y$expand_method==2) {
+    spr0<- s.per.recr(y=y,F.mult=0,spawn.time=y$fracyr_SSB[length(y$fracyr_SSB)])
+    F.start <-0.11  # starting guess for optimization routine to find F_SPR%
+    t.spr <- y$percentSPR/100
+    spr.f <- function(F.start) {
+      abs(s.per.recr(y=y,F.mult=F.start, spawn.time=y$fracyr_SSB[length(y$fracyr_SSB)])/spr0 - t.spr )
+    }
+    yyy <- nlminb(start=F.start, objective=spr.f, lower=0, upper=3)
+    f.spr.vals <- yyy$par #Fx%
+    Z<-mean(y$MAA[nrow(y$MAA),])+f.spr.vals #check; I took a mean across ages, but we agreed age invariant M; shouldn't be a problem
+    mu<-(f.spr.vals/Z)*(1-exp(-Z))
+    catch.advice=expanded[length(expanded)]*mu
+    }
   
   return(catch.advice)
 }
-ExpandSurveyAdvice<-ExpandSurvey_modified(y=y)
+index_methods_output$ExpandSurvey_modified_low<-ExpandSurvey_modified_low(y=y)
 
+ExpandSurvey_modified_high<-function(y){
+	#	modified from above
+	#	added a scaler to modify true q
+	#	expanded each survey index individually and then combined them
+	#	check:PLACE HOLDER ONLY, NEED TO DETERMINE HOW TO COMBINE SURVEYS	
+	#	currently takes the mean of spring survey at time T and fall survey at time T-1
+  #	expanded=y$index/y$q
+expanded_one<-y$seasonal_index[,1]/(y$q[1]*y$expand_q_scaler_high)
+expanded_two<-y$seasonal_index[,1]/(y$q[2]*y$expand_q_scaler_high)
+temp.calc<-data.frame(spr=c(expanded_one,0),fall=c(0,expanded_two))
+expanded<-rowMeans(temp.calc)[1:nrow(y$seasonal_index)]	#	assumes spring survey is available in current year
+  if(y$expand_method==1){
+    exploit=y$catch/expanded
+    #ifelse(exploit>1,print("Warning: Exploitation > 1"),print("Exploit OK, <1"))
+    meanexploit<-mean(exploit[(length(exploit)-(y$expand_yrs-1)):length(exploit)])
+    catch.advice=expanded[length(expanded)]*meanexploit
+  } 
+  if(y$expand_method==2) {
+    spr0<- s.per.recr(y=y,F.mult=0,spawn.time=y$fracyr_SSB[length(y$fracyr_SSB)])
+    F.start <-0.11  # starting guess for optimization routine to find F_SPR%
+    t.spr <- y$percentSPR/100
+    spr.f <- function(F.start) {
+      abs(s.per.recr(y=y,F.mult=F.start, spawn.time=y$fracyr_SSB[length(y$fracyr_SSB)])/spr0 - t.spr )
+    }
+    yyy <- nlminb(start=F.start, objective=spr.f, lower=0, upper=3)
+    f.spr.vals <- yyy$par #Fx%
+    Z<-mean(y$MAA[nrow(y$MAA),])+f.spr.vals #check; I took a mean across ages, but we agreed age invariant M; shouldn't be a problem
+    mu<-(f.spr.vals/Z)*(1-exp(-Z))
+    catch.advice=expanded[length(expanded)]*mu
+    }
+  
+  return(catch.advice)
+}
+index_methods_output$ExpandSurvey_modified_high<-ExpandSurvey_modified_high(y=y)
 
 #------------------------
-
-
-
-
 ####AIM; courtesy of Liz Brooks
 run.aim <- function(y) {
   #catch is a vector of total catch in biomass
@@ -577,7 +584,7 @@ plot=y$AIM_plot
 } #end run.aim function
 ####End AIM function
 
-aim<-run.aim(y)
+index_methods_output$run.aim<-run.aim(y)
 
 #--------------------------------------
 
@@ -641,15 +648,14 @@ SPR_func(y)
 #----------------------------------
 ###JJD SPR from ASAPPlots
 #-------Spawners per recruit -----------------------------
-s.per.recr<-function(y) {
+s.per.recr<-function(y,F.mult=NULL,spawn.time=NULL) {
   #	nages,mat.age,M.age, F.mult, sel.age, spawn.time 
 nages<-ncol(y$mature)
 mat.age<-y$mature[nrow(y$mature),]	#	check: assumes using the most recent year
-M.age<-y$MAA[nrow(y$MAA),]		#	check: assumes we know the true M and it is not mis-specified
-F.mult<-y$spr_F_mult
+M.age<-y$MAA[1,]		#	check: assumes we know the true M and it is not mis-specified
+
 #	check: which selectivity (final year?) and should we know the true value or with obs error.  This is the true value in the final year
 sel.age<-y$selAA[[1]][nrow(y$selAA[[1]]),]	#	number one should be the fishery selectivity
-spawn.time<-y$spr_spawn_time
 
   spr=0.0
   cum.survive=1.0
@@ -669,20 +675,9 @@ spawn.time<-y$spr_spawn_time
   return(spr)
   
 }
-
-spr0<- s.per.recr(nages=y$nages, mat.age=y$mat.age, M.age= y$M.age, F.mult=0, sel.age=y$sel.age, spawn.time=y$spawn.time)
-F.start <-0.11  # starting guess for optimization routine to find F_SPR%
-
-  t.spr <- 0.4
-  
-  spr.f <- function(F.start) {
-    abs(s.per.recr(nages=y$nages, mat.age=y$mat.age, M.age= y$M.age, F.mult=F.start, sel.age=y$sel.age, spawn.time=y$spawn.time)/spr0 - t.spr )
-  }
-  yyy <- nlminb(start=F.start, objective=spr.f, lower=0, upper=3)
-  f.spr.vals <- yyy$par
-  
- #test<-s.per.recr(nages=y$nages, mat.age=y$mat.age, M.age= y$M.age, F.mult=f.spr.vals, sel.age=y$sel.age, spawn.time=y$spawn.time)
- #test/spr0
+ 
 ###end SPR as done by JJD; adapted from ASAPPlots
 
+#----------------------------------------------
 
+#	Joe Langan's function once we get it - Place holder
