@@ -577,6 +577,7 @@ plot=y$AIM_plot
 
 index_methods_output$run.aim<-run.aim(y)
 
+
 #--------------------------------------
 
 #	Alternative SPR function that uses a look up table instead of optimizing
@@ -668,7 +669,15 @@ sel.age<-y$selAA[[1]][nrow(y$selAA[[1]]),]	#	number one should be the fishery se
 }
  
 ###end SPR as done by JJD; adapted from ASAPPlots
-
 #----------------------------------------------
+ensemble<-function(y=NULL){
+  advice<-Islope(y)[1]
+  advice<-c(advice,Skate_CR(y)[1])
+  advice<-c(advice,true_Skate_CR(y))
+  advice<-c(advice,planBsmoothfxn(y))
+  advice<-c(advice,run.aim(y)$proj.catch)
+  return(mean(advice))
+}
+index_methods_output$ensemble<-ensemble(y)
 
 #	Joe Langan's function once we get it - Place holder
