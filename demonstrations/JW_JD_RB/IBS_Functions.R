@@ -18,6 +18,7 @@ y$seasonal_index<-rbind(y$agg_indices, y$agg_indices_proj)	#	seasonal indices as
 	temp.index<-data.frame(spr=c(y$seasonal_index[,1],0),fall=c(0,y$seasonal_index[,2]))
 y$index<-rowMeans(temp.index[1:(nrow(temp.index)-1),])	#	check:Should this start at row 2?,  I had it start at row one so that the number of years stays consistent with catch even though year one only has one survey, not two with this particular method
 
+y$years<-seq(1,length(y$index),1)
 
 #	should create single catch that is consistent for all index based methods
 y$catch<-rbind(y$agg_catch, y$agg_catch_proj)	#assuming one fleet
@@ -100,6 +101,7 @@ y$M_CC_Fmin<-0.05
 #		Currently happens in the expand function as a place holder and needs to be corrected
 #  y$q is an object from WHAM and has two values.  In Jon's original function simply selected the spring q
 y$expand_method=2 #1 to use average of recent exploitation rates for catch advice; 2 for spr based (e.g., F40%)
+#expand_yrs also used by PlanBSmooth to ID how many years of catch to average for use with multiplier
 y$expand_yrs=3 #if method=1 then number of years to average for exploitation rates.
 y$expand_q_scaler_low<-0.5	#	proportion to scale true q can be greater than or less than one.  
 y$expand_q_scaler_high<-1.5	#	proportion to scale true q can be greater than or less than one.  
@@ -371,25 +373,14 @@ planBsmoothfxn<-function(y){
   library(ggplot2)
   library(dplyr)
   library(tidyr) 
-  planBsmooth<-ApplyPlanBsmooth(data.frame("Year"=y$Year,"avg"=y$index))
-  return(list("multiplier"=planBsmooth$multiplier,"planBsmoothall"=planBsmooth))
+  planBsmooth<-ApplyPlanBsmooth(data.frame("Year"=y$years,"avg"=y$index))
+  meancatch=mean(y$catch[(length(y$catch)-(y$expand_yrs-1)):length(y$catch)])
+  catch.advice=planBsmooth$multiplier*meancatch
+  return(catch.advice)
 }
 
 index_methods_output$planBsmooth<-planBsmoothfxn(y=y)
 
-####Expanded survey biomass	#	Jon D. original
-ExpandSurvey<-function(y){
-  expanded=y$index/y$q[1]		#	check:Place holder just to make function run
-  if(y$expand_method==1){
-    exploit=y$catch/expanded
-    #ifelse(exploit>1,print("Warning: Exploitation > 1"),print("Exploit OK, <1"))
-    meanexploit<-mean(exploit[(length(exploit)-(y$expand_yrs-1)):length(exploit)])
-    catch.advice=expanded[length(expanded)]*meanexploit
-  } else { print("expanded survey F method undefined") }
-  
-  return(catch.advice)
-}
-ExpandSurveyAdvice<-ExpandSurvey(y=y)
 
 #------------------------
 ####Expanded survey biomass		#	Bell modification
