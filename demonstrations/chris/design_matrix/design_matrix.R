@@ -25,23 +25,22 @@ autocorrelatedrecruitment <- TRUE
 combinedsurveys <- c("Spring and Previous Fall")
 
 ibms <- c("Islope", 
-          "Skate_CR", 
+          "Itarget", 
           "true_Skate_CR", 
-          "DLM_Z", 
           "M_CC", 
           "PlanBsmooth", 
-          "ExpandSurvey", 
-          "ExpandSurvey_modified", 
+          "ExpandSurvey_modified_low", 
+          "ExpandSurvey_modified_high", 
           "AIM", 
-          "SPR_func",
+          "CatchCurve_Fspr",
+          "CatchCurve_stableperiod",
           "JoeDLM",
           "Ensemble")
 
 catchmultiplier <- c(1.00, 
                      0.75)
 
-capchange <- c("none", 
-               "plus/minus 25%")
+capchange <- c("none")
 
 scenarios <- expand.grid(stocktype, retrosource, fhistory, fisheryselectivity, autocorrelatedrecruitment, combinedsurveys, ibms, catchmultiplier, capchange) %>%
   rename(StockType = Var1,
@@ -58,6 +57,7 @@ dim(scenarios)
 head(scenarios)
 
 oneoffs <- c("StockType = Pelagic-ish",
+             "RetroSource = none",
              "RetroSource = Multiple Factors (TBD)",
              "RetroSource = big cohort",
              "Fhistory = always underfished",
@@ -67,6 +67,8 @@ oneoffs <- c("StockType = Pelagic-ish",
              "AutoCorrR = FALSE",
              "CombinedSurveys = Spring and Same Fall",
              "IBM = FSD",
+             "IBM = age-based method",
+             "capchange = plus/minus 20%",
              "Change in Weights at Age",
              "Use wrong M when M changes",
              "Use wrong survey q when survey q changes",
