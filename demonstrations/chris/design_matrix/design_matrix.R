@@ -71,9 +71,14 @@ oneoffs <- c("StockType = Pelagic-ish",
              "IBM = ExpandSurvey_lowq",
              "IBM = ExpandSurvey_highq",
              "IBM = age-based method",
+             "IBM = Islope low option",
+             "IBM = Islope high option",
+             "IBM = Itarget low option",
+             "IBM = Itarget high option",
              "capchange = plus/minus 20%",
              "Change in Weights at Age",
              "Use wrong M when M changes",
              "Use wrong survey q when survey q changes",
-             "Reference point calculations")
+             "Reference point calculations",
+             "Missing year(s) of survey data")
 length(oneoffs)
