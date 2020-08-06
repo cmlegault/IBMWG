@@ -56,7 +56,7 @@ y$index_naa<-obs_survey_NAA_func(y)
 
 #	HOW TO COMBINE INDEX AT AGE FOR TWO DIFFERENT SEASONS
 #	check: as a place holder to test functions simply used the spring
-y$index_naa<-y$index_naa[,,1]
+#y$index_naa<-y$index_naa[,,1]  : JW - I texted this out because this was casuing problems with DLM_Z
 
 #	check: should create single natural mortality that is consistent for all index based methods
 y$M<-mean(y$MAA[1,])	#	Plan is for natural mortality to be constant with age, but possibly exhibit a ramp at some point in time series.
@@ -185,12 +185,13 @@ Islope(y)
 y$Islope_cap<-TRUE
 Islope(y)
 
-Skate_CR <- function(y)
+Itarget <- function(y)
 {
   # this is a hybrid of the skate CR ref points and the I target control rule 
   # ref_yrs is the number of years for the reference period - this should stay fixed throughout sim so we don't have shifting ref pts. 
   # Cmult determines the target catch (relative to the avg.)
   # w is a parameter (0-1) that determines how quickly catch declines between I.target and I.threshold 
+  
   
 index<-y$index
 Ctot<-y$catch
