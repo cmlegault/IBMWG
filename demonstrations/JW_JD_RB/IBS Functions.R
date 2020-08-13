@@ -9,7 +9,7 @@ load("ywham_oneflt.RData")
 
 
 #	Joe Langan is a place holder for his function
-index_methods)<-c('Islope','Itarget','true_Skate_CR','M_CC','planBsmooth','ExpandSurvey_modified','run.aim','joe.langan','ensemble')
+index_methods<-c('Islope','Itarget','true_Skate_CR','M_CC','planBsmooth','ExpandSurvey_modified','run.aim','joe.langan','ensemble')
 
 #	other functions
 #DLM_z - catch curve analysis used in M_CC, outputs slope
@@ -156,8 +156,9 @@ y$M_CC_yrs<-3
 y$M_CC_Fmin<-0.05
 y$M_CC_method<-3
 #1.	SPR
-#2.	Stable historic period
+#2.	Defunct - used to be Stable historic period but that doesn't make sense for M_CC
 #3.	Natural mortality
+
 
 
 #	check
@@ -613,9 +614,10 @@ M_CC_method<-y$M_CC_method
     F.est[is.na(F.est)] <- Fmin  # if you get an NA, replace with Fmin
     F.est[F.est < Fmin] <- Fmin  # if you get a value below Fmin, use Fmin
     
-    Ac <- mu.C/(1 - exp(-F.est)) # approx biomass based on catch and estimate of F
+    Ac <- mu.C/((F.est/Z.est)*(1 - exp(-Z.est))) # approx biomass based on catch and estimate of F
+   
 if(M_CC_method==1){FMSY <- y$F_SPR/Z.est*(1-exp(-Z.est))}    	#	SPR
-if(M_CC_method==2){FMSY<-mean(catch[y$stable.year]/Ac[y$stable.year])  }		#	stable historic period		check:Divides catch/biomass in each year and then takes mean
+#if(M_CC_method==2){FMSY<-mean(catch[y$stable.year]/Ac[y$stable.year])  }		#	stable historic period; #check:Divides catch/biomass in each year and then takes mean, This one doesn't make sense for CC.  Ac is a single value, not time series.  Stable period only applies to expanded biomass
 if(M_CC_method==3){FMSY <- M/Z.est*(1-exp(-Z.est))} 		#	natural mortality= Fmsy
 
     C.targ<- FMSY * Ac
@@ -660,26 +662,18 @@ f.spr.vals<-y$F_SPR	#	proxy Fmsy level from spawner per recruit (e.g. F40%)
     meanexploit<-mean(exploit[(length(exploit)-(y$expand_yrs-1)):length(exploit)])
     catch.advice=expanded[length(expanded)]*meanexploit
   } 
-  if(y$expand_method==1) {
-#    spr0<- s.per.recr(y=y,F.mult=0,spawn.time=y$fracyr_SSB[length(y$fracyr_SSB)])
-#    F.start <-0.11  # starting guess for optimization routine to find F_SPR%
-#    t.spr <- y$percentSPR/100
-#    spr.f <- function(F.start) {
-#      abs(s.per.recr(y=y,F.mult=F.start, spawn.time=y$fracyr_SSB[length(y$fracyr_SSB)])/spr0 - t.spr )
-#    }
-#    yyy <- nlminb(start=F.start, objective=spr.f, lower=0, upper=3)
-#    f.spr.vals <- yyy$par #Fx%
-    Z<-y$M+f.spr.vals #check; I took a mean across ages, but we agreed age invariant M; shouldn't be a problem
+  if(y$expand_method==1) { #Fspr
+    Z<-y$M+f.spr.vals 
     mu<-(f.spr.vals/Z)*(1-exp(-Z))
     catch.advice=expanded[length(expanded)]*mu
     }
   if(y$expand_method==2) {		#	stable historical period	
-    mu<-mean(y$catch[y$stable.year]/expanded[y$stable.year])  }		#	stable historic period		check:Divides catch/biomass in each year and then takes mean
+    mu<-mean(y$catch[y$stable.year]/expanded[y$stable.year])  		#	stable historic period		check:Divides catch/biomass in each year and then takes mean
     catch.advice=expanded[length(expanded)]*mu
     }
   if(y$expand_method==3) {		#	proxy Fmsy = natural mortality
   	proxy_F<-y$M
-    Z<-y$M+proxy_F #check; I took a mean across ages, but we agreed age invariant M; shouldn't be a problem
+    Z<-y$M+proxy_F 
     mu<-(proxy_F/Z)*(1-exp(-Z))
     catch.advice=expanded[length(expanded)]*mu
     }
@@ -809,7 +803,7 @@ plot=y$AIM_plot
 } #end run.aim function
 ####End AIM function
 
-run.aim(y)
+run.aim(y)$proj.catch
 
 #----------------------------------
 ensemble<-function(y=NULL){
@@ -818,6 +812,8 @@ ensemble<-function(y=NULL){
   advice<-c(advice,true_Skate_CR(y))
   advice<-c(advice,planBsmoothfxn(y))
   advice<-c(advice,run.aim(y)$proj.catch)
+  advice<-c(advice,M_CC(y))
+  advice<-c(advice,ExpandSurvey_modified(y))
   return(mean(advice))
 }
 ensemble(y)
