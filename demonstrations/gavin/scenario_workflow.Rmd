@@ -19,7 +19,9 @@ map(rscripts, source)
 
 ```{r base_input}
 base_input <- get_base_input()
-
+base_input
+base_input$IBM <- M_CC
+base_input$adv.yr <- 2
 ```
 
 ## scenario specifications
@@ -46,6 +48,10 @@ base_specs <- read_csv("base-scenarios.csv") %>%
   select(-f_pattern, -steepness) %>% 
   I()
 projection_specs <- read_csv("proj-scenarios.csv")
+base_specs <- base_specs %>% 
+  mutate(projection_specs = map(seq_len(nrow(.)),~I(projection_specs))) %>% 
+  unnest(cols = c(projection_specs)) %>% 
+  I()
 base_specs
 ```
 
@@ -57,10 +63,10 @@ base_scens <- c(0,1)
 mse_setup <- base_specs %>% 
   filter(base_scen %in% base_scens) %>% 
   select(-retro_type) %>% 
-  group_by(base_scen) %>% 
+  group_by(base_scen, proj_scen) %>% 
   nest() %>% 
   rename("specs" = data) %>% 
-  left_join(select(base_specs, base_scen, retro_type)) %>% 
+  left_join(select(base_specs, base_scen, retro_type) %>% group_by(base_scen) %>% slice(1)) %>% 
   I()
 mse_setup
 ```
@@ -85,8 +91,8 @@ could possibly hardwire the seeds somehow
 ```{r}
 #dimension problem
 nbase <- nrow(mse_setup) #number of scenarios
-nsim <- 5
-nprojyrs <- 40
+nsim <- 2
+nprojyrs <- 10
 
 #generate seeds
 sim_seeds <- tibble(isim = 1:nsim,
@@ -109,16 +115,16 @@ mse_sim_setup
 #do the MSE for all simulations and scenarios
 future::plan(future::multisession)
 system.time(mse_output <- mse_sim_setup %>% 
-#   mutate(wham = purrr::pmap(list(seed, input),
-#                              ~do_wham_mse_sim(seed = .x,
-#                                               input = .y,
-#                                               nprojyrs = nprojyrs)))
+  # mutate(wham = purrr::pmap(list(seed, input),
+  #                            ~do_wham_mse_sim(seed = .x,
+  #                                             input = .y,
+  #                                             nprojyrs = nprojyrs)))
   mutate(wham = furrr::future_pmap(list(seed, input),
                             ~do_wham_mse_sim(seed = .x,
                                              input = .y,
                                              nprojyrs = nprojyrs))))
 
-#saveRDS(mse_output, file = "just1_srds.rds")
+#saveRDS(mse_output, file = "demo-mse-20200723.rds")
 ```
 
 pull out some parts of the output
@@ -127,7 +133,7 @@ calculate some performance metrics
 ```{r}
 mse_results <- mse_output %>% 
   mutate(om_ssb = map(wham,
-                  ~pluck(.x$sim_data_series[[nprojyrs+1]]$SSB)),
+                  ~pluck(.x$sim_data_series$SSB)),
          refpts = map(wham, "refpts"),
          ssb_metrics = pmap(list(om_ssb, refpts), get_ssb_metrics, nprojyrs = nprojyrs))
 ```
@@ -138,7 +144,8 @@ pull out the ssb metrics
 
 ```{r}
 ssb_results <- mse_results %>% 
-  select(iscen, isim, ssb_metrics) %>% 
+  select(base_scen, proj_scen, isim, ssb_metrics) %>% 
+  #select(iscen, isim, ssb_metrics) %>% 
   mutate(ssb_metrics = map(ssb_metrics, enframe)) %>% 
   unnest() %>% 
   mutate(value = map_dbl(value, I)) %>% 
@@ -151,11 +158,11 @@ summarize across simulations by scenario
 25%, 50%, 75% quantiles
 ```{r}
 quibble <- function(x, q = c(0.25, 0.5, 0.75)) {
-  tibble(x = quantile(x, q), q = q)
+  tibble(x = quantile(x, q, na.rm = TRUE), q = q)
 }
 
 ssb_summary <- ssb_results %>% 
-  group_by(metric, iscen) %>% 
+  group_by(metric, base_scen, proj_scen) %>% 
   summarise(y = list(quibble(value, c(0.25, 0.5, 0.75)))) %>% 
   tidyr::unnest(y) %>% 
   I()

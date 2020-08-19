@@ -11,7 +11,12 @@ put_h <- function(a, b) {
 
 # function to change some part of a named list
 change_it <- function(object, value, name) {
-  object[[name]] = value
+  if (name == "IBM") {
+    object[[name]] = get(value[[1]])
+  }
+  else {
+    object[[name]] = value[[1]]
+  }
   return(object)
 }
 #reduce2(aa, names(aa), .f = change_it, .init = bb)

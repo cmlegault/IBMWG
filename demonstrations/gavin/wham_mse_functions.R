@@ -1,61 +1,14 @@
 #functions to run WHAM MSE
-# modded from simnple_example2.R
-
-#get the input list for a given scenario
-get_input <- function(iscen = 1, na = 10, nf = 1, ni = 2, LVB_pars = c(100,0.3), LW_pars = c(exp(-11),3)) {
-  #nf=2 #number of fleets (we only need 1)
-  #ni=2 #number of indices
-  #na = 10 #number of ages
-  input = list()
-  input$na=na
-  input$nf=nf
-  input$ni=ni
-  input$modyears = 1970:2019 #50 years
-  input$maturity = 1/(1 + exp(-1*(1:na - 5))) #maturity at age
-  input$fracyr_spawn = 0.25 #when spawning occurs within annual time step
-  L = LVB_pars[1]*(1-exp(-LVB_pars[2]*(1:na - 0))) #make up LVB growth
-  W = LW_pars[1]*L^LW_pars[2] #make up L-W function to give WAA
-  input$waa_catch = t(matrix(W, na, nf)) #WAA for each fleet
-  input$waa_indices = t(matrix(W, na, ni)) #WAA for each index
-  input$waa_totcatch = input$waa_ssb = input$waa_jan1 = rbind(W) #WAA for total catch, SSB, Jan 1 pop
-  input$catch_cv = rep(0.1, nf) #CVs for aggregate catch for each fleet
-  input$catch_Neff = rep(200, nf) #Effective sample size for age comp for each fleet
-  input$index_cv = rep(0.3, ni) #CVs for aggregate indices
-  input$index_Neff = rep(100, ni) #Effectin sample size for age compe for each index
-  input$fracyr_indices = (1:ni)/(ni+1) #when index observations occur within annual time step
-  
-  input$sel_model_fleets = rep(2, nf) #logistic selectivity for each fleet
-  #input$sel_model_indices = 2
-  input$sel_model_indices = rep(2,ni) #logistic selectivity for each index
-  
-  #input$q = 0.3
-  input$q = (1:ni)/(ni+1) #catchability for each index
-  input$F = matrix(rep(0.2/nf,length(input$modyears)), length(input$modyears), nf) #Annual Full F for each fleet
-  input$M = rep(0.2, na) #Nat. Mort at age
-  input$N1 = exp(10)*exp(-(0:(na-1))*input$M[1]) #Initial numbers at age
-  #recruit_model = 2 #random devations around mean. 3 = BH (mean_rec_pars = a,b R = aS/(1 + bS)), 4 = Ricker (mean_rec_pars = a,b)
-  recruit_model = 3 #Beverton-Holt
-  input$use_steepness = 0 #don't use steepness
-  #input$use_steepness = 1 #mean_rec_pars = h,R0
-  input$mean_rec_pars = numeric(c(0,1,2,2)[recruit_model])
-  a = 4*0.7/(0.3*25.8) #h=0.7, phi0=25.8
-  b = (a - 1/25.8)/exp(10) #R0 = exp(10)
-  if(recruit_model == 2) input$mean_rec_pars[] = exp(10)
-  if(recruit_model == 3) input$mean_rec_pars[] = c(a, b)
-  if(recruit_model == 4) input$mean_rec_pars[2] = exp(-10)
-  input$NAA_rho = c(0, 0.7) #AR1 rho for age and year (Here: just AR1 with year for recruitment deviations)
-  input$NAA_sigma = 0.5*prod(sqrt(1-input$NAA_rho^2)) #recruitment sd, Marginal SD = 0.5. Need more values if full state-space abundance at age
-  return(input)
-} #end get_input function
-
 
 ### run a given wham MSE simulation
 ## will want to abstract more of the set up from this as it's the same for each simulation
-do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10,adv.yr=2) {  #JJD
+do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
   # function does 1 simulation for the wham mse
   # i.e. 1 realization of the base and projection period
   # add more arguments so can abstract more of scenario setup from the inner function
 
+  adv.yr <- input$adv.yr
+  
   # GF - had to copy these from input specs, mod so part of arguments
   na = input$na #number of ages
   nf=input$nf #number of fleets (we only need 1)
@@ -85,7 +38,7 @@ rep  = temp$report() #log_MSY, log_F_MSY, log_SSB_MSY, log_FXSPR, log_SPR_MSY, l
 set.seed(seed) 
 #simulated data and other report items
 y = temp$simulate(complete= TRUE)
-y=get.IBM.input(y=y,i=0) #JJD; this adds to the y list stuff needed for index methods
+y = get.IBM.input(y=y,i=0) #JJD; this adds to the y list stuff needed for index methods 
 #This would fit the model
 #tdat = temp$input
 #tdat$data = y
@@ -109,22 +62,26 @@ catch_advice=input$IBM(y=y) #JJD
 if(length(catch_advice)>1){
   catch_advice=catch_advice$proj.catch ##needed for AIM because run.aim function returns bunch of stuff
 }
-catch_advice <- rep(catch_advice,adv.yr) #JJD
-advice[1:adv.yr] = catch_advice #JJD
+#catch_advice <- rep(catch_advice,adv.yr) #JJD
+advice[[1]] <- catch_advice #JJD
 # ```
 # 
 # 
 # ```{r proj-period}
-
-for(i in seq(1,(nprojyrs-adv.yr+1),by=adv.yr)) #JJD
+assess_years <- seq(1,(nprojyrs-adv.yr+1),by=adv.yr)
+nproj <-length(assess_years)
+  
+#for(i in assess_years) #JJD
+for (i in 1:nproj)  
 {
-  input_i$data$proj_Fcatch[i:(i+adv.yr-1)] = catch_advice #JJD
-  input_i$data$proj_F_opt[i:(i+adv.yr-1)] = 5 #Specify F #JJD
+  year <- assess_years[i]
+  input_i$data$proj_Fcatch[year:(year+adv.yr-1)] = catch_advice #JJD
+  input_i$data$proj_F_opt[year:(year+adv.yr-1)] = 5 #Specify F #JJD
   temp = fit_wham(input_i, do.fit = FALSE, MakeADFun.silent = TRUE)
   #temp$fn()
 #  set.seed(sim.seeds[669,15])
   set.seed(seed)
-  sim_data_series[[i]] = temp$simulate(complete = TRUE)
+  sim_data_series[[i+1]] = temp$simulate(complete = TRUE)
   # lines(temp$years_full[1:(temp$input$data$n_years_model+i)], sim_data_series[[i]]$SSB[1:(temp$input$data$n_years_model+i)], col = i)
   #do assessment method (AIM, ASAP, etc.)
     #Example for fitting WHAM assessment model in feedback period
@@ -138,16 +95,17 @@ for(i in seq(1,(nprojyrs-adv.yr+1),by=adv.yr)) #JJD
   #take up where we left off
   #set catch to catch advice
   #catch_advice = ifelse(sim_data_series[[i+1]]$SSB[temp$input$data$n_years_model+i]>SSBlim, Flim, 0.9* sim_data_series[[i+1]]$FAA_tot[temp$input$data$n_years_model+i,na])* Flim
-  sim_data_series[[i]]=get.IBM.input(y=sim_data_series[[i]],i=i) #JJD;
-  catch_advice=input$IBM(y=sim_data_series[[i]]) #JJD
+  sim_data_series[[i+1]] = get.IBM.input(y=sim_data_series[[i+1]],i=year) #JJD; GF
+  catch_advice = input$IBM(y=sim_data_series[[i+1]]) #JJD
   if(length(catch_advice)>1){
     catch_advice=catch_advice$proj.catch ##needed for AIM because run.aim function returns bunch of stuff
   }
-  catch_advice=rep(catch_advice,adv.yr) #JJD
-  advice[(i+adv.yr):(i+(2*adv.yr)-1)] <- catch_advice
+  # GF don't think we need this; catch_advice=rep(catch_advice,adv.yr) #JJD
+  #advice[(i+adv.yr):(i+(2*adv.yr)-1)] <- catch_advice
+  advice[[i+1]] <- catch_advice
 }
 
-  results <- list(sim_data_series= sim_data_series, #[[nprojyrs]], #JJD
+  results <- list(sim_data_series = sim_data_series[[nproj+1]], #GF #[[nprojyrs]], #JJD
                   advice = advice,
                   refpts = refpts,
                   input = input_i,
