@@ -706,8 +706,8 @@ ExpandSurvey_modified<-function(y){
   if(y$expand_method==4){
     exploit=y$catch/expanded
     #ifelse(exploit>1,print("Warning: Exploitation > 1"),print("Exploit OK, <1"))
-    meanexploit<-mean(exploit[(length(exploit)-(y$expand_yrs-1)):length(exploit)])
-    catch.advice=expanded[length(expanded)]*meanexploit
+    mu<-mean(exploit[(length(exploit)-(y$expand_yrs-1)):length(exploit)])
+    catch.advice=expanded[length(expanded)]*mu
   } 
   if(y$expand_method==1) { #Fspr
     Z<-y$M+f.spr.vals 
@@ -725,7 +725,7 @@ ExpandSurvey_modified<-function(y){
     catch.advice=expanded[length(expanded)]*mu
   }
   
-  return(catch.advice)
+  return(list(catch.advice,mu=mu,bio=expanded[length(expanded)]))
 }
 #ExpandSurvey_modified(y=y)
 
