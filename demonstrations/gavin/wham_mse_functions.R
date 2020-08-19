@@ -77,9 +77,13 @@ nproj <-length(assess_years)
 for (i in 1:nproj)  
 {
   year <- assess_years[i]
-  input_i$data$proj_Fcatch[year:(year+adv.yr-1)] = catch_advice[[1]] #JJD
-  input_i$data$proj_F_opt[year:(year+adv.yr-1)] = 5 #Specify F #JJD
-  temp = fit_wham(input_i, do.fit = FALSE, MakeADFun.silent = TRUE)
+  #input_i$data$proj_Fcatch[year:(year+adv.yr-1)] = catch_advice[[1]] #JJD
+  #input_i$data$proj_F_opt[year:(year+adv.yr-1)] = 5 #Specify F #JJD
+  
+  #this could be simplified to just overwrite the necessary values each time
+  temp$env$data$proj_Fcatch[year:(year+adv.yr-1)] = catch_advice[[1]] #TJM
+  temp$env$data$proj_F_opt[year:(year+adv.yr-1)] = 5 #Specify F #JJD,TJM
+  #temp = fit_wham(input_i, do.fit = FALSE, MakeADFun.silent = TRUE)
   #temp$fn()
 #  set.seed(sim.seeds[669,15])
   set.seed(seed)
