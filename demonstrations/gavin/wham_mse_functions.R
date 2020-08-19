@@ -59,9 +59,11 @@ refpts <- list(SSBlim = SSBlim,
                Flim = Flim)
 #catch_advice = ifelse(y$SSB[temp$input$data$n_years_model]>SSBlim, Flim, 0.9*sum(rep$F[y$n_years_model,]))
 catch_advice=input$IBM(y=y) #JJD
-if(length(catch_advice)>1){
-  catch_advice=catch_advice$proj.catch ##needed for AIM because run.aim function returns bunch of stuff
-}
+# if(length(catch_advice)>1){
+#   catch_advice=catch_advice$proj.catch ##needed for AIM because run.aim function returns bunch of stuff
+# }
+## GF: not needed so long as first object in returned list is the catch advice (which in AIM it is)
+
 #catch_advice <- rep(catch_advice,adv.yr) #JJD
 advice[[1]] <- catch_advice #JJD
 # ```
@@ -75,7 +77,7 @@ nproj <-length(assess_years)
 for (i in 1:nproj)  
 {
   year <- assess_years[i]
-  input_i$data$proj_Fcatch[year:(year+adv.yr-1)] = catch_advice #JJD
+  input_i$data$proj_Fcatch[year:(year+adv.yr-1)] = catch_advice[[1]] #JJD
   input_i$data$proj_F_opt[year:(year+adv.yr-1)] = 5 #Specify F #JJD
   temp = fit_wham(input_i, do.fit = FALSE, MakeADFun.silent = TRUE)
   #temp$fn()
