@@ -56,6 +56,7 @@ scenarios <- expand.grid(stocktype, retrosource, fhistory, fisheryselectivity, a
   mutate(factorial = TRUE)
 dim(scenarios)
 head(scenarios)
+write.csv(scenarios, file = "scenarios.csv", row.names = FALSE)
 
 oneoffs <- c("StockType = Pelagic-ish",
              "RetroSource = none",
