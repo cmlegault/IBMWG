@@ -99,9 +99,9 @@ for (i in 1:nproj)
   #catch_advice = ifelse(sim_data_series[[i+1]]$SSB[temp$input$data$n_years_model+i]>SSBlim, Flim, 0.9* sim_data_series[[i+1]]$FAA_tot[temp$input$data$n_years_model+i,na])* Flim
   sim_data_series[[i+1]] = get.IBM.input(y=sim_data_series[[i+1]],i=year) #JJD; GF
   catch_advice = input$IBM(y=sim_data_series[[i+1]]) #JJD
-  if(length(catch_advice)>1){
-    catch_advice=catch_advice$proj.catch ##needed for AIM because run.aim function returns bunch of stuff
-  }
+  #if(length(catch_advice)>1){
+  #  catch_advice=catch_advice$proj.catch ##needed for AIM because run.aim function returns bunch of stuff
+  #}
   # GF don't think we need this; catch_advice=rep(catch_advice,adv.yr) #JJD
   #advice[(i+adv.yr):(i+(2*adv.yr)-1)] <- catch_advice
   advice[[i+1]] <- catch_advice
@@ -684,7 +684,7 @@ planBsmoothfxn<-function(y){
   planBsmooth<-ApplyPlanBsmooth(data.frame("Year"=y$years,"avg"=y$index))
   meancatch=mean(y$catch[(length(y$catch)-(y$expand_yrs-1)):length(y$catch)])
   catch.advice=planBsmooth$multiplier*meancatch
-  return(catch.advice)
+  return(list(catch.advice,planBsmooth))
 }
 
 #planBsmoothfxn(y=y)
