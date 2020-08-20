@@ -680,7 +680,7 @@ M_CC = function (y)
 
 ####plan B smooth
 planBsmoothfxn<-function(y){
-  devtools::install_github("cmlegault/PlanBsmooth")
+  # devtools::install_github("cmlegault/PlanBsmooth")
   # library(PlanBsmooth)
   # library(ggplot2)
   # library(dplyr)

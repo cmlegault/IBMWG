@@ -1,3 +1,4 @@
+devtools::install_github("cmlegault/PlanBsmooth")
 library(wham)
 library(PlanBsmooth)
 library(ggplot2)
