@@ -879,10 +879,11 @@ ensemble<-function(y=NULL){
   advice<-Islope(y)[1]
   advice<-c(advice,Itarget(y)[1])
   advice<-c(advice,true_Skate_CR(y))
-  advice<-c(advice,planBsmoothfxn(y))
-  advice<-c(advice,run.aim(y)$proj.catch)
+  advice<-c(advice,planBsmoothfxn(y)[[1]])
+  advice<-c(advice,run.aim(y)[[1]])
   advice<-c(advice,M_CC(y))
-  advice<-c(advice,ExpandSurvey_modified(y))
+  advice<-c(advice,ExpandSurvey_modified(y)[[1]])
+  #advice<-c(advice,JoeLangan....)
   return(mean(advice))
 }
 #ensemble(y)
