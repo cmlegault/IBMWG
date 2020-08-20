@@ -1,5 +1,7 @@
 # functions to calculate performance metrics
 
+# as detailed in 
+# https://docs.google.com/document/d/1ytEuChrB13n0wyKsp3MPhRdYEI20biQEcWWcBj0fWTs/edit
 
 # SSB metrics
 
@@ -25,3 +27,29 @@ get_ssb_metrics <- function(ssb = NULL, refpts = NULL, nprojyrs = 40) {
   )
   return(metrics)
 }
+
+# catch metrics
+library(RcppRoll)
+get_catch_metrics <- function(catch = NULL, refpts = NULL, nprojyrs = 40) {
+  msy <- refpts$msy
+  fyear <- max(c(1,length(catch) - nprojyrs))
+  shortyrs <- fyear:(min(c(length(catch),fyear+5)))
+  longyrs <- (min(c(fyear+20,length(catch)))):length(catch)
+  projyrs <- fyear:length(catch)
+
+  metrics <- list(
+    s_avg_catch = mean(catch[shortyrs],na.rm=TRUE),
+    l_avg_catch = mean(catch[longyrs],na.rm=TRUE),
+    s_avg_catch_msy = s_avg_catch/msy,
+    l_avg_catch_msy = l_avg_catch/msy,    
+    s_sd_catch = sd(catch[shortyrs],na.rm=TRUE),
+    l_sd_catch = sd(catch[longyrs],na.rm=TRUE),
+    l_iav_catch = sqrt(sum(diff(catch[longyrs])^2)/(length(longyrs-1)))/(sum(catch[longyrs])/length(longyrs)),
+    l_is_g_msy = ifelse(l_avg_catch_msy>1, 1, 0),
+    rollsum_g_msy <- RcppRoll::roll_sum(l_is_g_msy, 3),
+    l_prop_g_msy_2_of_3 <- sum(rollsum_g_msy>2)/length(rollsum_g_msy),
+  )
+  return(metrics)
+} 
+
+
