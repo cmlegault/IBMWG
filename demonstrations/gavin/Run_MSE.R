@@ -1,4 +1,9 @@
 library(wham)
+library(PlanBsmooth)
+library(ggplot2)
+library(dplyr)
+library(tidyr) 
+
 source("IBM_options.R")
 source("wham_mse_functions.R")
 source("base_input.R")
