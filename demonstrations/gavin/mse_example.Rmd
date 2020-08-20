@@ -8,14 +8,15 @@ knitr::opts_chunk$set(echo = TRUE)
 library(wham)
 library(tidyverse)
 library(furrr)
+source("base_input.R")
 source("performance_metrics.R")
 source("wham_mse_functions.R")
 ```
 
 ## wham example 
 
-from simple_example_2.R
-`get_input()` gets the input list for a given scenario
+from get_input.R
+`get_base_input()` gets the input list for a given scenario
 
 `do_wham_mse_sim()` runs a given simulation
 will want to abstract more of the set up from this as it's the same for each simulation
@@ -47,7 +48,7 @@ change_element <- function(x, object="catch_cv", changeto = c(0.2, 0.1)) {
 
 #get inputs for scenarios
 input_lists <- tibble(iscen = 1:nbase) %>% 
-  mutate(input = map(1:nbase, ~get_input(.x))) %>% 
+  mutate(input = map(1:nbase, ~get_base_input())) %>% 
   #modify some element of the input for scenario 2
   mutate(input = case_when(
     iscen == 2 ~ map(input, ~change_element(., "catch_cv", c(0.2, 0.1))),

@@ -11,8 +11,9 @@ source("base_input.R")
 
 input=get_base_input()
 input$IBM=M_CC
-
+input$adv.yr = 2
 mse.results=do_wham_mse_sim(input=input)
+mse.results=do_wham_mse_sim(input=input, nprojyrs = 40)
 
 # possible workflow once functions are all working
 # read seeds from RNG.seeds.csv file

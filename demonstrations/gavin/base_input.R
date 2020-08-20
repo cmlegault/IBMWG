@@ -50,11 +50,12 @@ get_base_input <- function() {
   #input$use_steepness = 0 #don't use steepness
   input$use_steepness = 1 #mean_rec_pars = h,R0
   input$mean_rec_pars = numeric(c(0,1,2,2)[recruit_model])
-  a <- 0.75 #a = 4*0.7/(0.3*25.8) #h=0.7, phi0=25.8
-  b <- 10000 #b = (a - 1/25.8)/exp(10) #R0 = exp(10)
-  if(recruit_model == 2) input$mean_rec_pars[] = exp(10)
-  if(recruit_model == 3) input$mean_rec_pars[] = c(a, b)
-  if(recruit_model == 4) input$mean_rec_pars[2] = exp(-10)
+  h <- 0.75 #a = 4*0.7/(0.3*25.8) #h=0.7, phi0=25.8
+  R0 <- 10000 #b = (a - 1/25.8)/exp(10) #R0 = exp(10)
+  #if(recruit_model == 2) input$mean_rec_pars[] = exp(10)
+  #if(recruit_model == 3) 
+  input$mean_rec_pars[] = c(h, R0)
+  #if(recruit_model == 4) input$mean_rec_pars[2] = exp(-10)
   input$NAA_rho <- c(0, 0.4) #AR1 rho for age and year (Here: just AR1 with year for recruitment deviations)
   input$NAA_sigma <- 0.5*prod(sqrt(1-input$NAA_rho^2)) #recruitment sd, Marginal SD = 0.5. Need more values if full state-space abundance at age
   return(input)
