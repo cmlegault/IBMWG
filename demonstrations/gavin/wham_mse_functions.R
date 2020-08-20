@@ -8,7 +8,6 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
   # add more arguments so can abstract more of scenario setup from the inner function
 
   adv.yr <- input$adv.yr
-  print(adv.yr)
   
   # GF - had to copy these from input specs, mod so part of arguments
   na = input$na #number of ages
@@ -39,8 +38,6 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
   x = prepare_wham_om_input(input, recruit_model = recruit_model, selectivity=sel.list, NAA_re = NAA.list, proj.opts = proj.list)
   temp = fit_wham(x, do.fit = FALSE)
   rep  = temp$report() #log_MSY, log_F_MSY, log_SSB_MSY, log_FXSPR, log_SPR_MSY, log_SPR0, and much more
-  print(names(rep))
-  print(rep$selAA)
   #set.seed(sim.seeds[669,15]) 
   set.seed(seed) 
   #simulated data and other report items
