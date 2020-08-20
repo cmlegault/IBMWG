@@ -685,11 +685,11 @@ M_CC = function (y)
 
 ####plan B smooth
 planBsmoothfxn<-function(y){
-  devtools::install_github("cmlegault/PlanBsmooth")
-  library(PlanBsmooth)
-  library(ggplot2)
-  library(dplyr)
-  library(tidyr) 
+  # devtools::install_github("cmlegault/PlanBsmooth")
+  # library(PlanBsmooth)
+  # library(ggplot2)
+  # library(dplyr)
+  # library(tidyr) 
   planBsmooth<-ApplyPlanBsmooth(data.frame("Year"=y$years,"avg"=y$index))
   meancatch=mean(y$catch[(length(y$catch)-(y$expand_yrs-1)):length(y$catch)])
   catch.advice=planBsmooth$multiplier*meancatch
@@ -884,7 +884,7 @@ ensemble<-function(y=NULL){
 #	Does not have the time of year when spawning occurs, but has everything else. 
 #	It uses one function from dplyr and that could be replaced if we want to keep it in base R
 
-library(dplyr)
+# library(dplyr)
 
 SPR_func<-function(y){
   # calculate F.table for use in spawner per recruit
