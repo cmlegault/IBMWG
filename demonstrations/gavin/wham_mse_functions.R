@@ -586,8 +586,11 @@ DLM_Z <-function(y)
   # yrs = how many years of data to use
   
   
-  CAA_one<-	y$index_naa[,,1]		#	check, make this change
-  CAA_two<-	y$index_naa[,,2]		#	check, make this change
+  CAA_one<-	y$index_naa[,,1]
+  CAA_one<- CAA_one[,-ncol(CAA_one)] # remove plus group
+  CAA_two<-	y$index_naa[,,2]	
+  CAA_two<- CAA_two[,-ncol(CAA_two)]  # remove plus group
+ 
   yrs<-y$DLM_Z_yrs
   
   ny_one <- nrow(CAA_one) # total number of years in CAA matrix
@@ -597,6 +600,13 @@ DLM_Z <-function(y)
   Csum_one <- apply(CAA_one[use.rows_one, ], 2, sum,na.rm=TRUE) # sum up by column
   Csum_two <- apply(CAA_two[use.rows_two, ], 2, sum,na.rm=TRUE) # sum up by column
   
+  if(sum(Csum_one)==0 | sum(Csum_two==0))  # this is if the CAA matrix is all NAs or NaN
+  {
+    return(0)
+  }
+  
+  else
+  {
   maxage_one <- length(Csum_one) # max. age
   maxage_two <- length(Csum_two) # max. age
   AFS_one <- which.max(Csum_one)  # age at full selection
@@ -639,6 +649,7 @@ DLM_Z <-function(y)
   }
   mean_coef<-mean(c(-coefs_one[1],-coefs_two[1]))
   return(mean_coef)
+  }
 } # end DLM_Z function
 
 # default
