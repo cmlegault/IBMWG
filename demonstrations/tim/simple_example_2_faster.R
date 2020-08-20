@@ -1,4 +1,4 @@
-#devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "om_mode")
+#devtools::install_github("timjmiller/wham", dependencies=TRUE)
 library(wham)
 
 #setup random seeds for each base simulated data set!

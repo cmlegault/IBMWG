@@ -1,4 +1,4 @@
-#devtools::install_github("timjmiller/wham", dependencies=TRUE, ref = "om_mode")
+#devtools::install_github("timjmiller/wham", dependencies=TRUE)
 
 library(wham)
 source("../gavin/wham_mse_functions.R")

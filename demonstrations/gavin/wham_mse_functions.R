@@ -16,7 +16,12 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
   recruit_model = 3 #Beverton-Holt
     
 #a50 = 5 and slope = 1 for logistic selectivity for each fleet and index
-sel.list=list(model=rep("logistic",ni+nf), re=rep("none",ni+nf), initial_pars=lapply(1:(ni+nf), function(x) c(5,1)))
+#sel.list=list(model=rep("logistic",ni+nf), re=rep("none",ni+nf), initial_pars=lapply(1:(ni+nf), function(x) c(5,1)))
+sel.list=list(model=rep("logistic",ni+nf), re=rep("none",ni+nf), 
+  initial_pars= list(
+    c(3.57,1), #fishery (see factorial pruning)
+    c(1.8, 1/6), #survey 1 (see factorial pruning)
+    c(1.2, 1/5.5))) #survey 2 (see factorial pruning)
 
 #AR1 deviations of rececruitment only over time. To include abundances at older ages as random effects use "rec+1"
 NAA.list = list(sigma='rec',cor='ar1_y')
