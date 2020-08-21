@@ -698,7 +698,8 @@ planBsmoothfxn<-function(y){
   # library(ggplot2)
   # library(dplyr)
   # library(tidyr) 
-  planBsmooth<-ApplyPlanBsmooth(data.frame("Year"=y$years,"avg"=y$index))
+  #planBsmooth<-ApplyPlanBsmooth(data.frame("Year"=y$years,"avg"=y$index))
+  planBsmooth<-ApplyPlanBsmooth_fast(data.frame("Year"=y$years,"avg"=y$index), showwarn=FALSE)
   meancatch=mean(y$catch[(length(y$catch)-(y$expand_yrs-1)):length(y$catch)])
   catch.advice=planBsmooth$multiplier*meancatch
   return(list(catch.advice,planBsmooth))
@@ -945,3 +946,5 @@ SPR_func<-function(y){
   select.row<-which.min(abs(F.table$spr-spr0*ref_percentage))
   F.table[select.row,]	#	check: likely just output the fishing mortality, Fval
 }	#	end function
+
+
