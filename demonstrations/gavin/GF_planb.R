@@ -59,7 +59,7 @@ ApplyPlanBsmooth_fast <- function (dat, od = ".\\", my.title = "", terminal.year
   res$reg.use <- reg.use
   res$llr_fit <- llr_fit
   res$multiplier <- multiplier
-  res$tsplot <- tsplot
+  #res$tsplot <- tsplot
   return(res)
 }
 
