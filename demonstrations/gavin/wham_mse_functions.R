@@ -8,7 +8,7 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
   # add more arguments so can abstract more of scenario setup from the inner function
 
   adv.yr <- input$adv.yr
-  print(adv.yr)
+  #print(adv.yr)
   
   # GF - had to copy these from input specs, mod so part of arguments
   na = input$na #number of ages
@@ -39,8 +39,8 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
   x = prepare_wham_om_input(input, recruit_model = recruit_model, selectivity=sel.list, NAA_re = NAA.list, proj.opts = proj.list)
   temp = fit_wham(x, do.fit = FALSE)
   rep  = temp$report() #log_MSY, log_F_MSY, log_SSB_MSY, log_FXSPR, log_SPR_MSY, log_SPR0, and much more
-  print(names(rep))
-  print(rep$selAA)
+  #print(names(rep))
+  #print(rep$selAA)
   #set.seed(sim.seeds[669,15]) 
   set.seed(seed) 
   #simulated data and other report items
@@ -250,7 +250,7 @@ run.spr<-function(y){
 #IBM functions
 #-----------------------------------------
 
-get.stable.period <- function(y) {
+get.stable.period <- function(y=NULL) {
   
   #	(catch, index, I.smooth=5, F.smooth=3, center=T, F.scalar=1, npts=1, avg=F, plot=T )
   #######################################################
@@ -278,10 +278,9 @@ get.stable.period <- function(y) {
   #F.scalar is a constant that scales relative F to calculate catch as index[nyears]*relativeF*F.scalar
   #npts is the number of points nearest replacement F to calculate the "stable period" (note: they are not always adjacent index values--suggest 1 yr as default); if npts>1, and avg=T then i return the average index value and average catch across those npts, if avg=F i return the npts for index and catch
   
-  # NOTE: assumes same number of years in catch and index vector!!   
-  
+  # NOTE: assumes same number of years in catch and index vector!! 
   catch<-y$catch
-  index<-y$index
+  index<-y$expanded
   I.smooth=y$AIM_I_smooth
   F.smooth=y$AIM_F_smooth
   center=y$AIM_center
@@ -418,13 +417,9 @@ get.stable.period <- function(y) {
     
   } #end plot-test
   
-  
-  
-  
-  
   stable.list <- list(stable.year=stable.year, stable.index=stable.index, stable.catch=stable.catch, proj.catch=proj.catch, F.replacement=rel.f.soln, repl.ratio=rr, rel.F=ff, catch.index.ccf=catch.ind.ccf, reg.pars=reg.pars, repl.f.calc=repl.f )
   
-  return(stable.list )
+  return(stable.list)
   
 } #end function to identify stable period
 
@@ -724,6 +719,7 @@ ExpandSurvey_modified<-function(y){
   expanded_two<-y$seasonal_index[,2]/(y$init_q[2]*y$expand_q_scaler) #JJD
   temp.calc<-data.frame(spr=c(expanded_one,0),fall=c(0,expanded_two))
   expanded<-rowMeans(temp.calc)[1:nrow(y$seasonal_index)]	#	assumes spring survey is available in current year
+  y$expanded<-expanded
   f.spr.vals<-y$F_SPR	#	proxy Fmsy level from spawner per recruit (e.g. F40%)
   if(y$expand_method==4){
     exploit=y$catch/expanded
@@ -737,7 +733,11 @@ ExpandSurvey_modified<-function(y){
     catch.advice=expanded[length(expanded)]*mu
   }
   if(y$expand_method==2) {		#	stable historical period	
-    mu<-mean(y$catch[y$stable.year]/expanded[y$stable.year])  		#	stable historic period		check:Divides catch/biomass in each year and then takes mean
+    stable.res<-get.stable.period(y=y)
+    mu<-stable.res$F.replacement
+    #Z<-proxy_F+y$M
+    #mu<-(proxy_F/Z)*(1-exp(-Z))
+    #mu<-mean(y$catch[y$stable.year]/expanded[y$stable.year])  		#	stable historic period		check:Divides catch/biomass in each year and then takes mean
     catch.advice=expanded[length(expanded)]*mu
   }
   if(y$expand_method==3) {		#	proxy Fmsy = natural mortality
@@ -879,10 +879,11 @@ ensemble<-function(y=NULL){
   advice<-Islope(y)[1]
   advice<-c(advice,Itarget(y)[1])
   advice<-c(advice,true_Skate_CR(y))
-  advice<-c(advice,planBsmoothfxn(y))
-  advice<-c(advice,run.aim(y)$proj.catch)
+  advice<-c(advice,planBsmoothfxn(y)[[1]])
+  advice<-c(advice,run.aim(y)[[1]])
   advice<-c(advice,M_CC(y))
-  advice<-c(advice,ExpandSurvey_modified(y))
+  advice<-c(advice,ExpandSurvey_modified(y)[[1]])
+  #advice<-c(advice,JoeLangan....)
   return(mean(advice))
 }
 #ensemble(y)
