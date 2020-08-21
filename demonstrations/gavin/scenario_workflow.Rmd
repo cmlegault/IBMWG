@@ -8,8 +8,11 @@ knitr::opts_chunk$set(echo = TRUE)
 library(wham)
 library(tidyverse)
 library(furrr)
+library(PlanBsmooth)
+library(RcppRoll)
+
 rscripts <- list.files(pattern = "\\.R$")
-str_subset(rscripts, "Run_MSE", negate = TRUE)
+rscripts <- str_subset(rscripts, "Run_MSE", negate = TRUE)
 map(rscripts, source)
 #source("performance_metrics.R")
 #source("wham_mse_functions.R")
@@ -92,8 +95,8 @@ could possibly hardwire the seeds somehow
 ```{r}
 #dimension problem
 nbase <- nrow(mse_setup) #number of scenarios
-nsim <- 2
-nprojyrs <- 10
+nsim <- 10
+nprojyrs <- 40
 
 #generate seeds
 sim_seeds <- tibble(isim = 1:nsim,
@@ -116,16 +119,17 @@ mse_sim_setup
 #do the MSE for all simulations and scenarios
 future::plan(future::multisession)
 system.time(mse_output <- mse_sim_setup %>% 
-  # mutate(wham = purrr::pmap(list(seed, input),
-  #                            ~do_wham_mse_sim(seed = .x,
-  #                                             input = .y,
-  #                                             nprojyrs = nprojyrs)))
+  mutate(wham = purrr::pmap(list(seed, input),
+                             ~do_wham_mse_sim(seed = .x,
+                                              input = .y,
+                                              nprojyrs = nprojyrs))))
   mutate(wham = furrr::future_pmap(list(seed, input),
                             ~do_wham_mse_sim(seed = .x,
                                              input = .y,
                                              nprojyrs = nprojyrs))))
 
 #saveRDS(mse_output, file = "demo-mse-20200723.rds")
+#saveRDS(mse_output, file = "2020-08-20_40sims-mse_output.rds")
 ```
 
 pull out some parts of the output
@@ -135,8 +139,15 @@ calculate some performance metrics
 mse_results <- mse_output %>% 
   mutate(om_ssb = map(wham,
                   ~pluck(.x$sim_data_series$SSB)),
+         catch = map(wham, 
+                  ~pluck(.x$sim_data_series$catch)),
+         catch = map(catch, na_if, y = "NaN"),
+         om_ssb = map(om_ssb, na_if, y = "NaN"),
          refpts = map(wham, "refpts"),
-         ssb_metrics = pmap(list(om_ssb, refpts), get_ssb_metrics, nprojyrs = nprojyrs))
+         ssb_metrics = pmap(list(om_ssb, refpts), get_ssb_metrics, nprojyrs = nprojyrs),
+         catch_metrics = pmap(list(catch, refpts), get_catch_metrics, nprojyrs = nprojyrs))
+
+saveRDS(mse_results, file = "2020-08-20_40sims_mse-results.rds")
 ```
 
 `mse_results` is a tibble containing the results, and vectors of the OM SSB, and a list of SSB performance metrics (fudging using SSBlim as SSBMSY for this demo)
