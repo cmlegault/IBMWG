@@ -8,6 +8,7 @@ rscripts <- list.files(path = "demonstrations/gavin/", pattern = "\\.R$")
 rscripts <- str_subset(rscripts, "Run_MSE", negate = TRUE)
 rscripts <- str_subset(rscripts, "do_mse", negate = TRUE)
 rscripts <- str_subset(rscripts, "setup_scenarios", negate = TRUE)
+rscripts <- str_subset(rscripts, "summarize_results", negate = TRUE)
 rscripts <- paste0("demonstrations/gavin/",rscripts)
 map(rscripts, source)
 ##
