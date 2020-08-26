@@ -14,7 +14,7 @@ get_base_input <- function() {
   ni <- input$ni #<- 2 #number of indices
   na <- input$na #<- 10 #number of ages
   input$modyears <- 1970:2019 #50 years
-  input$maturity <- 1/(1 + exp(-1*(1:input$na - 5))) #maturity at age
+  #input$maturity <- 1/(1 + exp(-1*(1:input$na - 5))) #maturity at age
   input$maturity <- c(0.04, 0.25, 0.60, 0.77, 0.85, 0.92, 1, 1, 1, 1)
   input$fracyr_spawn <- 0 #when spawning occurs within annual time step
   #L = LVB_pars[1]*(1-exp(-LVB_pars[2]*(1:na - 0))) #make up LVB growth
@@ -44,19 +44,21 @@ get_base_input <- function() {
                     ncol = nf)
   input$M = rep(0.2, na) #Nat. Mort at age
   #input$N1 = exp(10)*exp(-(0:(na-1))*input$M[1]) #Initial numbers at age
-  input$N1 <- 10000*exp(-(0:(na-1))*input$M[1]) #Initial numbers at age
   #recruit_model = 2 #random devations around mean. 3 = BH (mean_rec_pars = a,b R = aS/(1 + bS)), 4 = Ricker (mean_rec_pars = a,b)
-  recruit_model = 3 #Beverton-Holt
+  input$recruit_model = 3 #Beverton-Holt
   #input$use_steepness = 0 #don't use steepness
   input$use_steepness = 1 #mean_rec_pars = h,R0
-  input$mean_rec_pars = numeric(c(0,1,2,2)[recruit_model])
+  #input$mean_rec_pars = numeric(c(0,1,2,2)[recruit_model])
   h <- 0.75 #a = 4*0.7/(0.3*25.8) #h=0.7, phi0=25.8
   R0 <- 10000 #b = (a - 1/25.8)/exp(10) #R0 = exp(10)
   #if(recruit_model == 2) input$mean_rec_pars[] = exp(10)
   #if(recruit_model == 3) 
-  input$mean_rec_pars[] = c(h, R0)
+  input$mean_rec_pars = c(h, R0)
   #if(recruit_model == 4) input$mean_rec_pars[2] = exp(-10)
+  
   input$NAA_rho <- c(0, 0.4) #AR1 rho for age and year (Here: just AR1 with year for recruitment deviations)
   input$NAA_sigma <- 0.5*prod(sqrt(1-input$NAA_rho^2)) #recruitment sd, Marginal SD = 0.5. Need more values if full state-space abundance at age
+  #Below intial NAA will be changed before simulations conducted
+  input$N1 <- R0*exp(-(0:(na-1))*input$M[1]) #Initial numbers at age
   return(input)
 } #end get_base_input function
