@@ -30,10 +30,10 @@ progress <- readRDS(file = "demonstrations/gavin/progress_table.rds")
 # specify how many realizations you want to run today
 nsim = 5
 # who is doing them?
-user = "GF"
+user = "LB"
 # when?
-today = "2020/08/21"
-#today = format(Sys.Date(), "%Y/%m/%d") #for actual date
+#today = "2020/08/21"
+today = format(Sys.Date(), "%Y/%m/%d") #for actual date
 ############################
 
 
