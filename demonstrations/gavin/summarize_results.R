@@ -23,7 +23,7 @@ xx <- drive_ls("ibm-test/output")
 map(xx$name,drive_download, overwrite = TRUE)
 mse_output <- map_df(xx$name,readRDS)
 
-nprojyrs <- 40
+nprojyrs <- 40  #this will be changed so it is part of the settings
 # calculate performance metrics
 mse_results <- mse_output %>% 
   mutate(om_ssb = map(wham,
