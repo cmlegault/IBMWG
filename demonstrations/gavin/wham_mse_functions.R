@@ -2,11 +2,12 @@
 
 ### run a given wham MSE simulation
 ## will want to abstract more of the set up from this as it's the same for each simulation
-do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
+do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10, retro_type = "None") {  #JJD
+  # retro misspecficiation is invoked if retro_type is "M" or "Catch"
   # function does 1 simulation for the wham mse
   # i.e. 1 realization of the base and projection period
   # add more arguments so can abstract more of scenario setup from the inner function
-
+  if(is.null(input)) stop("need an input object like that provided by get_base_input()")
   adv.yr <- input$adv.yr
   #print(adv.yr)
   
@@ -14,10 +15,11 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
   na = input$na #number of ages
   nf=input$nf #number of fleets (we only need 1)
   ni=input$ni #number of indices 
-  recruit_model = 3 #Beverton-Holt
+  #input$recruit_model = 3 #Beverton-Holt
     
   #a50 = 5 and slope = 1 for logistic selectivity for each fleet and index
   #sel.list=list(model=rep("logistic",ni+nf), re=rep("none",ni+nf), initial_pars=lapply(1:(ni+nf), function(x) c(5,1)))
+  if(nf + ni != 3) stop("number of fleets must = 1 and number of indices must = 2")
   sel.list=list(model=rep("logistic",ni+nf), re=rep("none",ni+nf), 
     initial_pars= list(
       c(3.57,1), #fishery (see factorial pruning)
@@ -35,8 +37,26 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
                                                 proj.F=NULL, proj.catch=NULL, avg.yrs=NULL,
                                                 cont.ecov=TRUE, use.last.ecov=FALSE, avg.ecov.yrs=NULL, proj.ecov=NULL, cont.Mre=NULL)
 
+  #set up initial numbers at age according to equilibrium assumptions as determined by IBMWG
+  h = input$mean_rec_pars[1]
+  R0 = input$mean_rec_pars[2]
+  sel = 1/(1+exp(-sel.list$initial_pars[[1]][2]*(1:na - sel.list$initial_pars[[1]][1])))
+  spr0 = wham:::get_SPR(0, M=input$M, sel, mat=input$maturity, waassb=input$waa_catch, fracyrssb=input$fracyr_spawn, at.age = FALSE)
+  a = 4*h/((1-h)*spr0)
+  b = (a - 1/spr0)/R0
+  F1 = input$F[1]
+  sprF1 = wham:::get_SPR(F1, M=input$M, sel, mat=input$maturity, waassb=input$waa_catch, fracyrssb=input$fracyr_spawn, at.age = FALSE)
+  nprF1 = wham:::get_SPR(F1, M=input$M, sel, mat=rep(1,na), waassb=rep(1,na), fracyrssb=input$fracyr_spawn, at.age = TRUE)
+  R_F1 = (a - 1/sum(sprF1))/b
+  input$N1 <- R_F1*nprF1 #Initial numbers at age
+
   #generate the input for fit_wham. Data (indices, catch) are not populated though.
-  x = prepare_wham_om_input(input, recruit_model = recruit_model, selectivity=sel.list, NAA_re = NAA.list, proj.opts = proj.list)
+  x = prepare_wham_om_input(input, recruit_model = input$recruit_model, selectivity=sel.list, NAA_re = NAA.list, proj.opts = proj.list)
+  x$data$Fbar_ages = 10 #not sure if this is needed anywhere, but I did need it for examining retro values.
+  if(retro_type == "M"){
+      x = change_M_om(x, M_new_ratio = 1.65, n_ramp_years = 10, year_change = 2009) 
+  }
+  
   temp = fit_wham(x, do.fit = FALSE)
   rep  = temp$report() #log_MSY, log_F_MSY, log_SSB_MSY, log_FXSPR, log_SPR_MSY, log_SPR0, and much more
   #print(names(rep))
@@ -45,6 +65,9 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
   set.seed(seed) 
   #simulated data and other report items
   y = temp$simulate(complete= TRUE)
+  if(retro_type == "Catch"){
+    y = change_catch_sim(sim = y, catch_ratio = 1/2.75, year_change = 2010, years = 1970:2019)
+  }
   y = get.IBM.input(y=y,i=0) #JJD; this adds to the y list stuff needed for index methods 
   #This would fit the model
   #tdat = temp$input
@@ -60,8 +83,8 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
   # 
   # ```{r init-assess}
   input_i = temp$input
-  SSBlim = exp(rep$log_SSB_MSY[1]) #165,000 mt
-  Flim = exp(rep$log_FMSY[1]) #165,000 mt
+  SSBlim = exp(rep$log_SSB_MSY[1]) 
+  Flim = exp(rep$log_FMSY[1]) 
   refpts <- list(SSBlim = SSBlim,
                  Flim = Flim)
   #catch_advice = ifelse(y$SSB[temp$input$data$n_years_model]>SSBlim, Flim, 0.9*sum(rep$F[y$n_years_model,]))
@@ -90,11 +113,11 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
     #this could be simplified to just overwrite the necessary values each time
     temp$env$data$proj_Fcatch[year:(year+adv.yr-1)] = catch_advice[[1]] #TJM
     temp$env$data$proj_F_opt[year:(year+adv.yr-1)] = 5 #Specify F #JJD,TJM
-    #temp = fit_wham(input_i, do.fit = FALSE, MakeADFun.silent = TRUE)
-    #temp$fn()
-  #  set.seed(sim.seeds[669,15])
     set.seed(seed)
     sim_data_series[[i+1]] = temp$simulate(complete = TRUE)
+    if(retro_type == "Catch"){
+      sim_data_series[[i+1]] = change_catch_sim(sim = sim_data_series[[i+1]], catch_ratio = 1/2.75, year_change = 2010, years = 1970:2019)
+    }
     # lines(temp$years_full[1:(temp$input$data$n_years_model+i)], sim_data_series[[i]]$SSB[1:(temp$input$data$n_years_model+i)], col = i)
     #do assessment method (AIM, ASAP, etc.)
       #Example for fitting WHAM assessment model in feedback period

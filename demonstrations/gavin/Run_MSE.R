@@ -8,12 +8,16 @@ library(tidyr)
 source("IBM_options.R")
 source("wham_mse_functions.R")
 source("base_input.R")
+source("../tim/wham_retro_functions.R")
 
 input=get_base_input()
 input$IBM=M_CC
+input$IBM=DLM_Z
 input$adv.yr = 2
 mse.results=do_wham_mse_sim(input=input)
 mse.results=do_wham_mse_sim(input=input, nprojyrs = 40)
+mse.results=do_wham_mse_sim(input=input, nprojyrs = 40, retro_type = "Catch")
+mse.results=do_wham_mse_sim(input=input, nprojyrs = 40, retro_type = "M")
 
 # possible workflow once functions are all working
 # read seeds from RNG.seeds.csv file

@@ -30,9 +30,10 @@ progress <- readRDS(file = "demonstrations/gavin/progress_table.rds")
 # specify how many realizations you want to run today
 nsim = 5
 # who is doing them?
-user = "GF"
+user = "LB"
 # when?
-today = "2020/08/21"
+#today = "2020/08/21"
+today = format(Sys.Date(), "%Y/%m/%d") #for actual date
 ############################
 
 
@@ -45,12 +46,14 @@ todo <- progress %>% filter(is.na(user)) %>%
 progress$user[todo] <- user
 progress$date_run[todo] <- today
 
+#################################
+# should this be done AFTER the sims are completed and pushed?
 # write the file back to disk & commit to update
 saveRDS(progress, file = "demonstrations/gavin/progress_table.rds")
 #commit back to the repo so other users don't duplicate your efforts
 system('git commit -am "updates progress table"')
 system("git push")
-
+#################################
 
 # pull out realizations to be run today from the setup list using "todo". 
 mse_sim_todo <- mse_sim_setup %>% 
