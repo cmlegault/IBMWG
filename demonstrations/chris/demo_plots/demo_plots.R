@@ -104,3 +104,34 @@ p <- ggplot(fd, aes(x=value, y=IBM)) +
   theme_bw()
 print(p)
 ggsave(filename = "status_for_scenario.png", p)
+
+# compare two scenarios including realization uncertainty
+# could be 2 IBMs, or two retrosources, or catch multiplier 1 vs 0.75, etc.
+ny <- 40
+ssb1 <- rep(1000, ny)
+ssb2 <- ssb1
+f1 <- rep(0.5, ny)
+f2 <- f1
+for (i in 2:ny){
+  ssb1[i] <- ssb1[i-1] * exp(rnorm(1, 0, 0.1))
+  ssb2[i] <- ssb2[i-1] * exp(rnorm(1, 0.05, 0.1))
+  f1[i] <- f1[i-1] * exp(rnorm(1, 0, 0.02))
+  f2[i] <- f2[i-1] * exp(rnorm(1, -0.01, 0.02))
+}
+c1 <- ssb1 * f1
+c2 <- ssb2 * f2
+fd <- data.frame(Year = 2021:2060,
+                 scenario = factor(rep(c(1,2), each = ny)),
+                 metric = rep(c("Catch", "SSB", "F"), each = ny * 2),
+                 value = c(c1, c2, ssb1, ssb2, f1, f2)) %>%
+  mutate(upperCI = value * (1 + 1.96 * runif(40 * 2 * 3, 0.08, 0.12)),
+         lowerCI = value * (1 - 1.96 * runif(40 * 2 * 3, 0.08, 0.12)))
+fd
+p <- ggplot(fd, aes(x=Year, y=value, color=scenario)) +
+  geom_line() +
+  geom_ribbon(aes(ymin = lowerCI, ymax = upperCI, fill=scenario), alpha = 0.2) +
+  facet_wrap(~metric, ncol = 1, scales = "free_y") +
+  expand_limits(y=0) +
+  theme_bw()
+print(p)
+ggsave(filename = "compare_two_scenarios.png", p)
