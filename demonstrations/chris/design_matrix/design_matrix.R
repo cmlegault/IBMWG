@@ -60,7 +60,7 @@ oneoffs <- c("StockType = Pelagic-ish",
              "RetroSource = none",
              # for the following 2 one offs, 
              # only if able to achieve Mohn's rho of 0.5 for SSB
-             "RetroSource = Changed Survey q",  
+             "RetroSource = Changed Survey q",  # important due to Bigelow
              "RetroSource = Selectivity Changes",
              "RetroSource = Multiple Factors (TBD)",
              "RetroSource = big cohort",
