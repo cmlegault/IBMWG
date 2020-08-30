@@ -704,10 +704,7 @@ M_CC = function (y)
   Ac <- mu.C/((F.est/Z.est)*(1 - exp(-Z.est))) # approx biomass based on catch and estimate of F
   
   if(M_CC_method==1){FMSY <- y$F_SPR/Z.est*(1-exp(-Z.est))}    	#	SPR
-  if(M_CC_method==2){
-    stable.res<-get.stable.period(y=y)
-    FMSY<-stable.res$F.replacement  #	uses exploitation rate associated with stable historic period; 
-    }
+  #if(M_CC_method==2){FMSY<-mean(catch[y$stable.year]/Ac[y$stable.year])  }		#	stable historic period; #check:Divides catch/biomass in each year and then takes mean, This one doesn't make sense for CC.  Ac is a single value, not time series.  Stable period only applies to expanded biomass
   if(M_CC_method==3){FMSY <- M/Z.est*(1-exp(-Z.est))} 		#	natural mortality= Fmsy
   
   C.targ<- FMSY * Ac
