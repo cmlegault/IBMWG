@@ -56,6 +56,6 @@ IBM.options<-function(y=NULL){
   y$AIM_Fscalar<-1
   y$AIM_plot=F
   y$AIM_avg<-T
-  y$AIM_npts<-10		#	number of years to include, default is one
+  y$AIM_npts<-1		#	number of years to include, default is one
   return(y)
 }
