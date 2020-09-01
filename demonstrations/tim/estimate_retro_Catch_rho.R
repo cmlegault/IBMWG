@@ -10,74 +10,17 @@ source("demonstrations/gavin/base_input.R")
 # results in Mohn's rho approx 0.50 for SSB, -0.34 for F, 0.33 for Recruitment
 #fit SCAA model to estimate retro.
 
-estimate_retro_Catch_rho = function(C_ratio = 2.75, nsim = 50){
+estimate_retro_Catch_rho = function(C_ratio = 4, nsim = 50, n_selblocks = 1, Fhist = 1, Fmsy_scale = 2.5){
 
-  input = get_base_input()
+  om = get_base_input(n_selblocks, Fhist, Fmsy_scale)
 
-  na = input$na #number of ages
-  nf=input$nf #number of fleets (we only need 1)
-  ni=input$ni #number of indices 
-  #input$recruit_model = 3 #Beverton-Holt
-    
-  #a50 = 5 and slope = 1 for logistic selectivity for each fleet and index
-  #sel.list=list(model=rep("logistic",ni+nf), re=rep("none",ni+nf), initial_pars=lapply(1:(ni+nf), function(x) c(5,1)))
-  if(nf + ni != 3) stop("number of fleets must = 1 and number of indices must = 2")
-  sel.list=list(model=rep("logistic",ni+nf), re=rep("none",ni+nf), 
-    initial_pars= list(
-      c(3.57,1), #fishery (see factorial pruning)
-      c(1.8, 1/6), #survey 1 (see factorial pruning)
-      c(1.2, 1/5.5))) #survey 2 (see factorial pruning)
-
-  #AR1 deviations of rececruitment only over time. To include abundances at older ages as random effects use "rec+1"
-  NAA.list = list(sigma='rec',cor='ar1_y')
-  #NAA.list = list(sigma='rec',cor='iid') #this would make recruitment deviations iid.
-  #```
-
-  #```{r base-period}
-  #set up projections to repopulate 
-  proj.list = list(n.yrs=length(input$modyears), use.last.F=TRUE, use.avg.F=FALSE, use.FXSPR=FALSE,
-                                                proj.F=NULL, proj.catch=NULL, avg.yrs=NULL,
-                                                cont.ecov=TRUE, use.last.ecov=FALSE, avg.ecov.yrs=NULL, proj.ecov=NULL, cont.Mre=NULL)
-
-  #set up initial numbers at age according to equilibrium assumptions as determined by IBMWG
-  h = input$mean_rec_pars[1]
-  R0 = input$mean_rec_pars[2]
-  print(h)
-  print(R0)
-  sel = 1/(1+exp(-sel.list$initial_pars[[1]][2]*(1:na - sel.list$initial_pars[[1]][1])))
-  print(sel)
-  spr0 = wham:::get_SPR(0, M=input$M, sel, mat=input$maturity, waassb=input$waa_catch, fracyrssb=input$fracyr_spawn, at.age = FALSE)
-  print(spr0)
-  a = 4*h/((1-h)*spr0)
-  print(a)
-  b = (a - 1/spr0)/R0
-  print(b)
-  F1 = input$F[1]
-  print(F1)
-  sprF1 = wham:::get_SPR(F1, M=input$M, sel, mat=input$maturity, waassb=input$waa_catch, fracyrssb=input$fracyr_spawn, at.age = FALSE)
-  nprF1 = wham:::get_SPR(F1, M=input$M, sel, mat=rep(1,na), waassb=rep(1,na), fracyrssb=input$fracyr_spawn, at.age = TRUE)
-  print(sprF1)
-  print(nprF1)
-  R_F1 = (a - 1/sum(sprF1))/b
-  print(R_F1)
-  input$N1 <- R_F1*nprF1 #Initial numbers at age
-  print(input$N1)
-
-  #generate the input for fit_wham. Data (indices, catch) are not populated though.
-  om = prepare_wham_om_input(input, recruit_model = input$recruit_model, selectivity=sel.list, NAA_re = NAA.list)#, proj.opts = proj.list)
-  om$data$Fbar_ages = 10
-  #source("~/work/IBMWG/wham/sandbox/prepare_wham_om_input.R")
   om_wham = fit_wham(om, do.fit = FALSE)
-  scaa_input = input
-  scaa_input$use_steepness = 0
-  scaa_input$mean_rec_pars = scaa_input$mean_rec_pars[2]
-  scaa_input = prepare_wham_om_input(scaa_input, recruit_model = 2, selectivity=sel.list)
-  scaa_input$data$Fbar_ages = 10
+  scaa_input = get_base_input(n_selblocks, Fhist, Fmsy_scale, scaa=TRUE)
 
   seed = 8675309
   set.seed(seed)
   simsets = lapply(1:nsim, function(x) change_catch_sim(sim = om_wham$simulate(complete = TRUE), catch_ratio = 1/C_ratio, year_change = 2010, years = 1970:2019))
-  simres = matrix(NA, length(simsets), na+2)
+  simres = matrix(NA, length(simsets), om$data$n_ages+2)
   for(i in 1:length(simsets))
   {
     print(paste0("i = ", i))
@@ -96,5 +39,8 @@ estimate_retro_Catch_rho = function(C_ratio = 2.75, nsim = 50){
   return(list(simres, tfit))
 }
 
-x = estimate_retro_Catch_rho()
+#scen11 = estimate_retro_Catch_rho(C_ratio = 5) #SSB 0.4, F -0.28, R 0.32
 
+#scen12 = estimate_retro_Catch_rho(C_ratio = 2, Fhist = 2) #SSB 0.54, F -0.38, R 0.52
+#scen21 = estimate_retro_Catch_rho(C_ratio = 5, n_selblocks = 2) #SSB 0.45, F -0.31, R 0.30
+#scen22 = estimate_retro_Catch_rho(C_ratio = 2.25, n_selblocks = 2, Fhist = 2) #SSB 0.52, F -0.41, R 0.45
