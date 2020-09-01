@@ -71,22 +71,22 @@
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
-"groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
+"groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",1,"none",TRUE
+"groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",1,"none",TRUE
+"groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",1,"none",TRUE
+"groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",1,"none",TRUE
+"groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",1,"none",TRUE
+"groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",1,"none",TRUE
+"groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",1,"none",TRUE
+"groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",1,"none",TRUE
+"groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",1,"none",TRUE
+"groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",1,"none",TRUE
+"groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",1,"none",TRUE
+"groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",1,"none",TRUE
+"groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",1,"none",TRUE
+"groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",1,"none",TRUE
+"groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",1,"none",TRUE
+"groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
@@ -175,22 +175,22 @@
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
-"groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
+"groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",0.75,"none",TRUE
+"groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",0.75,"none",TRUE
+"groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",0.75,"none",TRUE
+"groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",0.75,"none",TRUE
+"groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",0.75,"none",TRUE
+"groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",0.75,"none",TRUE
+"groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",0.75,"none",TRUE
+"groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_F%SPR",0.75,"none",TRUE
+"groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",0.75,"none",TRUE
+"groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",0.75,"none",TRUE
+"groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",0.75,"none",TRUE
+"groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",0.75,"none",TRUE
+"groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",0.75,"none",TRUE
+"groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",0.75,"none",TRUE
+"groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",0.75,"none",TRUE
+"groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_FequalM",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
