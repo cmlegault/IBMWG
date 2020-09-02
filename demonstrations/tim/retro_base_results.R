@@ -19,12 +19,29 @@ M_scen22 = estimate_retro_M_rho(M_ratio = 1.8, n_selblocks = 2, Fhist = 2) #SSB 
 
 save(scen11,scen12,scen21,scen22,Catch_scen11,Catch_scen12,Catch_scen21,Catch_scen22,M_scen11,M_scen12,M_scen21,M_scen22, file = "demonstrations/tim/retro_res.RData")
 
-dat = cbind.data.frame(retro_type = rep("None", 200), Fhist = rep(c(1,2,1,2), each = 50), selhist = rep(1:2, each = 100), 
-  rbind(scen11, scen12, scen21, scen22))
+block = cbind.data.frame(retro_type = rep("None", 200), Fhist = rep(c(1,2,1,2), each = 50), selhist = rep(1:2, each = 100))
+for(i in c("SSB","Fbar","R")) 
+{
+  if(i == "SSB") dat = cbind(block, type = i, retro = c(scen11[[1]][,i], scen12[[1]][,i], scen21[[1]][,i], scen22[[1]][,i]))
+  else dat = rbind(dat, cbind(block, type = i, retro = c(scen11[[1]][,i], scen12[[1]][,i], scen21[[1]][,i], scen22[[1]][,i])))
+}
+block = cbind.data.frame(retro_type = rep("Catch", 200), Fhist = rep(c(1,2,1,2), each = 50), selhist = rep(1:2, each = 100))
+for(i in c("SSB","Fbar","R")) 
+{
+    dat = rbind(dat, cbind(block, type = i, retro = c(Catch_scen11[[1]][,i], Catch_scen12[[1]][,i], Catch_scen21[[1]][,i], Catch_scen22[[1]][,i])))
+}
+block = cbind.data.frame(retro_type = rep("M", 200), Fhist = rep(c(1,2,1,2), each = 50), selhist = rep(1:2, each = 100))
+for(i in c("SSB","Fbar","R")) 
+{
+    dat = rbind(dat, cbind(block, type = i, retro = c(M_scen11[[1]][,i], M_scen12[[1]][,i], M_scen21[[1]][,i], M_scen22[[1]][,i])))
+}
 
-dat = cbind.data.frame(retro_type = rep("Catch", 200), Fhist = rep(c(1,2,1,2), each = 50), selhist = rep(1:2, each = 100), 
-  rbind(Catch_scen11, Catch_scen12, Catch_scen21, Catch_scen22))
+library(ggplot2)
 
-dat = cbind.data.frame(retro_type = rep("M", 200), Fhist = rep(c(1,2,1,2), each = 50), selhist = rep(1:2, each = 100), 
-  rbind(M_scen11, M_scen12, M_scen21, M_scen22))
+p = ggplot(dat, aes(x=type, y=retro, fill=retro_type)) + 
+    geom_boxplot() +
+    facet_wrap(~retro_type*Fhist*selhist)
 
+cairo_pdf("demonstrations/tim/retro_results_plots.pdf", family = "Times", height = 10, width = 10)
+p
+dev.off()
