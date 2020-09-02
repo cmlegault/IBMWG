@@ -1,6 +1,6 @@
-devtools::install_github("cmlegault/PlanBsmooth")
+#devtools::install_github("cmlegault/PlanBsmooth")
 library(wham)
-library(PlanBsmooth)
+#library(PlanBsmooth)
 library(ggplot2)
 library(dplyr)
 library(tidyr) 
