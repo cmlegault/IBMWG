@@ -73,4 +73,3 @@ wham_like_asap = function(nsim = 1){
 }
 
 x = wham_like_asap()
-

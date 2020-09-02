@@ -10,9 +10,7 @@ library(dplyr)
 stocktype <- c("groundfish-ish")
 
 retrosource <- c("Missing Catch", 
-                 "Increased M", 
-                 "Changed Survey q", 
-                 "Selectivity Changes") 
+                 "Increased M") 
 
 fhistory <- c("always overfishing", 
               "overfishing then fmsy")
@@ -60,6 +58,10 @@ write.csv(scenarios, file = "scenarios.csv", row.names = FALSE)
 
 oneoffs <- c("StockType = Pelagic-ish",
              "RetroSource = none",
+             # for the following 2 one offs, 
+             # only if able to achieve Mohn's rho of 0.5 for SSB
+             "RetroSource = Changed Survey q",  # important due to Bigelow
+             "RetroSource = Selectivity Changes",
              "RetroSource = Multiple Factors (TBD)",
              "RetroSource = big cohort",
              "Fhistory = always underfished",

@@ -5,6 +5,8 @@
 
 library(ggplot2)
 library(dplyr)
+library(tidyr)
+library(umap)
 
 # make repeatable
 set.seed(14)
@@ -135,3 +137,20 @@ p <- ggplot(fd, aes(x=Year, y=value, color=scenario)) +
   theme_bw()
 print(p)
 ggsave(filename = "compare_two_scenarios.png", p)
+
+
+# approach from Andy Jones using Uniform Manifold Approximation and Projection package (umap)
+
+#converting the data to a wide format
+fd_wide <- fd %>% pivot_wider(names_from = metric, values_from = c(value,upperCI,lowerCI))
+
+#trying out a generic UMAP on three response variables (catch,SSB,F)
+umap_fd <- umap(fd_wide[,3:5] %>% scale())
+
+#plotting out the results
+#facting by scenario and adding a color for year
+fd_wide %>%
+  mutate(id = row_number()) %>%
+  bind_cols(umap_fd$layout %>% as_tibble()) %>%
+  ggplot(.,aes(x=V1,y=V2,colour=Year)) + geom_point() + facet_wrap(~scenario)
+ggsave(filename = "umap_idea.png")

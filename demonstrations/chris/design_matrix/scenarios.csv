@@ -1,417 +1,209 @@
 "StockType","RetroSource","Fhistory","FisherySelectivity","AutoCorrR","CombinedSurveys","IBM","CatchMultiplier","CapChange","factorial"
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Islope",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Itarget",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","M_CC",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","AIM",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",1,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Islope",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Itarget",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","true_Skate_CR",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","M_CC",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","PlanBsmooth",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_recentavgrelF",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_F%SPR",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","ExpandSurvey_stableperiodF",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","AIM",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_Fspr",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","CatchCurve_stableperiod",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","JoeDLM",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Constant",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Constant",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Constant",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Constant",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Constant",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
 "groundfish-ish","Increased M","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","always overfishing","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
 "groundfish-ish","Missing Catch","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
 "groundfish-ish","Increased M","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
-"groundfish-ish","Changed Survey q","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
-"groundfish-ish","Selectivity Changes","overfishing then fmsy","Time-varying",TRUE,"Spring and Previous Fall","Ensemble",0.75,"none",TRUE
