@@ -1,11 +1,17 @@
-ApplyPlanBsmooth_fast <- function (dat, od = ".\\", my.title = "", terminal.year = NA, 
-          nyears = 33, loess.span = NA, saveplots = FALSE, showplots = TRUE, 
-          nameplots = "",
-          showwarn = TRUE) {
+ApplyPlanBsmooth_fast <- function (dat, od = ".\\", 
+                                   my.title = "", 
+                                   terminal.year = NA, 
+                                   nyears = 33, 
+                                   loess.span = NA, 
+                                   saveplots = FALSE, 
+                                   showplots = FALSE, 
+                                   nameplots = "",
+                                   showwarn = FALSE) {
   if (is.na(terminal.year)) 
     terminal.year <- max(dat$Year, na.rm = T)
-  dat.use <- filter(dat, Year <= terminal.year, Year >= (terminal.year - 
-                                                           nyears + 1)) %>% drop_na()
+  dat.use <- filter(dat, Year <= terminal.year, 
+                    Year >= (terminal.year - nyears + 1)) %>% 
+    drop_na()
   nyears <- max(dat.use$Year) - min(dat.use$Year) + 1
   if (is.na(loess.span)) 
     loess.span <- 9.9/nyears
