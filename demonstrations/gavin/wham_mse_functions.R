@@ -56,10 +56,10 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 40, retro_type =
   #x$data$Fbar_ages = 10 #not sure if this is needed anywhere, but I did need it for examining retro values.
   x = input
   if(retro_type == "M"){
-      if(Fhist == 1 & n_selblocks == 1) Mscale = 1.65
-      if(Fhist == 2 & n_selblocks == 1) Mscale = 1.65
-      if(Fhist == 1 & n_selblocks == 2) Mscale = 1.65
-      if(Fhist == 2 & n_selblocks == 2) Mscale = 1.65      
+      if(Fhist == 1 & n_selblocks == 1) Mscale = 1.6
+      if(Fhist == 2 & n_selblocks == 1) Mscale = 1.8
+      if(Fhist == 1 & n_selblocks == 2) Mscale = 1.6
+      if(Fhist == 2 & n_selblocks == 2) Mscale = 1.8      
       x = change_M_om(x, M_new_ratio = Mscale, n_ramp_years = 10, year_change = 2009) 
   }
   
