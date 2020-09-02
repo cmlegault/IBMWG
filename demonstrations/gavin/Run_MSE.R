@@ -7,6 +7,7 @@ library(tidyr)
 
 source("IBM_options.R")
 source("wham_mse_functions.R")
+source("GF_planb.R")
 source("base_input.R")
 source("../tim/wham_retro_functions.R")
 #n_selblocks = 1 #constant fishery selectivity
