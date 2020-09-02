@@ -1,6 +1,7 @@
 ####
 
 ## install needed libraries & scripts
+#devtools::install_github("timjmiller/wham", dependencies=TRUE)
 library(wham)
 library(tidyverse)
 library(furrr)
@@ -14,6 +15,9 @@ rscripts <- str_subset(rscripts, "setup_scenarios", negate = TRUE)
 rscripts <- str_subset(rscripts, "summarize_results", negate = TRUE)
 rscripts <- paste0("demonstrations/gavin/",rscripts)
 map(rscripts, source)
+
+# set up the type of future (for parallelization of sims using furrr)
+future::plan(future::multisession)
 
 
 # load in the scenario specifications
@@ -30,7 +34,7 @@ progress <- readRDS(file = "demonstrations/gavin/progress_table.rds")
 # specify how many realizations you want to run today
 nsim = 5
 # who is doing them?
-user = "LB"
+user = "GF"
 # when?
 #today = "2020/08/21"
 today = format(Sys.Date(), "%Y/%m/%d") #for actual date
@@ -63,18 +67,23 @@ mse_sim_todo <- mse_sim_setup %>%
 ### run the MSE over each row of the mse_sims todo
 nprojyrs = 40 # THIS NEEDS ADDING TO THE SPECIFICATION TABLE
 #do the MSE for all simulations and scenarios
-#future::plan(future::multisession)
+
 #profvis::profvis(
-  system.time(mse_output <- mse_sim_todo %>% 
-                mutate(wham = purrr::pmap(list(seed, input),
-                                          ~do_wham_mse_sim(seed = .x,
-                                                           input = .y,
-                                                           nprojyrs = nprojyrs))))
-  #) #ends profvis
-# mutate(wham = furrr::future_pmap(list(seed, input),
+  #system.time(
+mse_output <- mse_sim_todo %>% 
+  mutate(wham = furrr::future_pmap(list(seed, input),
+                          ~do_wham_mse_sim(seed = .x,
+                                           input = .y,
+                                           nprojyrs = nprojyrs))) #)
+
+# this is the regular purrr code for iterating over the simulations
+# mutate(wham = purrr::pmap(list(seed, input),
 #                           ~do_wham_mse_sim(seed = .x,
 #                                            input = .y,
 #                                            nprojyrs = nprojyrs))))
+#) #ends profvis
+
+
 
 #save the output
 outfile = paste0("output/demo-mse-",user,"-",str_remove_all(today,"/"),".rds")
