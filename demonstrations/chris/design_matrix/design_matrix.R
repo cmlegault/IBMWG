@@ -31,8 +31,8 @@ ibms <- c("Islope",
           "ExpandSurvey_F%SPR",
           "ExpandSurvey_stableperiodF",
           "AIM", 
-          "CatchCurve_Fspr",
-          "CatchCurve_stableperiod",
+          "CatchCurve_F%SPR",
+          "CatchCurve_FequalM",
           "JoeDLM",
           "Ensemble")
 
