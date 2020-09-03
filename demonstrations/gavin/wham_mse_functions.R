@@ -931,7 +931,7 @@ ensemble<-function(y=NULL){
   advice<-c(advice,M_CC(y))
   advice<-c(advice,ExpandSurvey_modified(y)[[1]])
   #advice<-c(advice,JoeLangan....)
-  return(mean(advice))
+  return(median(advice))
 }
 #ensemble(y)
 
