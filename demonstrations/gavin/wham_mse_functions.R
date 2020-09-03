@@ -12,6 +12,11 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 40, retro_type =
   #adv.yr <- input$adv.yr
   #print(adv.yr)
   
+  nprojyrs <- input$nprojyrs
+  retro_type <- input$retro_type
+  n_selblocks <- input$n_selblocks
+  Fhist <- input$Fhist
+  
   # GF - had to copy these from input specs, mod so part of arguments
   #na = input$na #number of ages
   #nf=input$nf #number of fleets (we only need 1)
@@ -79,6 +84,11 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 40, retro_type =
     y = change_catch_sim(sim = y, catch_ratio = 1/Cscale, year_change = 2010, years = 1970:2019)
   }
   y = get.IBM.input(y=y,i=0) #JJD; this adds to the y list stuff needed for index methods 
+  
+  #GF modify the IBM options based on the scenario
+  y$expand_method <- input$expand_method
+  y$M_CC_method <- input$M_CC_method
+  
   #This would fit the model
   #tdat = temp$input
   #tdat$data = y
