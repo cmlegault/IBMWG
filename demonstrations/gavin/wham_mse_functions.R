@@ -533,26 +533,28 @@ Itarget <- function(y)
   # ref_yrs is the number of years for the reference period - this should stay fixed throughout sim so we don't have shifting ref pts. 
   # Cmult determines the target catch (relative to the avg.)
   # w is a parameter (0-1) that determines how quickly catch declines between I.target and I.threshold 
-  
-  
+  version <- y$Itarget_version
   index<-y$index
   Ctot<-y$catch
   ref_yrs<-y$Itarget_ref_yrs
   yrsmth<-y$Itarget_yrsmth
-  cmult<-y$Itarget_cmult
   w<-y$Itarget_w
+  I.avg <- mean(index[1:ref_yrs]) # the average of the index over the base period
   
+  if(version > 4 | version < 1)
+  {
+    stop("You must enter a version between 1 and 4, 1=least conservative, 4 = most conservative")
+  }
   
-  # moving avg - sides = 1 uses preceeding values; sides = 2 uses values on either side
-  I.smooth <- stats::filter(index,rep(1/yrsmth,yrsmth), sides=1)
-  
-  # Target = 75th percentile of ref. period, threshold = 0.5 * I.targ
-  I.targ <- quantile(I.smooth[1:ref_yrs],0.75,na.rm=TRUE)
-  I.thresh <- 0.5 * I.targ
-  
-  C.star <- cmult*mean(Ctot[1:ref_yrs],na.rm=TRUE) # some target level of catch
-  
-  I.rec <- tail(I.smooth,1)  # recent smooth index
+  Itarg_mult <- c(1.5, 2.0, 2.0, 2.5)
+  cmult<- c(1.0,1.0,1.0,0.6)
+    
+  # Target = Some multiple of the Average over the reference period
+  I.targ <- Itarg_mult[version] * I.avg
+  I.thresh <- 0.8 * I.targ
+  #C.star <- cmult[version]*mean(tail(Ctot,5),na.rm=TRUE) #  recent average catch (5 yr)
+  C.star <- cmult[version]*mean(Ctot[1:ref_yrs],na.rm=TRUE) # average catch of reference period
+  I.rec <- mean(tail(index,5),na.rm=TRUE)  # recent 5 year average
   
   if(I.rec >= I.thresh) # if above thresh catch increases linearly
   {
@@ -563,11 +565,12 @@ Itarget <- function(y)
     C.targ <- w*C.star * (I.rec/I.thresh)^2
   }
   
+  #print(c(I.rec, I.targ, I.thresh, I.rec/I.thresh, C.star, C.targ))
+        
   names(C.targ)<-NULL
   
   return(C.targ)
 }
-
 #Itarget(y)
 
 #---------------------------
