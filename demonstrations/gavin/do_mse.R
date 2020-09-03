@@ -23,6 +23,7 @@ nsim = 5
 # who is doing them?
 user = "GF"
 
+
 do_mse <- function(nsim = nsim, user = user, write_to_google = TRUE) {
   
 # set up the type of future (for parallelization of sims using furrr)
