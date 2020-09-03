@@ -57,5 +57,12 @@ IBM.options<-function(y=NULL){
   y$AIM_plot=F
   y$AIM_avg<-T
   y$AIM_npts<-1		#	number of years to include, default is one
+
+
+
+#	Joe Langan's dynamic linear model function
+y$JoeDLM_prop_inc<-0.05	#	proportion to increase biomass each year
+y$JoeDLM_n_ahead<-2 # forecasting 2 years and returning 2 years of catch advice
+
   return(y)
 }
