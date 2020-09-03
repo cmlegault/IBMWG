@@ -9,7 +9,8 @@ IBM.options<-function(y=NULL){
   y$Islope_cap<-FALSE
   
   #	Itarget	
-  y$Itarget_ref_yrs<-25	#	NEEDS TO BE DETERMINED
+  y$Itarget_ref_yrs<-50	#	NEEDS TO BE DETERMINED
+  y$Itarget_version<-1
   y$Itarget_yrsmth<-3
   y$Itarget_cmult<-1
   y$Itarget_w<-0.5
