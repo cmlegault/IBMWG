@@ -2,114 +2,154 @@
 
 ### run a given wham MSE simulation
 ## will want to abstract more of the set up from this as it's the same for each simulation
-do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 10) {  #JJD
+do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 40, retro_type = "None", n_selblocks = 1, Fhist = 1) {  #JJD
+  # retro misspecficiation is invoked if retro_type is "M" or "Catch"
   # function does 1 simulation for the wham mse
   # i.e. 1 realization of the base and projection period
   # add more arguments so can abstract more of scenario setup from the inner function
-
-  adv.yr <- input$adv.yr
+  # now almost all set up is done in get_base_input
+  if(is.null(input)) stop("need an input object like that provided by get_base_input()")
+  #adv.yr <- input$adv.yr
+  #print(adv.yr)
   
   # GF - had to copy these from input specs, mod so part of arguments
-  na = input$na #number of ages
-  nf=input$nf #number of fleets (we only need 1)
-  ni=input$ni #number of indices 
-  recruit_model = 3 #Beverton-Holt
+  #na = input$na #number of ages
+  #nf=input$nf #number of fleets (we only need 1)
+  #ni=input$ni #number of indices 
+  #input$recruit_model = 3 #Beverton-Holt
     
-#a50 = 5 and slope = 1 for logistic selectivity for each fleet and index
-sel.list=list(model=rep("logistic",ni+nf), re=rep("none",ni+nf), initial_pars=lapply(1:(ni+nf), function(x) c(5,1)))
+  #a50 = 5 and slope = 1 for logistic selectivity for each fleet and index
+  #sel.list=list(model=rep("logistic",ni+nf), re=rep("none",ni+nf), initial_pars=lapply(1:(ni+nf), function(x) c(5,1)))
+  #if(nf + ni != 3) stop("number of fleets must = 1 and number of indices must = 2")
+  #sel.list=list(model=rep("logistic",ni+nf), re=rep("none",ni+nf), 
+  #  initial_pars= list(
+  #    c(3.57,1), #fishery (see factorial pruning)
+  #    c(1.8, 1/6), #survey 1 (see factorial pruning)
+  #    c(1.2, 1/5.5))) #survey 2 (see factorial pruning)
 
-#AR1 deviations of rececruitment only over time. To include abundances at older ages as random effects use "rec+1"
-NAA.list = list(sigma='rec',cor='ar1_y')
-#NAA.list = list(sigma='rec',cor='iid') #this would make recruitment deviations iid.
-#```
+  #AR1 deviations of rececruitment only over time. To include abundances at older ages as random effects use "rec+1"
+  #NAA.list = list(sigma='rec',cor='ar1_y')
+  #NAA.list = list(sigma='rec',cor='iid') #this would make recruitment deviations iid.
+  #```
 
-#```{r base-period}
-#set up projections to repopulate 
-proj.list = list(n.yrs=length(input$modyears), use.last.F=TRUE, use.avg.F=FALSE, use.FXSPR=FALSE,
-                                              proj.F=NULL, proj.catch=NULL, avg.yrs=NULL,
-                                              cont.ecov=TRUE, use.last.ecov=FALSE, avg.ecov.yrs=NULL, proj.ecov=NULL, cont.Mre=NULL)
+  #```{r base-period}
+  #set up projections to repopulate 
+  #proj.list = list(n.yrs=length(input$modyears), use.last.F=TRUE, use.avg.F=FALSE, use.FXSPR=FALSE,
+  #                                              proj.F=NULL, proj.catch=NULL, avg.yrs=NULL,
+  #                                              cont.ecov=TRUE, use.last.ecov=FALSE, avg.ecov.yrs=NULL, proj.ecov=NULL, cont.Mre=NULL)
 
-#generate the input for fit_wham. Data (indices, catch) are not populated though.
-x = prepare_wham_om_input(input, recruit_model = recruit_model, selectivity=sel.list, NAA_re = NAA.list, proj.opts = proj.list)
-temp = fit_wham(x, do.fit = FALSE)
-rep  = temp$report() #log_MSY, log_F_MSY, log_SSB_MSY, log_FXSPR, log_SPR_MSY, log_SPR0, and much more
+  #set up initial numbers at age according to equilibrium assumptions as determined by IBMWG
+  #h = input$mean_rec_pars[1]
+  #R0 = input$mean_rec_pars[2]
+  #sel = 1/(1+exp(-sel.list$initial_pars[[1]][2]*(1:na - sel.list$initial_pars[[1]][1])))
+  #spr0 = wham:::get_SPR(0, M=input$M, sel, mat=input$maturity, waassb=input$waa_catch, fracyrssb=input$fracyr_spawn, at.age = FALSE)
+  #a = 4*h/((1-h)*spr0)
+  #b = (a - 1/spr0)/R0
+  #F1 = input$F[1]
+  #sprF1 = wham:::get_SPR(F1, M=input$M, sel, mat=input$maturity, waassb=input$waa_catch, fracyrssb=input$fracyr_spawn, at.age = FALSE)
+  #nprF1 = wham:::get_SPR(F1, M=input$M, sel, mat=rep(1,na), waassb=rep(1,na), fracyrssb=input$fracyr_spawn, at.age = TRUE)
+  #R_F1 = (a - 1/sum(sprF1))/b
+  #input$N1 <- R_F1*nprF1 #Initial numbers at age
 
-#set.seed(sim.seeds[669,15]) 
-set.seed(seed) 
-#simulated data and other report items
-y = temp$simulate(complete= TRUE)
-y = get.IBM.input(y=y,i=0) #JJD; this adds to the y list stuff needed for index methods 
-#This would fit the model
-#tdat = temp$input
-#tdat$data = y
-#z = fit_wham(tdat, do.osa = FALSE, do.retro = FALSE, do.fit = TRUE)
-
-#below is similar to simple_example.R but now using this simuated data instead of the yellowtail fit.
-sim_data_series = list()
-sim_data_series[[1]] <- y
-advice <- list()
-# plot(temp$years, y$SSB[1:temp$input$data$n_years_model], ylab = "SSB", xlim = range(temp$years_full), xlab = "Year", type = "b", ylim =c(0,1000000))
-# ```
-# 
-# ```{r init-assess}
-input_i = temp$input
-SSBlim = exp(rep$log_SSB_MSY[1]) #165,000 mt
-Flim = exp(rep$log_FMSY[1]) #165,000 mt
-refpts <- list(SSBlim = SSBlim,
-               Flim = Flim)
-#catch_advice = ifelse(y$SSB[temp$input$data$n_years_model]>SSBlim, Flim, 0.9*sum(rep$F[y$n_years_model,]))
-catch_advice=input$IBM(y=y) #JJD
-# if(length(catch_advice)>1){
-#   catch_advice=catch_advice$proj.catch ##needed for AIM because run.aim function returns bunch of stuff
-# }
-## GF: not needed so long as first object in returned list is the catch advice (which in AIM it is)
-
-#catch_advice <- rep(catch_advice,adv.yr) #JJD
-advice[[1]] <- catch_advice #JJD
-# ```
-# 
-# 
-# ```{r proj-period}
-assess_years <- seq(1,(nprojyrs-adv.yr+1),by=adv.yr)
-nproj <-length(assess_years)
+  #generate the input for fit_wham. Data (indices, catch) are not populated though.
+  #x = prepare_wham_om_input(input, recruit_model = input$recruit_model, selectivity=input$sel.list, NAA_re = input$NAA.list, proj.opts = input$proj.list)
+  #x$data$Fbar_ages = 10 #not sure if this is needed anywhere, but I did need it for examining retro values.
+  x = input
+  if(retro_type == "M"){
+      if(Fhist == 1 & n_selblocks == 1) Mscale = 1.6
+      if(Fhist == 2 & n_selblocks == 1) Mscale = 1.8
+      if(Fhist == 1 & n_selblocks == 2) Mscale = 1.6
+      if(Fhist == 2 & n_selblocks == 2) Mscale = 1.8      
+      x = change_M_om(x, M_new_ratio = Mscale, n_ramp_years = 10, year_change = 2009) 
+  }
   
-#for(i in assess_years) #JJD
-for (i in 1:nproj)  
-{
-  year <- assess_years[i]
-  #input_i$data$proj_Fcatch[year:(year+adv.yr-1)] = catch_advice[[1]] #JJD
-  #input_i$data$proj_F_opt[year:(year+adv.yr-1)] = 5 #Specify F #JJD
-  
-  #this could be simplified to just overwrite the necessary values each time
-  temp$env$data$proj_Fcatch[year:(year+adv.yr-1)] = catch_advice[[1]] #TJM
-  temp$env$data$proj_F_opt[year:(year+adv.yr-1)] = 5 #Specify F #JJD,TJM
-  #temp = fit_wham(input_i, do.fit = FALSE, MakeADFun.silent = TRUE)
-  #temp$fn()
-#  set.seed(sim.seeds[669,15])
-  set.seed(seed)
-  sim_data_series[[i+1]] = temp$simulate(complete = TRUE)
-  # lines(temp$years_full[1:(temp$input$data$n_years_model+i)], sim_data_series[[i]]$SSB[1:(temp$input$data$n_years_model+i)], col = i)
-  #do assessment method (AIM, ASAP, etc.)
-    #Example for fitting WHAM assessment model in feedback period
-    #tdat = input_i
-    #tdat$data = sim_data_series[[i]]
-    #y = fit_wham(tdat, do.osa = FALSE, do.retro = FALSE)
-    #sim_data_series[[i]]$wham_fit = y
-    #catch_advice = ifelse(sim_data_series[[i]]$wham_fit$rep$SSB[temp$input$data$n_years_model+i]>220000, 1.1, 0.9)* sim_data_series[[i]]$pred_catch[temp$input$data$n_years_model+i]
-  #important_assessment_result <- run_assesssment_method(sim_data)
-  #catch_advice <- get_catch_advice(important_assessment_result)
-  #take up where we left off
-  #set catch to catch advice
-  #catch_advice = ifelse(sim_data_series[[i+1]]$SSB[temp$input$data$n_years_model+i]>SSBlim, Flim, 0.9* sim_data_series[[i+1]]$FAA_tot[temp$input$data$n_years_model+i,na])* Flim
-  sim_data_series[[i+1]] = get.IBM.input(y=sim_data_series[[i+1]],i=year) #JJD; GF
-  catch_advice = input$IBM(y=sim_data_series[[i+1]]) #JJD
-  #if(length(catch_advice)>1){
-  #  catch_advice=catch_advice$proj.catch ##needed for AIM because run.aim function returns bunch of stuff
-  #}
-  # GF don't think we need this; catch_advice=rep(catch_advice,adv.yr) #JJD
-  #advice[(i+adv.yr):(i+(2*adv.yr)-1)] <- catch_advice
-  advice[[i+1]] <- catch_advice
-}
+  temp = fit_wham(x, do.fit = FALSE)
+  rep  = temp$report() #log_MSY, log_F_MSY, log_SSB_MSY, log_FXSPR, log_SPR_MSY, log_SPR0, and much more
+  #print(names(rep))
+  #print(rep$selAA)
+  #set.seed(sim.seeds[669,15]) 
+  set.seed(seed) 
+  #simulated data and other report items
+  y = temp$simulate(complete= TRUE)
+  if(retro_type == "Catch"){
+      if(Fhist == 1 & n_selblocks == 1) Cscale = 5
+      if(Fhist == 2 & n_selblocks == 1) Cscale = 2.5
+      if(Fhist == 1 & n_selblocks == 2) Cscale = 5
+      if(Fhist == 2 & n_selblocks == 2) Cscale = 2.25      
+    y = change_catch_sim(sim = y, catch_ratio = 1/Cscale, year_change = 2010, years = 1970:2019)
+  }
+  y = get.IBM.input(y=y,i=0) #JJD; this adds to the y list stuff needed for index methods 
+  #This would fit the model
+  #tdat = temp$input
+  #tdat$data = y
+  #z = fit_wham(tdat, do.osa = FALSE, do.retro = FALSE, do.fit = TRUE)
+
+  #below is similar to simple_example.R but now using this simuated data instead of the yellowtail fit.
+  sim_data_series = list()
+  sim_data_series[[1]] <- y
+  advice <- list()
+  # plot(temp$years, y$SSB[1:temp$input$data$n_years_model], ylab = "SSB", xlim = range(temp$years_full), xlab = "Year", type = "b", ylim =c(0,1000000))
+  # ```
+  # 
+  # ```{r init-assess}
+  input_i = temp$input
+  SSBlim = exp(rep$log_SSB_MSY[1]) 
+  Flim = exp(rep$log_FMSY[1]) 
+  refpts <- list(SSBlim = SSBlim,
+                 Flim = Flim)
+  #catch_advice = ifelse(y$SSB[temp$input$data$n_years_model]>SSBlim, Flim, 0.9*sum(rep$F[y$n_years_model,]))
+  catch_advice=input$IBM(y=y) #JJD
+  # if(length(catch_advice)>1){
+  #   catch_advice=catch_advice$proj.catch ##needed for AIM because run.aim function returns bunch of stuff
+  # }
+  ## GF: not needed so long as first object in returned list is the catch advice (which in AIM it is)
+
+  #catch_advice <- rep(catch_advice,adv.yr) #JJD
+  advice[[1]] <- catch_advice #JJD
+  # ```
+  # 
+  # 
+  # ```{r proj-period}
+  assess_years <- seq(1,(nprojyrs-input$adv.yr+1),by=input$adv.yr)
+  nproj <-length(assess_years)
+  print(nproj)
+    
+  #for(i in assess_years) #JJD
+  for (i in 1:nproj)  
+  {
+    year <- assess_years[i]
+    #input_i$data$proj_Fcatch[year:(year+adv.yr-1)] = catch_advice[[1]] #JJD
+    #input_i$data$proj_F_opt[year:(year+adv.yr-1)] = 5 #Specify F #JJD
+    #this could be simplified to just overwrite the necessary values each time
+    temp$env$data$proj_Fcatch[year:(year+input$adv.yr-1)] = catch_advice[[1]] #TJM
+    temp$env$data$proj_F_opt[year:(year+input$adv.yr-1)] = 5 #Specify F #JJD,TJM
+    set.seed(seed)
+    sim_data_series[[i+1]] = temp$simulate(complete = TRUE)
+    if(retro_type == "Catch"){
+      sim_data_series[[i+1]] = change_catch_sim(sim = sim_data_series[[i+1]], catch_ratio = 1/2.75, year_change = 2010, years = 1970:2019)
+    }
+    # lines(temp$years_full[1:(temp$input$data$n_years_model+i)], sim_data_series[[i]]$SSB[1:(temp$input$data$n_years_model+i)], col = i)
+    #do assessment method (AIM, ASAP, etc.)
+      #Example for fitting WHAM assessment model in feedback period
+      #tdat = input_i
+      #tdat$data = sim_data_series[[i]]
+      #y = fit_wham(tdat, do.osa = FALSE, do.retro = FALSE)
+      #sim_data_series[[i]]$wham_fit = y
+      #catch_advice = ifelse(sim_data_series[[i]]$wham_fit$rep$SSB[temp$input$data$n_years_model+i]>220000, 1.1, 0.9)* sim_data_series[[i]]$pred_catch[temp$input$data$n_years_model+i]
+    #important_assessment_result <- run_assesssment_method(sim_data)
+    #catch_advice <- get_catch_advice(important_assessment_result)
+    #take up where we left off
+    #set catch to catch advice
+    #catch_advice = ifelse(sim_data_series[[i+1]]$SSB[temp$input$data$n_years_model+i]>SSBlim, Flim, 0.9* sim_data_series[[i+1]]$FAA_tot[temp$input$data$n_years_model+i,na])* Flim
+    sim_data_series[[i+1]] = get.IBM.input(y=sim_data_series[[i+1]],i=year) #JJD; GF
+    catch_advice = input$IBM(y=sim_data_series[[i+1]]) #JJD
+    #if(length(catch_advice)>1){
+    #  catch_advice=catch_advice$proj.catch ##needed for AIM because run.aim function returns bunch of stuff
+    #}
+    # GF don't think we need this; catch_advice=rep(catch_advice,adv.yr) #JJD
+    #advice[(i+adv.yr):(i+(2*adv.yr)-1)] <- catch_advice
+    advice[[i+1]] <- catch_advice
+  }
 
   results <- list(sim_data_series = sim_data_series[[nproj+1]], #GF #[[nprojyrs]], #JJD
                   advice = advice,
@@ -243,7 +283,7 @@ run.spr<-function(y){
 #IBM functions
 #-----------------------------------------
 
-get.stable.period <- function(y) {
+get.stable.period <- function(y=NULL) {
   
   #	(catch, index, I.smooth=5, F.smooth=3, center=T, F.scalar=1, npts=1, avg=F, plot=T )
   #######################################################
@@ -271,10 +311,9 @@ get.stable.period <- function(y) {
   #F.scalar is a constant that scales relative F to calculate catch as index[nyears]*relativeF*F.scalar
   #npts is the number of points nearest replacement F to calculate the "stable period" (note: they are not always adjacent index values--suggest 1 yr as default); if npts>1, and avg=T then i return the average index value and average catch across those npts, if avg=F i return the npts for index and catch
   
-  # NOTE: assumes same number of years in catch and index vector!!   
-  
+  # NOTE: assumes same number of years in catch and index vector!! 
   catch<-y$catch
-  index<-y$index
+  index<-y$expanded
   I.smooth=y$AIM_I_smooth
   F.smooth=y$AIM_F_smooth
   center=y$AIM_center
@@ -411,13 +450,9 @@ get.stable.period <- function(y) {
     
   } #end plot-test
   
-  
-  
-  
-  
   stable.list <- list(stable.year=stable.year, stable.index=stable.index, stable.catch=stable.catch, proj.catch=proj.catch, F.replacement=rel.f.soln, repl.ratio=rr, rel.F=ff, catch.index.ccf=catch.ind.ccf, reg.pars=reg.pars, repl.f.calc=repl.f )
   
-  return(stable.list )
+  return(stable.list)
   
 } #end function to identify stable period
 
@@ -579,8 +614,11 @@ DLM_Z <-function(y)
   # yrs = how many years of data to use
   
   
-  CAA_one<-	y$index_naa[,,1]		#	check, make this change
-  CAA_two<-	y$index_naa[,,2]		#	check, make this change
+  CAA_one<-	y$index_naa[,,1]
+  CAA_one<- CAA_one[,-ncol(CAA_one)] # remove plus group
+  CAA_two<-	y$index_naa[,,2]	
+  CAA_two<- CAA_two[,-ncol(CAA_two)]  # remove plus group
+ 
   yrs<-y$DLM_Z_yrs
   
   ny_one <- nrow(CAA_one) # total number of years in CAA matrix
@@ -590,6 +628,13 @@ DLM_Z <-function(y)
   Csum_one <- apply(CAA_one[use.rows_one, ], 2, sum,na.rm=TRUE) # sum up by column
   Csum_two <- apply(CAA_two[use.rows_two, ], 2, sum,na.rm=TRUE) # sum up by column
   
+  if(sum(Csum_one)==0 | sum(Csum_two==0))  # this is if the CAA matrix is all NAs or NaN
+  {
+    return(0)
+  }
+  
+  else
+  {
   maxage_one <- length(Csum_one) # max. age
   maxage_two <- length(Csum_two) # max. age
   AFS_one <- which.max(Csum_one)  # age at full selection
@@ -632,6 +677,7 @@ DLM_Z <-function(y)
   }
   mean_coef<-mean(c(-coefs_one[1],-coefs_two[1]))
   return(mean_coef)
+  }
 } # end DLM_Z function
 
 # default
@@ -680,12 +726,13 @@ M_CC = function (y)
 
 ####plan B smooth
 planBsmoothfxn<-function(y){
-  devtools::install_github("cmlegault/PlanBsmooth")
-  library(PlanBsmooth)
-  library(ggplot2)
-  library(dplyr)
-  library(tidyr) 
-  planBsmooth<-ApplyPlanBsmooth(data.frame("Year"=y$years,"avg"=y$index))
+  # devtools::install_github("cmlegault/PlanBsmooth")
+  # library(PlanBsmooth)
+  # library(ggplot2)
+  # library(dplyr)
+  # library(tidyr) 
+  #planBsmooth<-ApplyPlanBsmooth(data.frame("Year"=y$years,"avg"=y$index))
+  planBsmooth<-ApplyPlanBsmooth_fast(data.frame("Year"=y$years,"avg"=y$index), showwarn=FALSE)
   meancatch=mean(y$catch[(length(y$catch)-(y$expand_yrs-1)):length(y$catch)])
   catch.advice=planBsmooth$multiplier*meancatch
   return(list(catch.advice,planBsmooth))
@@ -706,6 +753,7 @@ ExpandSurvey_modified<-function(y){
   expanded_two<-y$seasonal_index[,2]/(y$init_q[2]*y$expand_q_scaler) #JJD
   temp.calc<-data.frame(spr=c(expanded_one,0),fall=c(0,expanded_two))
   expanded<-rowMeans(temp.calc)[1:nrow(y$seasonal_index)]	#	assumes spring survey is available in current year
+  y$expanded<-expanded
   f.spr.vals<-y$F_SPR	#	proxy Fmsy level from spawner per recruit (e.g. F40%)
   if(y$expand_method==4){
     exploit=y$catch/expanded
@@ -719,7 +767,11 @@ ExpandSurvey_modified<-function(y){
     catch.advice=expanded[length(expanded)]*mu
   }
   if(y$expand_method==2) {		#	stable historical period	
-    mu<-mean(y$catch[y$stable.year]/expanded[y$stable.year])  		#	stable historic period		check:Divides catch/biomass in each year and then takes mean
+    stable.res<-get.stable.period(y=y)
+    mu<-stable.res$F.replacement
+    #Z<-proxy_F+y$M
+    #mu<-(proxy_F/Z)*(1-exp(-Z))
+    #mu<-mean(y$catch[y$stable.year]/expanded[y$stable.year])  		#	stable historic period		check:Divides catch/biomass in each year and then takes mean
     catch.advice=expanded[length(expanded)]*mu
   }
   if(y$expand_method==3) {		#	proxy Fmsy = natural mortality
@@ -856,278 +908,22 @@ run.aim <- function(y) {
 
 #run.aim(y)$proj.catch
 
-#--------------------------------------
-#	Joe Langan's dynamic linear model function
-
-JoeDLM=function(y){
-  #two packages I use because their functions help with speed-up
-  require(dlm)
-  require(RandomFieldsUtils)
-  
-survey<-y$seasonal_index
-catch<-y$catch
-prop.inc<-y$JoeDLM_prop_inc		#	proportion to increase biomass each year
-n.ahead<-y$JoeDLM_n_ahead<-2 #forecasting x years and returning x years of catch advice
-
- # survey=ylist[[1]]
- # catch=ylist[[2]]
- # prop.inc=ylist[[3]]
-  
-  MCMC=1700
-  burn=400
-  thin=3
-#  n.ahead=2 #forecasting 2 years and returning 2 years of catch advice
-  
-  #get things on log scale
-  y.internal=log(as.matrix(survey))
-  catch=log(as.matrix(catch))
-  
-  ns=ncol(y.internal)
-  nt=nrow(y.internal)
-  
-  #convert catch to catch anomalies by removing average exploitation rate relative to survey
-  x=matrix(NA,nt,ns)
-  lm.mat=matrix(NA,ns,2)
-  for(i in 1:ns){
-    m=lm(catch~y.internal[,i])
-    x[,i]=m$residuals
-    lm.mat[i,]=m$coefficients
-  }
-  
-  #function to sample full conditional of measurement error
-  sample.V=function(FF,theta,y.internal,a.y,b.y,nt,ns){
-    yest=matrix(NA,nt,ns)
-    for(i in 1:nt){
-      yest[i,]=FF[i,,]%*%theta[i+1,]
-    }
-    
-    Vlist=rep(NA,ns)
-    for(i in 1:ns){
-      Vlist[i]=1/rgamma(1, a.y+0.5 * nt, b.y + 0.5 *sum((y.internal[,i]-yest[,i])^2))
-    }
-    
-    V=diag(Vlist,ns)
-    return(V)
-  }
-  
-  #function to sample full conditional of evolution error
-  sample.W=function(theta,y.internal,GG,W,W0,nt,ns,Trend){
-    theta.center=theta[-1,]-(theta[-(nt+1),] %*% t(GG))
-    ng=ncol(GG)
-    nsv=ng-2*ns+1
-    SS2 <- crossprod(theta.center)[nsv : ng, nsv : ng] + W0
-    SSinv=RandomFieldsUtils::solvex(SS2)
-    #SSinv=solve(SS2)
-    
-    
-    #Wslope <- solve(rwishart(df = length(ns:ng)+2 + nt,Sigma = SSinv))
-    Wslope <- RandomFieldsUtils::solvex(rwishart(df = length(ns:ng)+2 + nt,Sigma = SSinv))
-    Wint <- diag(0,ns)
-    W <- bdiag(Wint,Wslope)
-    
-    
-    return(W)
-  }
-  
-  #function for calculating model estimates from state variables, observation error turned off because
-  #we only care about the mean in this application and sampling rmvnorm is slow
-  estcalc=function(FF,theta,V,nt,ns){
-    est=matrix(NA,nt,ns)
-    for(i in 1:nt){
-      est[i,]=t(FF[i,,]%*%theta[i+1,])#+rmvnorm(1,rep(0,dim(V)[1]),V)
-    }
-    return(est)
-  }
-  
-  #set up variance priors
-  var0=mean(diag(var(y.internal,na.rm=T)))
-  W01=diag(var0/4,ns*2)
-  W01[which(W01==0)]=var0/8
-  b.y=var0/2
-  a.y=1
-  V0=diag(var0/2,ns)
-  
-  #set up model structure and load it into container from dlm package
-  g0=diag(3);g0[1,2]=1
-  f0=matrix(c(1, 0,1), nrow = 1)
-  g=g0%x% diag(ns)
-  f=f0%x% diag(ns)
-  p=ncol(f)
-  jf=f; jf[,-c((p-ns+1):p)]=0;jf[,c((p-ns+1):p)]=jf[,c((p-ns+1):p)]*c(1:ns)
-  W0=bdiag(diag(ns),W01)
-  mod <- dlm(FF =f,
-               V = V0,
-               GG = g ,
-               W = W0,
-               m0 = c(colMeans(y.internal), rep(0,ns),rep(-1,ns)),
-               C0 = diag(c(rep(9,ns),rep(.0625,ns),rep(.25,ns))),
-               X=as.matrix(x),JFF=jf)
-  
-  #create G matrix and F array, where F array contains covariate values
-  GG=mod$GG
-  FFt=array(1,c(nt,ns,p))
-  inds=(p-ns+1):p
-  for(i in 1:nt){
-    FF0=mod$FF
-    FF0[,inds]=FF0[,inds]*x[i,]
-    FFt[i,,]=FF0
-  }
-  
-  #bins to save Gibbs values
-  Thetasave=array(NA,c(nt+1,p,MCMC*thin))
-  Msave=array(NA,c(1,p,MCMC*thin))
-  Vsave=array(NA,c(ns,ns,MCMC*thin))
-  Wsave=array(NA,c(p,p,MCMC*thin))
-  Csave=Wsave
-  estsave=array(NA,c(nt,ns,MCMC*thin))
-  
-  #Gibbs sampler
-  for(it in 1:(MCMC*thin)){
-    ff=dlmFilter(y.internal,mod)
-    theta=dlmBSample(ff)
-    mod$V=sample.V(FFt,theta,y.internal,a.y,b.y,nt,ns)
-    mod$W=sample.W(theta,y.internal,mod$GG,mod$W,W01,nt,ns,Trend)
-    
-    
-    estsave[,,it]=estcalc(FFt,theta,mod$V,nt,ns)
-    Vsave[,,it]=mod$V
-    Wsave[,,it]=mod$W
-    Thetasave[,,it]=theta
-    Msave[,,it]=ff$m[nt+1,]
-    Csave[,,it]=dlmSvd2var(u=ff$U.C[[nt+1]],d=ff$D.C[nt+1,])
-  }
-  
-  #Thinning
-  tseq=seq(1,MCMC*thin,thin)
-  Vsave=Vsave[,,tseq,drop=F]
-  Wsave=Wsave[,,tseq]
-  Thetasave=Thetasave[,,tseq]
-  Msave=Msave[,,tseq,drop=F]
-  Csave=Csave[,,tseq]
-  estsave=estsave[,,tseq,drop=F]
-  #Burn-in
-  Vsave=Vsave[,,-(1:burn),drop=F]
-  Wsave=Wsave[,,-(1:burn)]
-  Csave=Csave[,,-(1:burn)]
-  Thetasave=Thetasave[,,-(1:burn)]
-  Msave=Msave[,,-(1:burn),drop=F]
-  estsave=estsave[,,-(1:burn),drop=F]
-  
-  #forecast function, stuff is turned off so that it only returns the mean forecast
-  #again, we only care about the mean in this application, so this is faster
-  frcst=function(p,ns,FFf,GG,W,V,m,C,n.ahead){
-    #Forecasting
-    af=matrix(NA,n.ahead+1,p)
-    Rf=array(NA,c(n.ahead+1,p,p))
-    af[1,]=m
-    Rf[1,,]=C
-    forc=matrix(NA,n.ahead,ns)
-    for(i in 1:n.ahead){
-      af[i+1,]=GG%*%matrix(af[i,],nc=1)
-      #Rf[i+1,,]=GG%*%Rf[i,,]%*%t(GG)+W
-      ff=FFf[i,,]%*%matrix(af[i+1,],nc=1)
-      #Qf=FFf[i,,]%*%Rf[i+1,,]%*%t(FFf[i,,])#+V
-      #forc[i,]=rmvnorm(1,ff,Qf)
-      forc[i,]=ff
-    }
-    return(forc)
-    
-  }
-  
-  #catch advice function to give to optim
-  #uses catch adjustment term to set future harvest, calculates target survey abundance,
-  #uses future harvest to generate mean forecast, compares forecast to target abundance, 
-  #returns difference between forecast and target as objective to be minimized
-  catch.advice=function(param,survey,catch,prop.inc,lm.mat,
-                        n.ahead,Wsave,Vsave,Msave,Csave,mod,nt,ns,p){
-    c.adj=param
-    fcatch=rep(NA,n.ahead)
-    for(i in 1:n.ahead){
-      if(i==1){
-        fcatch[i]=log(exp(catch[length(catch)])*(1+c.adj))
-      }else{
-        fcatch[i]=log(exp(fcatch[i-1])*(1+prop.inc))
-      }
-    }
-    
-    target=matrix(NA,n.ahead,ns)
-    for(i in 1:n.ahead){
-      if(i==1){
-        target[i,]=survey[nt,]*(1+prop.inc)
-      }else{
-        target[i,]=target[i-1,]*(1+prop.inc)
-      }
-    }
-    
-    target=log(target)
-    
-    xf=matrix(NA,dim(target)[1],dim(target)[2])
-    for(j in 1:ncol(xf)){
-      xf[,j]=fcatch-(target[,j]*lm.mat[j,2]+lm.mat[j,1])
-    }
-    
-    FFf=array(1,c(n.ahead,ns,p))
-    inds=(p-ns+1):p
-    for(i in 1:n.ahead){
-      FF0=mod$FF
-      FF0[,inds]=FF0[,inds]*xf[i,]
-      FFf[i,,]=FF0
-    }
-    
-    proj=array(NA,c(n.ahead,ns,dim(Msave)[[3]]))
-    for(k in 1:dim(Msave)[[3]]){
-      proj[,,k]=frcst(p,ns,FFf,mod$GG,Wsave[,,k],Vsave[,,k],Msave[,,k],Csave[,,k],n.ahead)
-    }
-    
-    proj=apply(proj,c(1,2),mean)
-    diff=proj-target
-    
-    obj=mean(abs(diff))
-    
-    return(obj)
-    
-  }
-  
-  #use optim to solve for catch advice
-  ca=optim(par=0,fn=catch.advice,survey=as.matrix(survey),catch=catch,prop.inc=prop.inc,lm.mat=lm.mat,
-           n.ahead=n.ahead,Wsave=Wsave,Vsave=Vsave,Msave=Msave,Csave=Csave,mod=mod,nt=nt,ns=ns,p=p, 
-           method="Brent",lower=-1,upper=1,control=list(abstol=1e-10,reltol=1e-10))$par
-  
-  
-  #converts catch adjustment term from optim into actual harvest levels to return as catch advice
-  fcatch=rep(NA,n.ahead)
-  for(i in 1:n.ahead){
-    if(i==1){
-      fcatch[i]=exp(catch[length(catch)])*(1+ca)
-    }else{
-      fcatch[i]=fcatch[i-1]*(1+prop.inc)
-    }
-  }
-  
-  #output: 1) catch advice, 2) model estimates of survey indices for each iteration, 3) state variables for each iteration, 
-  #4) evolution error variance for each iteration, 5) measurement error variance for each iteration
-  
-  return(list(fcatch,estsave,Thetasave,Wsave,Vsave))
-}
-
-#	mod=JoeDLM(y)
-#	catch advice
-#	mod[[1]]	#	 check:can produce multiple years of catch advise based on input y$JoeDLM_n_ahead.  Current default is 2 years of catch advise
-
-
-
 #----------------------------------
 ensemble<-function(y=NULL){
   advice<-Islope(y)[1]
   advice<-c(advice,Itarget(y)[1])
   advice<-c(advice,true_Skate_CR(y))
-  advice<-c(advice,planBsmoothfxn(y))
-  advice<-c(advice,run.aim(y)$proj.catch)
+  advice<-c(advice,planBsmoothfxn(y)[[1]])
+  advice<-c(advice,run.aim(y)[[1]])
   advice<-c(advice,M_CC(y))
-  advice<-c(advice,ExpandSurvey_modified(y))
+  advice<-c(advice,ExpandSurvey_modified(y)[[1]])
+  #advice<-c(advice,JoeLangan....)
   return(mean(advice))
 }
 #ensemble(y)
+
+#--------------------------------------
+#	Joe Langan's function once we get it - Place holder
 
 #--------------------------------------
 #	Alternative SPR function that uses a look up table instead of optimizing
@@ -1136,7 +932,7 @@ ensemble<-function(y=NULL){
 #	Does not have the time of year when spawning occurs, but has everything else. 
 #	It uses one function from dplyr and that could be replaced if we want to keep it in base R
 
-library(dplyr)
+# library(dplyr)
 
 SPR_func<-function(y){
   # calculate F.table for use in spawner per recruit
@@ -1183,3 +979,5 @@ SPR_func<-function(y){
   select.row<-which.min(abs(F.table$spr-spr0*ref_percentage))
   F.table[select.row,]	#	check: likely just output the fishing mortality, Fval
 }	#	end function
+
+
