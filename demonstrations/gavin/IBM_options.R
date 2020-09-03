@@ -9,7 +9,8 @@ IBM.options<-function(y=NULL){
   y$Islope_cap<-FALSE
   
   #	Itarget	
-  y$Itarget_ref_yrs<-25	#	NEEDS TO BE DETERMINED
+  y$Itarget_ref_yrs<-50	#	NEEDS TO BE DETERMINED
+  y$Itarget_version<-1
   y$Itarget_yrsmth<-3
   y$Itarget_cmult<-1
   y$Itarget_w<-0.5
@@ -57,5 +58,12 @@ IBM.options<-function(y=NULL){
   y$AIM_plot=F
   y$AIM_avg<-T
   y$AIM_npts<-1		#	number of years to include, default is one
+
+
+
+#	Joe Langan's dynamic linear model function
+y$JoeDLM_prop_inc<-0.05	#	proportion to increase biomass each year
+y$JoeDLM_n_ahead<-2 # forecasting 2 years and returning 2 years of catch advice
+
   return(y)
 }

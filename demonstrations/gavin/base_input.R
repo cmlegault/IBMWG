@@ -72,11 +72,11 @@ get_base_input <- function(n_selblocks = 1, Fhist = 1, Fmsy_scale = 2.5, scaa = 
     ypr = wham:::get_YPR(exp(log_F), M=input$M, sel = equilib.sel, waacatch=input$waa_catch, at.age = FALSE)
     R_F = (a - 1/sum(spr))/b
     Y_F = R_F * ypr
-    print(Y_F)
+    #print(Y_F)
     return(-Y_F)
   }
   Fmsy = exp(nlminb(log(0.2), eq.yield)$par)
-  print(paste0("Fmsy = ", Fmsy))
+  #print(paste0("Fmsy = ", Fmsy))
   
   #Fhist == 1 means overfishing for first half of base period, then Fmsy for second half
   prop.F = rep(Fmsy_scale, length(input$modyears)/2)
@@ -84,7 +84,7 @@ get_base_input <- function(n_selblocks = 1, Fhist = 1, Fmsy_scale = 2.5, scaa = 
   #Fhist == 2 means overfishing for whole base period
   if(Fhist == 2) prop.F = rep(Fmsy_scale,length(input$modyears))
   input$F = cbind(Fmsy * prop.F)
-  print(input$F)
+  #print(input$F)
   F1 = input$F[1]
   sprF1 = wham:::get_SPR(F1, M=input$M, equilib.sel, mat=input$maturity, waassb=input$waa_catch, fracyrssb=input$fracyr_spawn, at.age = FALSE)
   nprF1 = wham:::get_SPR(F1, M=input$M, equilib.sel, mat=rep(1,na), waassb=rep(1,na), fracyrssb=input$fracyr_spawn, at.age = TRUE)
@@ -132,12 +132,12 @@ get_base_input <- function(n_selblocks = 1, Fhist = 1, Fmsy_scale = 2.5, scaa = 
     #change equilibrium selectivity
     equilib.sel = 1/(1+exp(-selpars2[2]*(1:na - selpars2[1])))
     Fmsy = exp(nlminb(log(0.2), eq.yield)$par)
-    print(paste0("Fmsy = ", Fmsy))
+    #print(paste0("Fmsy = ", Fmsy))
     prop.F = rep(Fmsy_scale, length(input$modyears)/2)
     prop.F[length(prop.F) + 1:(length(input$modyears)-length(prop.F))] = 1
     if(Fhist == 2) prop.F = rep(Fmsy_scale,length(input$modyears))
     F = Fmsy * prop.F
-    print(F)
+    #print(F)
     om$par$log_F1 = log(F[1])
     om$par$F_devs = cbind(diff(log(F)))
     sprF1 = wham:::get_SPR(F[1], M=input$M, equilib.sel, mat=input$maturity, waassb=input$waa_catch, fracyrssb=input$fracyr_spawn, at.age = FALSE)

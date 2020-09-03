@@ -1,12 +1,13 @@
-devtools::install_github("cmlegault/PlanBsmooth")
+#devtools::install_github("cmlegault/PlanBsmooth")
 library(wham)
-library(PlanBsmooth)
+#library(PlanBsmooth)
 library(ggplot2)
 library(dplyr)
 library(tidyr) 
 
 source("IBM_options.R")
 source("wham_mse_functions.R")
+source("GF_planb.R")
 source("base_input.R")
 source("../tim/wham_retro_functions.R")
 #n_selblocks = 1 #constant fishery selectivity
