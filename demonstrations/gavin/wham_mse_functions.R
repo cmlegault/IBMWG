@@ -200,10 +200,10 @@ s.per.recr<-function(y,F.mult=NULL,spawn.time=NULL) {
   #	nages,mat.age,M.age, F.mult, sel.age, spawn.time 
   nages<-ncol(y$mature)
   mat.age<-y$mature[nrow(y$mature),]	#	check: assumes using the most recent year
-  M.age<-y$MAA[1,]		#	check: assumes we know the true M in the first year and would be mis-specified if there is a ramp
+  M.age<-y$MAA[1,]		#	check: assumes we know the true M and it is not mis-specified
   
-  #	check: which selectivity (year one) and should we know the true value or with obs error.  This is the true value in the first year
-  sel.age<-y$selAA[[1]][1,]	#	number one should be the fishery selectivity
+  #	check: which selectivity (final year?) and should we know the true value or with obs error.  This is the true value in the final year
+  sel.age<-y$selAA[[1]][nrow(y$selAA[[1]]),]	#	number one should be the fishery selectivity
   
   spr=0.0
   cum.survive=1.0
@@ -1148,7 +1148,7 @@ SPR_func<-function(y){
   maturityatage<-y$mature[nrow(y$mature),]	#	check: assumes using the most recent year
   M<-y$MAA[nrow(y$MAA),]		#	check: assumes we know the true M and it is not mis-specified
   #	check: which selectivity (final year?) and should we know the true value or with obs error.  This is the true value in the final year
-  fisheryselectivityatage<-y$selAA[[1]][1,]	#	number one should be the fleet selectivity
+  fisheryselectivityatage<-y$selAA[[1]][nrow(y$selAA[[1]]),]	#	number one should be the fleet selectivity
   weightsatage<-y$waa[1,nrow(y$waa[1,,]),]	#	check: I believe 5 is SSB
   ref_percentage<-y$percentSPR/100
   
