@@ -50,11 +50,11 @@ IBM.options<-function(y=NULL){
   
   
   #for AIM and get.stable.period
-  y$AIM_fscalar = 1
+  
   y$AIM_I_smooth=5
   y$AIM_F_smooth=3
   y$AIM_center=T
-  y$AIM_Fscalar<-1
+  y$AIM_Fscalar=1
   y$AIM_plot=F
   y$AIM_avg<-T
   y$AIM_npts<-1		#	number of years to include, default is one
