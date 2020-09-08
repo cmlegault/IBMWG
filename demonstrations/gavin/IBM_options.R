@@ -45,16 +45,16 @@ IBM.options<-function(y=NULL){
   #3.	Natural mortality
   #4.	Average of recent catch
   #expand_yrs also used by PlanBSmooth to ID how many years of catch to average for use with multiplier
-  y$expand_yrs=4 #if method=4 then number of years to average for exploitation rates.
+  y$expand_yrs=3 #if method=4 then number of years to average for exploitation rates.
   y$expand_q_scaler<-1.0	#	proportion to scale true q can be greater than or less than one, but plan is to use true, non-ramp q  
   
   
   #for AIM and get.stable.period
-  y$AIM_fscalar = 1
+  
   y$AIM_I_smooth=5
   y$AIM_F_smooth=3
   y$AIM_center=T
-  y$AIM_Fscalar<-1
+  y$AIM_Fscalar=1
   y$AIM_plot=F
   y$AIM_avg<-T
   y$AIM_npts<-1		#	number of years to include, default is one
