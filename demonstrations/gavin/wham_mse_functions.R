@@ -290,54 +290,6 @@ get.IBM.input<-function(y=NULL,i=NULL){
   return(y)
 }
 
-######################
-#-------Spawners per recruit -----------------------------
-###JJD SPR from ASAPPlots
-
-s.per.recr<-function(y,F.mult=NULL,spawn.time=NULL) {
-  #	nages,mat.age,M.age, F.mult, sel.age, spawn.time 
-  nages<-ncol(y$mature)
-  mat.age<-y$mature[nrow(y$mature),]	#	check: assumes using the most recent year
-  M.age<-y$MAA[1,]		#	check: assumes we know the true M and it is not mis-specified
-  
-  #	check: which selectivity (final year?) and should we know the true value or with obs error.  This is the true value in the final year
-  sel.age<-y$selAA[[1]][nrow(y$selAA[[1]]),]	#	number one should be the fishery selectivity
-  
-  spr=0.0
-  cum.survive=1.0
-  z=0.0
-  for (i in 1:(nages-1)  ) {
-    z=M.age[i] + F.mult*sel.age[i]
-    z.ts=(M.age[i]+F.mult*sel.age[i])*spawn.time
-    spr=spr+cum.survive*mat.age[i]*exp(-z.ts)
-    cum.survive=cum.survive*exp(-z )
-    
-  }
-  
-  z= M.age[nages] + F.mult*sel.age[nages]
-  z.ts=(M.age[nages]+F.mult*sel.age[nages])*spawn.time
-  spr=spr + mat.age[nages]*cum.survive*exp(-z.ts)/( 1- exp(-z ) )
-  
-  return(spr)
-  
-}
-###end SPR as done by JJD; adapted from ASAPPlots
-
-#	This function runs the s.per.recr function to generate the proxy Fmsy (e.g. F40%)
-#	and adds it to the larger y list.  The index based methods can then pull the value from the Y list as opposed to rerunning it each iteration
-run.spr<-function(y){
-  spr0<- s.per.recr(y=y,F.mult=0,spawn.time=y$fracyr_SSB[length(y$fracyr_SSB)])
-  F.start <-0.11  # starting guess for optimization routine to find F_SPR%
-  t.spr <- y$percentSPR/100
-  spr.f <- function(F.start) {
-    abs(s.per.recr(y=y,F.mult=F.start, spawn.time=y$fracyr_SSB[length(y$fracyr_SSB)])/spr0 - t.spr )
-  }
-  yyy <- nlminb(start=F.start, objective=spr.f, lower=0, upper=3)
-  f.spr.vals <- yyy$par #Fx%
-  return(f.spr.vals)
-}
-
-###########################
 #IBM functions
 #-----------------------------------------
 
@@ -1008,72 +960,12 @@ ensemble<-function(y=NULL){
   advice<-c(advice,run.aim(y)[[1]])
   advice<-c(advice,M_CC(y))
   advice<-c(advice,ExpandSurvey_modified(y)[[1]])
-  #advice<-c(advice,JoeLangan....)
+  advice<-c(advice,JoeDLM)
   return(median(advice))
 }
 #ensemble(y)
 
-#--------------------------------------
-#	Joe Langan's function once we get it - Place holder
 
-#--------------------------------------
-#	Alternative SPR function that uses a look up table instead of optimizing
-#	I pulled this straight from Chris L's original simulation code. 
-#	all the inputs are already part of the WHAM output. 
-#	Does not have the time of year when spawning occurs, but has everything else. 
-#	It uses one function from dplyr and that could be replaced if we want to keep it in base R
-
-# library(dplyr)
-
-SPR_func<-function(y){
-  # calculate F.table for use in spawner per recruit
-  nsteps <- 2001
-  F.table <- data.frame(Fval = double(),
-                        ypr = double(),
-                        spr = double()  )
-  nages<-ncol(y$mature)
-  maturityatage<-y$mature[nrow(y$mature),]	#	check: assumes using the most recent year
-  M<-y$MAA[nrow(y$MAA),]		#	check: assumes we know the true M and it is not mis-specified
-  #	check: which selectivity (final year?) and should we know the true value or with obs error.  This is the true value in the final year
-  fisheryselectivityatage<-y$selAA[[1]][nrow(y$selAA[[1]]),]	#	number one should be the fleet selectivity
-  weightsatage<-y$waa[1,nrow(y$waa[1,,]),]	#	check: I believe 5 is SSB
-  ref_percentage<-y$percentSPR/100
-  
-  
-  for (istep in 1:nsteps){
-    Fval <- (istep - 1)/1000
-    yprval <- 0.0
-    sprval <- 0.0
-    Nval <- 1.0
-    for (i in 1:nages){
-      selx <- fisheryselectivityatage[i]
-      waa <- weightsatage[i]
-      maturity <- maturityatage[i]
-      Zval <- Fval * selx  + M[i]
-      yprval <- yprval + Nval * waa * Fval * selx * (1 - exp(-Zval)) / Zval
-      sprval <- sprval + Nval * waa * maturity
-      Nval <- Nval * exp(-Zval)
-    }
-    selx <- fisheryselectivityatage[nages]
-    waa <- weightsatage[nages]
-    maturity <- maturityatage[nages]
-    Nval <- Nval / (1 - exp(-(Fval * selx + M[nages])))
-    yprval <- yprval + Nval * waa * Fval * selx * (1 - exp(-Zval)) / Zval
-    sprval <- sprval + Nval * waa * maturity
-    F.row <- data.frame(Fval = Fval,
-                        ypr = yprval,
-                        spr = sprval)
-    F.table <- rbind(F.table, F.row)
-  }
-  #	F.table
-  spr0 <- filter(F.table, Fval == 0)$spr 
-  select.row<-which.min(abs(F.table$spr-spr0*ref_percentage))
-  F.table[select.row,]	#	check: likely just output the fishing mortality, Fval
-}	#	end function
-
-
-
-#--------------------------------------
 #	Joe Langan's dynamic linear model function
 
 JoeDLM=function(y){
