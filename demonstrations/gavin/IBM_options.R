@@ -28,7 +28,7 @@ IBM.options<-function(y=NULL){
   #	M_CC	# Simple method that used catch curve to estimate Z, and assumes Fmsy = assumed M
   y$M_CC_yrs<-3
   y$M_CC_Fmin<-0.05
-  y$M_CC_method<-3
+  #y$M_CC_method<-3 #This is now handled in setup_scenarios script so that the options are "looped" over in runs
   #1.	SPR
   #2.	Defunct - used to be Stable historic period but that doesn't make sense for M_CC
   #3.	Natural mortality
@@ -40,7 +40,7 @@ IBM.options<-function(y=NULL){
   #	2b. combines the expanded survey biomass for the two seasons into one 
   #		Currently happens in the expand function as a place holder and needs to be corrected
   #  y$q is an object from WHAM and has two values.  In Jon's original function simply selected the spring q
-  y$expand_method=4
+  #y$expand_method=4 #This is now handled in setup_scenarios script so that the options are "looped" over in runs
   #1.	SPR
   #2.	Stable historic period
   #3.	Natural mortality

@@ -595,9 +595,11 @@ Itarget <- function(y)
   index<-y$index
   Ctot<-y$catch
   ref_yrs<-y$Itarget_ref_yrs
+  base_yrs<-y$n_years_model
+  use_yrs <- seq((base_yrs-ref_yrs+1),base_yrs,1) # use these years from the base period
   yrsmth<-y$Itarget_yrsmth
   w<-y$Itarget_w
-  I.avg <- mean(index[1:ref_yrs]) # the average of the index over the base period
+  I.avg <- mean(index[use_yrs]) # the average of the index over the base period
   
   if(version > 4 | version < 1)
   {
@@ -611,7 +613,7 @@ Itarget <- function(y)
   I.targ <- Itarg_mult[version] * I.avg
   I.thresh <- 0.8 * I.targ
   #C.star <- cmult[version]*mean(tail(Ctot,5),na.rm=TRUE) #  recent average catch (5 yr)
-  C.star <- cmult[version]*mean(Ctot[1:ref_yrs],na.rm=TRUE) # average catch of reference period
+  C.star <- cmult[version]*mean(Ctot[use_yrs],na.rm=TRUE) # average catch of reference period
   I.rec <- mean(tail(index,5),na.rm=TRUE)  # recent 5 year average
   
   if(I.rec >= I.thresh) # if above thresh catch increases linearly

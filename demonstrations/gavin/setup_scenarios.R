@@ -95,6 +95,7 @@ nu_specs <- read_csv("demonstrations/chris/design_matrix/scenarios.csv")  %>%
   mutate(expand_method = case_when(
     IBM == "ExpandSurvey_F%SPR" ~ 1,
     IBM == "ExpandSurvey_stableperiodF" ~ 2,
+    IBM == "ExpandSurvey_FequalM" ~ 3,
     TRUE ~ 4),
     M_CC_method = ifelse(IBM=="CatchCurve_F%SPR",1,3),
     IBM = case_when(
