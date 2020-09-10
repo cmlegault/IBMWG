@@ -5,7 +5,7 @@
 # 2020/06/25 - recruitment parameters need fixing
 # 2020/07/01 - TJM modded so BH can take steepness as input, agreed on OM vals now complete
 
-get_base_input <- function(n_selblocks = 1, Fhist = 1, Fmsy_scale = 2.5, scaa = FALSE) {
+get_base_input <- function(n_selblocks = 1, Fhist = 1, Fmsy_scale = 2.5, scaa = FALSE, nprojyrs = 40) {
   input <- list()
   input$nf <- nf <- 1 #number of fleets (we only need 1)
   input$ni <- ni <- 2 #number of indices
@@ -39,7 +39,7 @@ get_base_input <- function(n_selblocks = 1, Fhist = 1, Fmsy_scale = 2.5, scaa = 
   equilib.sel = 1/(1+exp(-sel.list$initial_pars[[1]][2]*(1:na - sel.list$initial_pars[[1]][1])))
   input$sel.list = sel.list
   input$NAA.list = list(sigma='rec',cor='ar1_y')
-  input$proj.list = list(n.yrs=length(input$modyears), use.last.F=TRUE, use.avg.F=FALSE, use.FXSPR=FALSE,
+  input$proj.list = list(n.yrs=nprojyrs, use.last.F=TRUE, use.avg.F=FALSE, use.FXSPR=FALSE,
                                                 proj.F=NULL, proj.catch=NULL, avg.yrs=NULL,
                                                 cont.ecov=TRUE, use.last.ecov=FALSE, avg.ecov.yrs=NULL, proj.ecov=NULL, cont.Mre=NULL)
 
@@ -143,7 +143,7 @@ get_base_input <- function(n_selblocks = 1, Fhist = 1, Fmsy_scale = 2.5, scaa = 
     sprF1 = wham:::get_SPR(F[1], M=input$M, equilib.sel, mat=input$maturity, waassb=input$waa_catch, fracyrssb=input$fracyr_spawn, at.age = FALSE)
     nprF1 = wham:::get_SPR(F[1], M=input$M, equilib.sel, mat=rep(1,na), waassb=rep(1,na), fracyrssb=input$fracyr_spawn, at.age = TRUE)
     R_F1 = (a - 1/sum(sprF1))/b
-    om$par$log_N1 <- log(R_F1*nprF1) #Initial numbers at age    
+    om$par$log_N1_pars <- log(R_F1*nprF1) #Initial numbers at age    
   }
   
   om$data$Fbar_ages = 10 #not sure if this is needed anywhere, but I did need it for examining retro values.

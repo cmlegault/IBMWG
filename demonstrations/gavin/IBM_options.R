@@ -1,7 +1,8 @@
 IBM.options<-function(y=NULL){
   
   #	additional components needed in the list for each index based method, components can be changed here
-  y$F_SPR<-run.spr(y)  #F %spr just in case using spr method; The desired %spr is specified via WHAM y$percentSPR
+  #y$F_SPR<-run.spr(y)  #F %spr just in case using spr method; The desired %spr is specified via WHAM y$percentSPR
+  y$F_SPR<-exp(y$log_FXSPR[y$n_years_model])  #F %spr just in case using spr method; The desired %spr is specified via WHAM y$percentSPR
   
   #	Islope
   y$Islope_yrsmth<-5

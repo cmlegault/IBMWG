@@ -20,3 +20,5 @@ sim_fit = fit_wham(sim_input, do.fit = TRUE, do.retro = FALSE, do.osa = FALSE)
 update_input = update_wham_input(simdat, om_wham, n_years_add=20)
 update_om = fit_wham(update_input, do.fit = FALSE)
 update_sim_fit = fit_wham(update_input, do.fit = TRUE, do.retro = FALSE, do.osa = FALSE)
+
+cbind(mse.results1$true_om$env$par[names(mse.results1$true_om$env$par) == "log_NAA"], log(mse.results1$sim_data_series$NAA[-1,1]))

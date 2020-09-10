@@ -2,16 +2,16 @@
 
 ### run a given wham MSE simulation
 ## will want to abstract more of the set up from this as it's the same for each simulation
-do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 40, retro_type = "None", n_selblocks = 1, Fhist = 1) {  #JJD
+do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   # retro misspecficiation is invoked if retro_type is "M" or "Catch"
   # function does 1 simulation for the wham mse
   # i.e. 1 realization of the base and projection period
   # add more arguments so can abstract more of scenario setup from the inner function
   # now almost all set up is done in get_base_input
   if(is.null(input)) stop("need an input object like that provided by get_base_input()")
-  #adv.yr <- input$adv.yr
   #print(adv.yr)
   
+  adv.yr <- input$adv.yr
   nprojyrs <- input$nprojyrs
   retro_type <- input$retro_type
   n_selblocks <- input$n_selblocks
@@ -59,85 +59,127 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 40, retro_type =
   #generate the input for fit_wham. Data (indices, catch) are not populated though.
   #x = prepare_wham_om_input(input, recruit_model = input$recruit_model, selectivity=input$sel.list, NAA_re = input$NAA.list, proj.opts = input$proj.list)
   #x$data$Fbar_ages = 10 #not sure if this is needed anywhere, but I did need it for examining retro values.
-  x = input
+  
+  
+  #NEED TO PROVIDE INCORRECT M to MSE, if M is incorrect!
+  observed_om_input = input
   if(retro_type == "M"){
       if(Fhist == 1 & n_selblocks == 1) Mscale = 1.6
       if(Fhist == 2 & n_selblocks == 1) Mscale = 1.8
       if(Fhist == 1 & n_selblocks == 2) Mscale = 1.6
-      if(Fhist == 2 & n_selblocks == 2) Mscale = 1.8      
-      x = change_M_om(x, M_new_ratio = Mscale, n_ramp_years = 10, year_change = 2009) 
-  }
+      if(Fhist == 2 & n_selblocks == 2) Mscale = 1.8 
+      #true operating model knows correct M
+      true_om_input = change_M_om(observed_om_input, M_new_ratio = Mscale, n_ramp_years = 10, year_change = 2009) 
+  } else true_om_input = observed_om_input #no M mis-specifcation
   
-  temp = fit_wham(x, do.fit = FALSE)
-  rep  = temp$report() #log_MSY, log_F_MSY, log_SSB_MSY, log_FXSPR, log_SPR_MSY, log_SPR0, and much more
-  #print(names(rep))
-  #print(rep$selAA)
-  #set.seed(sim.seeds[669,15]) 
+  observed_om = fit_wham(observed_om_input, do.fit = FALSE)
+  #observed_sim = observed_om$simulate(complete=TRUE)
+  true_om = fit_wham(true_om_input, do.fit = FALSE)
   set.seed(seed) 
-  #simulated data and other report items
-  y = temp$simulate(complete= TRUE)
+  #simulated data and other report items from true operating model
+  true_sim = true_om$simulate(complete= TRUE)
+  #put data and simulated random parameters (Recruitment) into operating model, so true_om projections will be consistent with simulations
+  true_om$env$data = true_sim[names(true_om_input$data)]
+  #put in correct recruitment series
+  ind = which(names(true_om$env$par) == "log_NAA")
+  true_om$env$par[ind] = true_sim$log_NAA[,1] 
+  set.seed(seed) 
+  true_sim = true_om$simulate(complete= TRUE)
   if(retro_type == "Catch"){
-      if(Fhist == 1 & n_selblocks == 1) Cscale = 5
-      if(Fhist == 2 & n_selblocks == 1) Cscale = 2.5
-      if(Fhist == 1 & n_selblocks == 2) Cscale = 5
-      if(Fhist == 2 & n_selblocks == 2) Cscale = 2.25      
-    y = change_catch_sim(sim = y, catch_ratio = 1/Cscale, year_change = 2010, years = 1970:2019)
-  }
-  y = get.IBM.input(y=y,i=0) #JJD; this adds to the y list stuff needed for index methods 
+    if(Fhist == 1 & n_selblocks == 1) Cscale = 5
+    if(Fhist == 2 & n_selblocks == 1) Cscale = 2.5
+    if(Fhist == 1 & n_selblocks == 2) Cscale = 5
+    if(Fhist == 2 & n_selblocks == 2) Cscale = 2.25
+    observed_sim = change_catch_sim(sim = true_sim, catch_ratio = 1/Cscale, year_change = 2010, years = 1970:2019)
+  } 
+  else observed_sim = true_sim
+  #put in wrong M, if necessary
+  observed_sim$MAA = observed_om$report()$MAA
+  observed_sim = get.IBM.input(y=observed_sim,i=0) #JJD; this adds to the y list stuff needed for index methods 
   
   #GF modify the IBM options based on the scenario
-  y$expand_method <- input$expand_method
-  y$M_CC_method <- input$M_CC_method
+  observed_sim$expand_method <- input$expand_method
+  observed_sim$M_CC_method <- input$M_CC_method
   
-  #This would fit the model
-  #tdat = temp$input
-  #tdat$data = y
-  #z = fit_wham(tdat, do.osa = FALSE, do.retro = FALSE, do.fit = TRUE)
 
-  #below is similar to simple_example.R but now using this simuated data instead of the yellowtail fit.
-  sim_data_series = list()
-  sim_data_series[[1]] <- y
-  advice <- list()
-  # plot(temp$years, y$SSB[1:temp$input$data$n_years_model], ylab = "SSB", xlim = range(temp$years_full), xlab = "Year", type = "b", ylim =c(0,1000000))
-  # ```
-  # 
-  # ```{r init-assess}
-  input_i = temp$input
-  SSBlim = exp(rep$log_SSB_MSY[1]) 
-  Flim = exp(rep$log_FMSY[1]) 
+  sim_data_series = list(observed_sim)
+  observed_rep = observed_om$report()
+  SSBlim = exp(observed_rep$log_SSB_MSY[1]) 
+  Flim = exp(observed_rep$log_FMSY[1]) 
+  
+  #incorrect reference points if M is mis-specified
   refpts <- list(SSBlim = SSBlim,
                  Flim = Flim)
-  #catch_advice = ifelse(y$SSB[temp$input$data$n_years_model]>SSBlim, Flim, 0.9*sum(rep$F[y$n_years_model,]))
-  catch_advice=input$IBM(y=y) #JJD
+  catch_advice=observed_om_input$IBM(y=observed_sim) #JJD
+  advice <- list(catch_advice) 
   # if(length(catch_advice)>1){
   #   catch_advice=catch_advice$proj.catch ##needed for AIM because run.aim function returns bunch of stuff
   # }
   ## GF: not needed so long as first object in returned list is the catch advice (which in AIM it is)
 
   #catch_advice <- rep(catch_advice,adv.yr) #JJD
-  advice[[1]] <- catch_advice #JJD
-  # ```
-  # 
-  # 
-  # ```{r proj-period}
-  assess_years <- seq(1,(nprojyrs-input$adv.yr+1),by=input$adv.yr)
+  assess_years <- seq(1,(nprojyrs-adv.yr+1),by=adv.yr)
   nproj <-length(assess_years)
-  print(nproj)
     
   #for(i in assess_years) #JJD
   for (i in 1:nproj)  
+  #for (i in 1:2)  
   {
     year <- assess_years[i]
-    #input_i$data$proj_Fcatch[year:(year+adv.yr-1)] = catch_advice[[1]] #JJD
-    #input_i$data$proj_F_opt[year:(year+adv.yr-1)] = 5 #Specify F #JJD
-    #this could be simplified to just overwrite the necessary values each time
-    temp$env$data$proj_Fcatch[year:(year+input$adv.yr-1)] = catch_advice[[1]] #TJM
-    temp$env$data$proj_F_opt[year:(year+input$adv.yr-1)] = 5 #Specify F #JJD,TJM
+    proj_type = 5
+    true_om$env$data$proj_Fcatch[year:(year+adv.yr-1)] = ifelse(retro_type=="Catch",Cscale,1) * advice[[i]] #TJM, need to make catch higher than quota if catch misspecified
+    true_om$env$data$proj_F_opt[year:(year+adv.yr-1)] = proj_type #Specify Catch #JJD,TJM
     set.seed(seed)
-    sim_data_series[[i+1]] = temp$simulate(complete = TRUE)
-    if(retro_type == "Catch"){
-      sim_data_series[[i+1]] = change_catch_sim(sim = sim_data_series[[i+1]], catch_ratio = 1/2.75, year_change = 2010, years = 1970:2019)
+    true_sim = true_om$simulate(complete = TRUE)
+    #put data and simulated random parameters (Recruitment) into operating model, so true_om projections will be consistent with simulations
+    true_om$env$data = true_sim[names(true_om_input$data)]
+    #put in correct recruitment series
+    ind = which(names(true_om$env$par) == "log_NAA")
+    true_om$env$par[ind] = true_sim$log_NAA[,1] 
+    set.seed(seed) 
+    true_sim = true_om$simulate(complete= TRUE)
+    #true_rep = true_om$report()
+    #Check to see if F brake is needed, if so change projection type to F = 2 for the next set of projection years
+    nextF = true_sim$FAA_tot[true_om_input$data$n_years_model+year:(year+adv.yr-1),10]
+    if(any(is.na(nextF)) | any(nextF>2)) {
+      advice[[i]] = 2
+      proj_type = 4
+      true_om$env$data$proj_Fcatch[year:(year+adv.yr-1)] = advice[[i]] #TJM
+      true_om$env$data$proj_F_opt[year:(year+adv.yr-1)] = proj_type #Specify Catch #JJD,TJM
+      set.seed(seed)
+      true_sim = true_om$simulate(complete = TRUE)
+      #put data and simulated random parameters (Recruitment) into operating model, so true_om projections will be consistent with simulations
+      true_om$env$data = true_sim[names(true_om_input$data)]
+      #put in correct recruitment series
+      ind = which(names(true_om$env$par) == "log_NAA")
+      true_om$env$par[ind] = true_sim$log_NAA[,1] 
+      set.seed(seed) 
+      true_sim = true_om$simulate(complete= TRUE)
+      #true_rep = true_om$report()
+      nextF = true_sim$FAA_tot[true_om_input$data$n_years_model+year:(year+adv.yr-1),10]
+      #print("F too high")
+      #print(nextF)
     }
+    observed_om$env$data$proj_Fcatch[year:(year+adv.yr-1)] = advice[[i]] #TJM, incorrect catch projected if it is ever used.
+    observed_om$env$data$proj_F_opt[year:(year+adv.yr-1)] = proj_type #Specify Catch #JJD,TJM
+    #observed_rep = observed_om$report()
+    #set.seed(seed)
+    #observed_sim = observed_om$simulate(complete = TRUE)
+    #sim_data_series[[i+1]] = true_om$simulate(complete = TRUE)
+    if(retro_type == "Catch"){
+      if(Fhist == 1 & n_selblocks == 1) Cscale = 5
+      if(Fhist == 2 & n_selblocks == 1) Cscale = 2.5
+      if(Fhist == 1 & n_selblocks == 2) Cscale = 5
+      if(Fhist == 2 & n_selblocks == 2) Cscale = 2.25      
+      observed_sim = change_catch_sim(sim = true_sim, catch_ratio = 1/Cscale, year_change = 2010, years = 1970:2019)
+      #sim_data_series[[i+1]] = change_catch_sim(sim = sim_data_series[[i+1]], catch_ratio = 1/Cscale, year_change = 2010, years = 1970:2019)
+    } 
+    else observed_sim = true_sim
+
+    #put in wrong M, if necessary
+    observed_sim$MAA = observed_om$report()$MAA
+    observed_sim = get.IBM.input(y=observed_sim,i=year) #JJD; GF
+    sim_data_series[[i+1]] = observed_sim
     # lines(temp$years_full[1:(temp$input$data$n_years_model+i)], sim_data_series[[i]]$SSB[1:(temp$input$data$n_years_model+i)], col = i)
     #do assessment method (AIM, ASAP, etc.)
       #Example for fitting WHAM assessment model in feedback period
@@ -151,8 +193,12 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 40, retro_type =
     #take up where we left off
     #set catch to catch advice
     #catch_advice = ifelse(sim_data_series[[i+1]]$SSB[temp$input$data$n_years_model+i]>SSBlim, Flim, 0.9* sim_data_series[[i+1]]$FAA_tot[temp$input$data$n_years_model+i,na])* Flim
-    sim_data_series[[i+1]] = get.IBM.input(y=sim_data_series[[i+1]],i=year) #JJD; GF
+    #sim_data_series[[i+1]] = get.IBM.input(y=sim_data_series[[i+1]],i=year) #JJD; GF
     catch_advice = input$IBM(y=sim_data_series[[i+1]]) #JJD
+    #if(year == 1) {
+    #  print(sim_data_series[[i+1]]$FAA_tot[50+year:(year+adv.yr-1),10])
+    #  stop()
+    #}
     #if(length(catch_advice)>1){
     #  catch_advice=catch_advice$proj.catch ##needed for AIM because run.aim function returns bunch of stuff
     #}
@@ -164,10 +210,12 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, nprojyrs = 40, retro_type =
   results <- list(sim_data_series = sim_data_series[[nproj+1]], #GF #[[nprojyrs]], #JJD
                   advice = advice,
                   refpts = refpts,
-                  input = input_i,
-                  x = x,
-                  temp = temp,
-                  rep = rep, 
+                  input = true_om$input,
+                  observed_om = observed_om,
+                  true_om = true_om,
+                  true_sim = true_sim,
+                  observed_sim = observed_sim,
+                  #observed_rep = observed_rep, 
                   seed = seed,
                   input = input)
 
@@ -222,7 +270,7 @@ get.IBM.input<-function(y=NULL,i=NULL){
   
   y$index_naa<-obs_survey_NAA_func(y)
   y$index_naa<-y$index_naa[1:(length(y$agg_catch)+i),,]
-  
+  #print(y$index_naa)
   #	create single natural mortality that is consistent for all index based methods
   y$M<-mean(y$MAA[1,])	#	Plan is for natural mortality to be constant with age, but possibly exhibit a ramp at some point in time series.
   #	WHAM output enables age specific and year specific natural mortality
@@ -627,6 +675,7 @@ DLM_Z <-function(y)
   # yrs = how many years of data to use
   
   
+  #print("DLM_Z")
   CAA_one<-	y$index_naa[,,1]
   CAA_one<- CAA_one[,-ncol(CAA_one)] # remove plus group
   CAA_two<-	y$index_naa[,,2]	
@@ -638,12 +687,16 @@ DLM_Z <-function(y)
   ny_two <- nrow(CAA_two) # total number of years in CAA matrix
   use.rows_one<-(ny_one-yrs+1):ny_one
   use.rows_two<-(ny_two-yrs+1):ny_two
+  #print(CAA_one)
+  #print(CAA_two)
   Csum_one <- apply(CAA_one[use.rows_one, ], 2, sum,na.rm=TRUE) # sum up by column
   Csum_two <- apply(CAA_two[use.rows_two, ], 2, sum,na.rm=TRUE) # sum up by column
-  
-  if(sum(Csum_one)==0 | sum(Csum_two==0))  # this is if the CAA matrix is all NAs or NaN
+  #print(Csum_one)
+  #print(Csum_two)
+  if(sum(Csum_one)==0 | sum(Csum_two)==0)  # this is if the CAA matrix is all NAs or NaN
   {
-    return(0)
+    #return(0) #TJM: zero causes problems for M_CC because there is some division by Z from this function
+    return(NA)
   }
   
   else
@@ -662,10 +715,14 @@ DLM_Z <-function(y)
   y_one[y_one == "-Inf"] <- NA
   y_two[y_two == "-Inf"] <- NA
   mod_one <<- lm(y_one ~ xc_one)
+  #print(mod_one)
   mod_two <<- lm(y_two ~ xc_two)
+  #print(mod_two)
   #print(summary(mod))
   chk_one <- sum(is.na(coef(mod_one)))
   chk_two <- sum(is.na(coef(mod_two)))
+  #print(chk_one)
+  #print(chk_two)
   if(chk_one) 
   {
     return(NA)
@@ -689,6 +746,9 @@ DLM_Z <-function(y)
     names(coefs_two) <- NULL
   }
   mean_coef<-mean(c(-coefs_one[1],-coefs_two[1]))
+  #print(coefs_one)
+  #print(coefs_two)
+  #print(mean_coef)
   return(mean_coef)
   }
 } # end DLM_Z function
@@ -711,26 +771,42 @@ M_CC = function (y)
   # Fmin is the minimum estimate of recent F to prevent very low values which causes really high target catches
   
   catch<-y$catch
+  #print(catch)
   #	CAA<-	y$index_naa	#	 not needed because the y list gets passed to DLM_Z function to compute catch curve
   M<-y$M
+  #print(M)
   yrs<-y$M_CC_yrs
+  #print(yrs)
   Fmin<-y$M_CC_Fmin
+  #print(Fmin)
   M_CC_method<-y$M_CC_method
+  #print(M_CC_method)
   cyrs <- (length(catch) - (yrs - 1)):length(catch)
+  #print(cyrs)
   c.use <- catch[cyrs]
+  #print(c.use)
   mu.C <- mean(c.use,na.rm=TRUE) # avg. catch
+  #print(mu.C)
   Z.est <- DLM_Z(y)
+  #print(Z.est)
   F.est <- Z.est - M
+  #print(F.est)
   F.est[is.na(F.est)] <- Fmin  # if you get an NA, replace with Fmin
+  #print(F.est)
   F.est[F.est < Fmin] <- Fmin  # if you get a value below Fmin, use Fmin
+  #print(F.est)
   
   Ac <- mu.C/((F.est/Z.est)*(1 - exp(-Z.est))) # approx biomass based on catch and estimate of F
+  #print(Ac)
   
   if(M_CC_method==1){FMSY <- y$F_SPR/Z.est*(1-exp(-Z.est))}    	#	SPR
   #if(M_CC_method==2){FMSY<-mean(catch[y$stable.year]/Ac[y$stable.year])  }		#	stable historic period; #check:Divides catch/biomass in each year and then takes mean, This one doesn't make sense for CC.  Ac is a single value, not time series.  Stable period only applies to expanded biomass
   if(M_CC_method==3){FMSY <- M/Z.est*(1-exp(-Z.est))} 		#	natural mortality= Fmsy
-  
+  #print(FMSY)
   C.targ<- FMSY * Ac
+  #print(C.targ)
+  #print("end M_CC")
+  #stop()
   return(C.targ)
 }
 

@@ -14,17 +14,28 @@ source("../tim/wham_retro_functions.R")
 n_selblocks = 2 #if = 2 second half of base period (and feedback period) has alternative fishery selectivity (a50= 5)
 Fmsy_scale = 2.5 #What proportion of Fmsy to fish at
 #Fhist = 1 #Fish at Fmsy_scale*Fmsy (defined by recent selectivity) for first half of base, then Fmsy second half
-Fhist = 2 #Fish at Fmsy_scale*Fmsy (defined by recent selectivity) for all of base period.
+Fhist = 1 #Fish at Fmsy_scale*Fmsy (defined by recent selectivity) for all of base period.
 input=get_base_input(n_selblocks, Fhist, Fmsy_scale)
   temp = fit_wham(input, do.fit = FALSE)
-#input$IBM=M_CC
-input$IBM=DLM_Z
+#input$IBM=DLM_Z
 input$adv.yr = 2
-mse.results=do_wham_mse_sim(input=input, n_selblocks = n_selblocks, Fhist = Fhist)
-mse.results=do_wham_mse_sim(input=input, nprojyrs = 40, n_selblocks = n_selblocks, Fhist = Fhist)
-mse.results=do_wham_mse_sim(input=input, nprojyrs = 40, retro_type = "Catch", n_selblocks = n_selblocks, Fhist = Fhist)
-mse.results=do_wham_mse_sim(input=input, nprojyrs = 40, retro_type = "M", n_selblocks = n_selblocks, Fhist = Fhist)
+input$Fhist = Fhist
+input$n_selblocks = n_selblocks
+input$nprojyrs = 40
+input$expand_method = 3
+input$M_CC_method = 3
+input$IBM=M_CC
+source("wham_mse_functions.R")
+input$retro_type = "None"
+mse.results1=do_wham_mse_sim(input=input)
+input$retro_type = "Catch"
+mse.results2=do_wham_mse_sim(input=input)
+input$retro_type = "M"
+mse.results3=do_wham_mse_sim(input=input)
 
+cbind(mse.results1$sim_data_series$FAA_tot[,10],mse.results2$sim_data_series$FAA_tot[,10],mse.results3$sim_data_series$FAA_tot[,10])
+cbind(mse.results1$sim_data_series$NAA[,1],mse.results2$sim_data_series$NAA[,1],mse.results3$sim_data_series$NAA[,1])
+cbind(mse.results1$sim_data_series$SSB,mse.results2$sim_data_series$SSB,mse.results3$sim_data_series$SSB)
 # possible workflow once functions are all working
 # read seeds from RNG.seeds.csv file
 # read design matrix from scenarios.csv
