@@ -507,7 +507,8 @@ Islope <- function (y)
   C.last <- tail(catch,n=1) # most recent catch 
   
   yind <- 1:yrsmth
-  slppar <- summary(lm(log(i.use) ~ yind))$coefficients[2, 1:2]
+  Islope_lm <- lm(log(i.use) ~ yind)
+  slppar <- summary(Islope_lm)$coefficients[2, 1:2]
   #Islope <- rnorm(reps, slppar[1], slppar[2])  # this is if we want to use random draws based on pt estimate and std error
   Islope <- slppar[1]
   C.targ <- cmult * mu.C * (1 + lambda * Islope)
@@ -519,7 +520,7 @@ Islope <- function (y)
   }
   
   names(C.targ) <-NULL
-  return(C.targ)
+  return(list(C.targ,Islope_lm))
 }
 
 # default run
