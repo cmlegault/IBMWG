@@ -960,8 +960,8 @@ ensemble<-function(y=NULL){
   advice<-c(advice,run.aim(y)[[1]])
   advice<-c(advice,M_CC(y))
   advice<-c(advice,ExpandSurvey_modified(y)[[1]])
-  advice<-c(advice,JoeDLM)
-  return(median(advice))
+  advice<-c(advice,JoeDLM(y)[[1]])
+  return(list(median(advice),advice))
 }
 #ensemble(y)
 
