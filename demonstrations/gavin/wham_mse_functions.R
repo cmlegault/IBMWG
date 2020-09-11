@@ -765,7 +765,7 @@ M_CC = function (y)
   #print(C.targ)
   #print("end M_CC")
   #stop()
-  return(list(C.targ,Z.out))
+  return(list(C.targ,Z.out,FMSY))
 }
 
 #M_CC(y)
