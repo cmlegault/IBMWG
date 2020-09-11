@@ -744,12 +744,15 @@ M_CC = function (y)
   #print(mu.C)
   Z.est <- DLM_Z(y)
   #print(Z.est)
-  F.est <- Z.est - M
+  Z.out <- Z.est # save the original estimate
+  
+  F.est <- Z.est - M # calculate the F given Z and assumed M
   #print(F.est)
   F.est[is.na(F.est)] <- Fmin  # if you get an NA, replace with Fmin
   #print(F.est)
   F.est[F.est < Fmin] <- Fmin  # if you get a value below Fmin, use Fmin
   #print(F.est)
+  Z.est <- F.est + M # recalc Z  to take into account the above in case Z.est is NA 
   
   Ac <- mu.C/((F.est/Z.est)*(1 - exp(-Z.est))) # approx biomass based on catch and estimate of F
   #print(Ac)
@@ -762,7 +765,7 @@ M_CC = function (y)
   #print(C.targ)
   #print("end M_CC")
   #stop()
-  return(C.targ)
+  return(list(C.targ,Z.out))
 }
 
 #M_CC(y)
