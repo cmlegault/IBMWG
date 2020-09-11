@@ -957,12 +957,12 @@ run.aim <- function(y) {
 
 #----------------------------------
 ensemble<-function(y=NULL){
-  advice<-Islope(y)[1]
+  advice<-Islope(y)[[1]]
   advice<-c(advice,Itarget(y)[1])
   advice<-c(advice,true_Skate_CR(y))
   advice<-c(advice,planBsmoothfxn(y)[[1]])
   advice<-c(advice,run.aim(y)[[1]])
-  advice<-c(advice,M_CC(y))
+  advice<-c(advice,M_CC(y)[[1]])
   advice<-c(advice,ExpandSurvey_modified(y)[[1]])
   advice<-c(advice,JoeDLM(y)[[1]])
   return(list(median(advice),advice))
