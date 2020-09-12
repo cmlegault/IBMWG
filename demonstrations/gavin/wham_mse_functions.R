@@ -979,30 +979,48 @@ JoeDLM=function(y){
   
   survey<-y$seasonal_index
   catch<-y$catch
-  prop.inc<-y$JoeDLM_prop_inc		#	proportion to increase biomass each year
-  n.ahead<-y$JoeDLM_n_ahead<-2 #forecasting x years and returning x years of catch advice
   
-  # survey=ylist[[1]]
-  # catch=ylist[[2]]
-  # prop.inc=ylist[[3]]
+  ns=ncol(y$seasonal_index)
+  nt=nrow(y$seasonal_index)
+  catch=matrix(catch,nt,1)
+  
+  #set up checks to prevent log(0) issues
+  for(i in 1:ns){
+    survey[which(survey[,i]==0),i]=min(survey[which(survey[,i]!=0),i])/10
+  }
+  catch[which(catch==0),1]=min(catch[which(catch[,1]!=0),1])/10
+  
+  n.ahead<- 2 #forecasting n.ahead years and returning n.ahead years of catch advice
   
   MCMC=1700
   burn=400
   thin=3
-  #  n.ahead=2 #forecasting 2 years and returning 2 years of catch advice
+  
+  ref.level=apply(survey,2,FUN=function(x){quantile(x,.75)})
   
   #get things on log scale
   y.internal=log(as.matrix(survey))
   catch=log(as.matrix(catch))
   
-  ns=ncol(y.internal)
-  nt=nrow(y.internal)
+  catch0=catch 
+  cat=matrix(NA,nt,ns)
+  for(i in 1:nt){
+    if(i==1){#assume catch in year before t=1 is roughly the same as in t=1
+      cat[i,1]=catch0[i,]
+      cat[i,2]=catch0[i,]
+    }else{
+      cat[i,1]=0.75*catch0[i-1,]+0.25*catch0[i,]
+      cat[i,2]=0.25*catch0[i-1,]+0.75*catch0[i,]
+    }
+  }
+  catch=cat
+  
   
   #convert catch to catch anomalies by removing average exploitation rate relative to survey
   x=matrix(NA,nt,ns)
   lm.mat=matrix(NA,ns,2)
   for(i in 1:ns){
-    m=lm(catch~y.internal[,i])
+    m=lm(catch[,i]~y.internal[,i])
     x[,i]=m$residuals
     lm.mat[i,]=m$coefficients
   }
@@ -1041,6 +1059,177 @@ JoeDLM=function(y){
     
     return(W)
   }
+  
+  #function for calculating model estimates from state variables, observation error turned off because
+  #we only care about the mean in this application and sampling rmvnorm is slow
+  estcalc=function(FF,theta,V,nt,ns){
+    est=matrix(NA,nt,ns)
+    for(i in 1:nt){
+      est[i,]=t(FF[i,,]%*%theta[i+1,])#+rmvnorm(1,rep(0,dim(V)[1]),V)
+    }
+    return(est)
+  }
+  
+  #set up variance priors
+  var0=mean(diag(var(y.internal,na.rm=T)))
+  W01=diag(var0/4,ns*2)
+  W01[which(W01==0)]=var0/8
+  b.y=var0/2
+  a.y=1
+  V0=diag(var0/2,ns)
+  
+  #set up model structure and load it into container from dlm package
+  g0=diag(3);g0[1,2]=1
+  f0=matrix(c(1, 0,1), nrow = 1)
+  g=g0%x% diag(ns)
+  f=f0%x% diag(ns)
+  p=ncol(f)
+  jf=f; jf[,-c((p-ns+1):p)]=0;jf[,c((p-ns+1):p)]=jf[,c((p-ns+1):p)]*c(1:ns)
+  W0=bdiag(diag(ns),W01)
+  mod <- dlm(FF =f,
+             V = V0,
+             GG = g ,
+             W = W0,
+             m0 = c(colMeans(y.internal), rep(0,ns),rep(-1,ns)),
+             C0 = diag(c(rep(9,ns),rep(.0625,ns),rep(.25,ns))),
+             X=as.matrix(x),JFF=jf)
+  
+  #create G matrix and F array, where F array contains covariate values
+  GG=mod$GG
+  FFt=array(1,c(nt,ns,p))
+  inds=(p-ns+1):p
+  for(i in 1:nt){
+    FF0=mod$FF
+    FF0[,inds]=FF0[,inds]*x[i,]
+    FFt[i,,]=FF0
+  }
+  
+  #bins to save Gibbs values
+  Thetasave=array(NA,c(nt+1,p,MCMC*thin))
+  Msave=array(NA,c(1,p,MCMC*thin))
+  Vsave=array(NA,c(ns,ns,MCMC*thin))
+  Wsave=array(NA,c(p,p,MCMC*thin))
+  Csave=Wsave
+  estsave=array(NA,c(nt,ns,MCMC*thin))
+  
+  #Gibbs sampler
+  for(it in 1:(MCMC*thin)){
+    ff=dlmFilter(y.internal,mod)
+    theta=dlmBSample(ff)
+    mod$V=sample.V(FFt,theta,y.internal,a.y,b.y,nt,ns)
+    mod$W=sample.W(theta,y.internal,mod$GG,mod$W,W01,nt,ns,Trend)
+    
+    
+    estsave[,,it]=estcalc(FFt,theta,mod$V,nt,ns)
+    Vsave[,,it]=mod$V
+    Wsave[,,it]=mod$W
+    Thetasave[,,it]=theta
+    Msave[,,it]=ff$m[nt+1,]
+    Csave[,,it]=dlmSvd2var(u=ff$U.C[[nt+1]],d=ff$D.C[nt+1,])
+  }
+  
+  #Thinning
+  tseq=seq(1,MCMC*thin,thin)
+  Vsave=Vsave[,,tseq,drop=F]
+  Wsave=Wsave[,,tseq]
+  Thetasave=Thetasave[,,tseq]
+  Msave=Msave[,,tseq,drop=F]
+  Csave=Csave[,,tseq]
+  estsave=estsave[,,tseq,drop=F]
+  #Burn-in
+  Vsave=Vsave[,,-(1:burn),drop=F]
+  Wsave=Wsave[,,-(1:burn)]
+  Csave=Csave[,,-(1:burn)]
+  Thetasave=Thetasave[,,-(1:burn)]
+  Msave=Msave[,,-(1:burn),drop=F]
+  estsave=estsave[,,-(1:burn),drop=F]
+  
+  #mean model fit
+  fit=apply(estsave,c(1,2),mean)
+  
+  #forecast function, stuff is turned off so that it only returns the mean forecast
+  #again, we only care about the mean in this application, so this is faster
+  frcst=function(p,ns,FFf,GG,W,V,m,C,n.ahead){
+    #Forecasting
+    af=matrix(NA,n.ahead+1,p)
+    Rf=array(NA,c(n.ahead+1,p,p))
+    af[1,]=m
+    Rf[1,,]=C
+    forc=matrix(NA,n.ahead,ns)
+    for(i in 1:n.ahead){
+      af[i+1,]=GG%*%matrix(af[i,],nc=1)
+      #Rf[i+1,,]=GG%*%Rf[i,,]%*%t(GG)+W
+      ff=FFf[i,,]%*%matrix(af[i+1,],nc=1)
+      #Qf=FFf[i,,]%*%Rf[i+1,,]%*%t(FFf[i,,])#+V
+      #forc[i,]=rmvnorm(1,ff,Qf)
+      forc[i,]=ff
+    }
+    return(forc)
+    
+  }
+  
+  #catch is the parameter adjusted by optim, calculates target survey abundance based on 10yr rebuild (or decline) to reference level,
+  #uses future harvest to generate mean forecast, compares forecast to target abundance, 
+  #returns difference between forecast and target in final forecast year as objective to be minimized
+  catch.advice=function(param,survey,catch,ref.level,lm.mat,
+                        n.ahead,Wsave,Vsave,Msave,Csave,fit,mod,nt,ns,p){
+    fcatch=param
+    
+    target=rbind(exp(fit[nt,])+(ref.level-exp(fit[nt,]))*c(.05,.1),
+                 exp(fit[nt,])+(ref.level-exp(fit[nt,]))*c(.15,.2))
+    
+    target=log(target)
+    
+    xf=matrix(NA,n.ahead,ns)
+    for(j in 1:ns){
+      if(j==1){
+        fcatch0=c(0.75*catch[nt,1]+0.25*fcatch,fcatch)
+      }else{
+        fcatch0=c(0.25*catch[nt,1]+0.75*fcatch,fcatch)
+      }
+      xf[,j]=fcatch0-(target[,j]*lm.mat[j,2]+lm.mat[j,1])
+    }
+    
+    FFf=array(1,c(n.ahead,ns,p))
+    inds=(p-ns+1):p
+    for(i in 1:n.ahead){
+      FF0=mod$FF
+      FF0[,inds]=FF0[,inds]*xf[i,]
+      FFf[i,,]=FF0
+    }
+    
+    proj=array(NA,c(n.ahead,ns,dim(Msave)[[3]]))
+    for(k in 1:dim(Msave)[[3]]){
+      proj[,,k]=frcst(p,ns,FFf,mod$GG,Wsave[,,k],Vsave[,,k],Msave[,,k],Csave[,,k],n.ahead)
+    }
+    
+    proj=apply(proj,c(1,2),mean)
+    diff=proj-target
+    
+    obj=mean(abs(diff[2,]))
+    
+    return(obj)
+    
+  }
+  
+  #use optim to solve for catch advice
+  ca=optim(par=as.numeric(catch[nt,2]),fn=catch.advice,survey=as.matrix(survey),catch=catch,ref.level=ref.level,lm.mat=lm.mat,
+           n.ahead=n.ahead,Wsave=Wsave,Vsave=Vsave,Msave=Msave,Csave=Csave,fit=fit,mod=mod,nt=nt,ns=ns,p=p, 
+           method="Brent",lower=1,upper=max(catch0)+log(10),control=list(abstol=1e-10,reltol=1e-10))$par
+  
+  #average chosen catch with catch from past 2 years to smooth out changes in harvest and make approach to reference level more linear
+  ca1=mean(c(ca,mean(catch0[(nt-1):nt,1])))
+  
+  #converts catch adjustment term from optim into actual harvest levels to return as catch advice
+  fcatch=exp(ca1)
+  
+  
+  
+  #output: 1) catch advice, 2) model estimates of survey indices for each iteration, 3) state variables for each iteration, 
+  #4) evolution error variance for each iteration, 5) measurement error variance for each iteration
+  
+  return(list(fcatch,estsave,Thetasave,Wsave,Vsave))
+}
   
   #function for calculating model estimates from state variables, observation error turned off because
   #we only care about the mean in this application and sampling rmvnorm is slow
