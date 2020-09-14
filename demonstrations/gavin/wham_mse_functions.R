@@ -16,50 +16,10 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   retro_type <- input$retro_type
   n_selblocks <- input$n_selblocks
   Fhist <- input$Fhist
-  
-  # GF - had to copy these from input specs, mod so part of arguments
-  #na = input$na #number of ages
-  #nf=input$nf #number of fleets (we only need 1)
-  #ni=input$ni #number of indices 
-  #input$recruit_model = 3 #Beverton-Holt
-    
-  #a50 = 5 and slope = 1 for logistic selectivity for each fleet and index
-  #sel.list=list(model=rep("logistic",ni+nf), re=rep("none",ni+nf), initial_pars=lapply(1:(ni+nf), function(x) c(5,1)))
-  #if(nf + ni != 3) stop("number of fleets must = 1 and number of indices must = 2")
-  #sel.list=list(model=rep("logistic",ni+nf), re=rep("none",ni+nf), 
-  #  initial_pars= list(
-  #    c(3.57,1), #fishery (see factorial pruning)
-  #    c(1.8, 1/6), #survey 1 (see factorial pruning)
-  #    c(1.2, 1/5.5))) #survey 2 (see factorial pruning)
-
-  #AR1 deviations of rececruitment only over time. To include abundances at older ages as random effects use "rec+1"
-  #NAA.list = list(sigma='rec',cor='ar1_y')
-  #NAA.list = list(sigma='rec',cor='iid') #this would make recruitment deviations iid.
-  #```
-
-  #```{r base-period}
-  #set up projections to repopulate 
-  #proj.list = list(n.yrs=length(input$modyears), use.last.F=TRUE, use.avg.F=FALSE, use.FXSPR=FALSE,
-  #                                              proj.F=NULL, proj.catch=NULL, avg.yrs=NULL,
-  #                                              cont.ecov=TRUE, use.last.ecov=FALSE, avg.ecov.yrs=NULL, proj.ecov=NULL, cont.Mre=NULL)
-
-  #set up initial numbers at age according to equilibrium assumptions as determined by IBMWG
-  #h = input$mean_rec_pars[1]
-  #R0 = input$mean_rec_pars[2]
-  #sel = 1/(1+exp(-sel.list$initial_pars[[1]][2]*(1:na - sel.list$initial_pars[[1]][1])))
-  #spr0 = wham:::get_SPR(0, M=input$M, sel, mat=input$maturity, waassb=input$waa_catch, fracyrssb=input$fracyr_spawn, at.age = FALSE)
-  #a = 4*h/((1-h)*spr0)
-  #b = (a - 1/spr0)/R0
-  #F1 = input$F[1]
-  #sprF1 = wham:::get_SPR(F1, M=input$M, sel, mat=input$maturity, waassb=input$waa_catch, fracyrssb=input$fracyr_spawn, at.age = FALSE)
-  #nprF1 = wham:::get_SPR(F1, M=input$M, sel, mat=rep(1,na), waassb=rep(1,na), fracyrssb=input$fracyr_spawn, at.age = TRUE)
-  #R_F1 = (a - 1/sum(sprF1))/b
-  #input$N1 <- R_F1*nprF1 #Initial numbers at age
 
   #generate the input for fit_wham. Data (indices, catch) are not populated though.
   #x = prepare_wham_om_input(input, recruit_model = input$recruit_model, selectivity=input$sel.list, NAA_re = input$NAA.list, proj.opts = input$proj.list)
-  #x$data$Fbar_ages = 10 #not sure if this is needed anywhere, but I did need it for examining retro values.
-  
+  #x$data$Fbar_ages = 10 #not sure if this is needed anywhere, but I did need it for examining retro values.  
   
   #NEED TO PROVIDE INCORRECT M to MSE, if M is incorrect!
   observed_om_input = input
@@ -73,6 +33,7 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   } else true_om_input = observed_om_input #no M mis-specifcation
   
   observed_om = fit_wham(observed_om_input, do.fit = FALSE)
+  observed_rep = observed_om$report()
   #observed_sim = observed_om$simulate(complete=TRUE)
   true_om = fit_wham(true_om_input, do.fit = FALSE)
   set.seed(seed) 
@@ -83,6 +44,7 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   #put in correct recruitment series
   ind = which(names(true_om$env$par) == "log_NAA")
   true_om$env$par[ind] = true_sim$log_NAA[,1] 
+  true_rep = true_om$report()
   set.seed(seed) 
   true_sim = true_om$simulate(complete= TRUE)
   if(retro_type == "Catch"){
@@ -94,7 +56,82 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   } 
   else observed_sim = true_sim
   #put in wrong M, if necessary
-  observed_sim$MAA = observed_om$report()$MAA
+  observed_sim$MAA = observed_rep$MAA
+
+
+  #SSBlim = exp(observed_rep$log_SSB_MSY[1]) 
+  #Flim = exp(observed_rep$log_FMSY[1]) 
+  
+  #refpts <- list(SSB_MSY_true = SSBlim,
+  #               F_MSY_true = Flim, )
+  a = exp(true_rep$log_SR_a[true_om_input$data$n_years_model])
+  b = exp(true_rep$log_SR_b[true_om_input$data$n_years_model])
+  if(n_selblocks == 3) sel = true_rep$selAA[[1]][true_om_input$data$n_years_model,]
+  else sel = true_rep$selAA[[4]][true_om_input$data$n_years_model,]  
+  maturity = true_om_input$data$mature[true_om_input$data$n_years_model,]  
+  waa = cwaa[1,true_om_input$data$n_years_model,] 
+  fracssb = true_om_input$data$fracyr_SSB
+  true_M = true_rep$MAA[true_om_input$data$n_years_model,]
+  true_refpts = c(
+    R_MSY = exp(true_rep$log_R_MSY[true_om_input$data$n_years_model]), 
+    SSB_MSY = exp(true_rep$log_SSB_MSY[true_om_input$data$n_years_model]), 
+    F_MSY = exp(true_rep$log_FMSY[true_om_input$data$n_years_model]),
+    MSY = exp(true_rep$log_MSY[true_om_input$data$n_years_model]),
+    F_40 = exp(true_rep$log_FXSPR[true_om_input$data$n_years_model]),
+    R_0 = exp(true_rep$log_SR_R0[true_om_input$data$n_years_model]),
+    SPR_0 = exp(true_rep$log_SPR0[true_om_input$data$n_years_model]),
+    SPR_40 = exp(true_rep$log_SPR_FXSPR[true_om_input$data$n_years_model]),
+    YPR_40 = exp(true_rep$log_YPR_FXSPR[true_om_input$data$n_years_model])
+  )
+  sprmsy = true_refpts[["SSB_MSY"]]/true_refpts[["R_MSY"]]
+  spr.frac.SSB.msy = function(log_F,spr.msy = sprmsy,frac=0.5, Min = true_M){
+    spr = wham:::get_SPR(exp(log_F), M = Min, sel = sel, mat=maturity, waassb=waa, fracyrssb=fracssb, at.age = FALSE)
+    obj = -(a*spr-1 - frac*(a*spr.msy-1))^2 #the necessary parts of SSB(F)
+    return(obj)
+  }
+  F05 = exp(nlminb(log(0.2), spr.frac.SSB.msy)$par)
+  F01 = exp(nlminb(log(0.2), spr.frac.SSB.msy, frac=0.1)$par)
+  true_refpts = c(
+    true_refpts, 
+    SSB0 = true_refpts[["SPR_0"]] * true_refpts[['R_0']],
+    R_40 = (a - 1/true_refpts[["spr_40"]])/b,
+    SSB_40 = (a * true_refpts[["spr_40"]] - 1)/b,
+    Y_40 = true_refpts[["YPR_40"]] * (a - 1/true_refpts[["spr_40"]])/b,
+    SPR_MSY = sprmsy,
+    F_dot_5_SSB_MSY = F05,
+    F_dot_1_SSB_MSY = F01
+  )
+  print(true_refpts)
+  stop()
+  observed_M = observed_rep$MAA[true_om_input$data$n_years_model,]
+  observed_refpts = c(
+    R_MSY = exp(observed_rep$log_R_MSY[true_om_input$data$n_years_model]), 
+    SSB_MSY = exp(observed_rep$log_SSB_MSY[true_om_input$data$n_years_model]), 
+    F_MSY = exp(observed_rep$log_FMSY[true_om_input$data$n_years_model]), 
+    MSY = exp(observed_rep$log_MSY[true_om_input$data$n_years_model]),
+    F_40 = exp(observed_rep$log_FXSPR[true_om_input$data$n_years_model]),
+    R_0 = exp(observed_rep$log_SR_R0[true_om_input$data$n_years_model]),
+    SPR_0 = exp(observed_rep$log_SPR0[true_om_input$data$n_years_model])
+    SPR_40 = exp(observed_rep$log_SPR_FXSPR[true_om_input$data$n_years_model])
+    YPR_40 = exp(observed_rep$log_YPR_FXSPR[true_om_input$data$n_years_model])
+  )
+  sprmsy = observed_refpts[["SSB_MSY"]]/observed_refpts[["R_MSY"]]
+  F05 = exp(nlminb(log(0.2), spr.frac.SSB.msy, Min = observed_M)$par)
+  F01 = exp(nlminb(log(0.2), spr.frac.SSB.msy, Min = observed_M, frac=0.1)$par)
+  observed_refpts = c(
+    observed_refpts, 
+    SSB0 = observed_refpts[["SPR_0"]] * observed_refpts[['R_0']],
+    R_40 = (a - 1/observed_refpts[["spr_40"]])/b,
+    SSB_40 = (a * observed_refpts[["spr_40"]] - 1)/b,
+    Y_40 = observed_refpts[["YPR_40"]] * (a - 1/observed_refpts[["spr_40"]])/b,
+    SPR_MSY = sprmsy,
+    F_dot_5_SSB_MSY = F05,
+    F_dot_1_SSB_MSY = F01
+  )
+  input$refpts = observed_refpts
+
+  #put in wrong reference points, if necessary
+  observed_sim$refpts = observed_refpts       
   observed_sim = get.IBM.input(y=observed_sim,i=0) #JJD; this adds to the y list stuff needed for index methods 
   
   #GF modify the IBM options based on the scenario
@@ -103,13 +140,6 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   
 
   sim_data_series = list(observed_sim)
-  observed_rep = observed_om$report()
-  SSBlim = exp(observed_rep$log_SSB_MSY[1]) 
-  Flim = exp(observed_rep$log_FMSY[1]) 
-  
-  #incorrect reference points if M is mis-specified
-  refpts <- list(SSBlim = SSBlim,
-                 Flim = Flim)
   catch_advice=observed_om_input$IBM(y=observed_sim) #JJD
   advice <- list(catch_advice) 
   # if(length(catch_advice)>1){
@@ -176,6 +206,8 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
     } 
     else observed_sim = true_sim
 
+    #put in wrong reference points, if necessary
+    observed_sim$refpts = observed_refpts       
     #put in wrong M, if necessary
     observed_sim$MAA = observed_om$report()$MAA
     observed_sim = get.IBM.input(y=observed_sim,i=year) #JJD; GF
@@ -206,6 +238,11 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
     #advice[(i+adv.yr):(i+(2*adv.yr)-1)] <- catch_advice
     advice[[i+1]] <- catch_advice
   }
+  true_rep = true_om$report()
+
+  #both correct and incorrect reference points if M is mis-specified
+  refpts <- list(true_refpts = true_refpts,
+                 observed_refpts = observed_refpts)
 
   results <- list(sim_data_series = sim_data_series[[nproj+1]], #GF #[[nprojyrs]], #JJD
                   advice = advice,

@@ -37,6 +37,7 @@ get_base_input <- function(n_selblocks = 1, Fhist = 1, Fmsy_scale = 2.5, scaa = 
       c(1.2, 1/5.5))) #survey 2 (see factorial pruning)
   
   equilib.sel = 1/(1+exp(-sel.list$initial_pars[[1]][2]*(1:na - sel.list$initial_pars[[1]][1])))
+  equilib.sel = equilib.sel/max(equilib.sel)
   input$sel.list = sel.list
   input$NAA.list = list(sigma='rec',cor='ar1_y')
   input$proj.list = list(n.yrs=nprojyrs, use.last.F=TRUE, use.avg.F=FALSE, use.FXSPR=FALSE,
@@ -131,6 +132,7 @@ get_base_input <- function(n_selblocks = 1, Fhist = 1, Fmsy_scale = 2.5, scaa = 
     #Fmsy, base period full F and initial N1 change based on recent selectivity
     #change equilibrium selectivity
     equilib.sel = 1/(1+exp(-selpars2[2]*(1:na - selpars2[1])))
+    equilib.sel = equilib.sel/max(equilib.sel)
     Fmsy = exp(nlminb(log(0.2), eq.yield)$par)
     #print(paste0("Fmsy = ", Fmsy))
     prop.F = rep(Fmsy_scale, length(input$modyears)/2)
