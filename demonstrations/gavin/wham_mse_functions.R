@@ -278,7 +278,7 @@ get.IBM.input<-function(y=NULL,i=NULL){
     y$init_q<-y$q[1,]
   }
   
-  y=IBM.options(y=y)
+  y=IBM.options(y=y, adv.yr = input$adv.yr) # added adv.yr, the number of years between assessments to IBM.options as two IBM functions require it. 
   
   return(y)
 }
@@ -604,7 +604,10 @@ true_Skate_CR <- function(y)
   abc<-I.smooth[length(I.smooth)]*median.c.b*1000		#	this appears to be the ABC, but the spread sheet also had a target C/B ratio but unknown how it was calculated
   act<-abc*percent	#	Not sure if we want to output the ABC or the ACT or...
   
-  return(abc)
+  colnames(c.b)<-'C_I'
+  skate.output<-list(abc=abc, median_C_I=median.c.b, annual_values=data.frame(index_smooth=I.smooth,catch_smooth=C.smooth, C_I=c.b) )
+  return(skate.output)
+
 }
 
 #true_Skate_CR(y)
@@ -952,7 +955,7 @@ run.aim <- function(y) {
 ensemble<-function(y=NULL){
   advice<-Islope(y)[[1]]
   advice<-c(advice,Itarget(y)[1])
-  advice<-c(advice,true_Skate_CR(y))
+  advice<-c(advice,true_Skate_CR(y)[[1]])
   advice<-c(advice,planBsmoothfxn(y)[[1]])
   advice<-c(advice,run.aim(y)[[1]])
   advice<-c(advice,M_CC(y)[[1]])
@@ -972,6 +975,7 @@ JoeDLM=function(y){
   
   survey<-y$seasonal_index
   catch<-y$catch
+  n.ahead<-y$JoeDLM_n_ahead #number of years between assessments and used to forecast catch advise
   
   ns=ncol(y$seasonal_index)
   nt=nrow(y$seasonal_index)
@@ -983,7 +987,7 @@ JoeDLM=function(y){
   }
   catch[which(catch==0),1]=min(catch[which(catch[,1]!=0),1])/10
   
-  n.ahead<- 2 #forecasting n.ahead years and returning n.ahead years of catch advice
+  # n.ahead<- 2 #forecasting n.ahead years and returning n.ahead years of catch advice
   
   MCMC=1700
   burn=400
