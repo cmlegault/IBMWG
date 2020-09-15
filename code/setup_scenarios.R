@@ -203,5 +203,6 @@ progress <- mse_sim_setup %>%
   ungroup() %>% 
   select(rowid) %>% 
   mutate(user = rep(NA, nrow(.)),
-         date_run = rep(NA, nrow(.)))
+         date_run = rep(NA, nrow(.)),
+         uploaded = rep(NA, nrow(.)))
 saveRDS(progress, file = "settings/progress_table.rds")
