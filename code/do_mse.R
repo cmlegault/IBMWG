@@ -7,7 +7,7 @@ library(googledrive)
 rscripts <- c("code/base_input.R",
               "code/change_input.R",
               "code/IBM_options.R",
-              "performance_metrics.R",
+              "code/performance_metrics.R",
               "code/wham_mse_functions.R",
               "code/wham_retro_functions.R")
 map(rscripts, source)

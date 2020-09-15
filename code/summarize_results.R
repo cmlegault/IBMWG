@@ -7,15 +7,12 @@ library(wham)
 library(tidyverse)
 library(furrr)
 library(googledrive)
-#library(PlanBsmooth)
-#library(RcppRoll)
-rscripts <- list.files(path = "demonstrations/gavin/", pattern = "\\.R$")
-rscripts <- str_subset(rscripts, "Run_MSE", negate = TRUE)
-rscripts <- str_subset(rscripts, "do_mse", negate = TRUE)
-rscripts <- str_subset(rscripts, "debug", negate = TRUE)
-rscripts <- str_subset(rscripts, "setup_scenarios", negate = TRUE)
-rscripts <- str_subset(rscripts, "summarize_results", negate = TRUE)
-rscripts <- paste0("demonstrations/gavin/",rscripts)
+rscripts <- c("code/base_input.R",
+              "code/change_input.R",
+              "code/IBM_options.R",
+              "code/performance_metrics.R",
+              "code/wham_mse_functions.R",
+              "code/wham_retro_functions.R")
 map(rscripts, source)
 
 
