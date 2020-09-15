@@ -5,15 +5,20 @@
 library(tidyverse)
 library(wham)
 
-rscripts <- list.files(path = "demonstrations/gavin/", pattern = "\\.R$")
-rscripts <- str_subset(rscripts, "Run_MSE", negate = TRUE)
-rscripts <- str_subset(rscripts, "do_mse", negate = TRUE)
-rscripts <- str_subset(rscripts, "debug", negate = TRUE)
-rscripts <- str_subset(rscripts, "setup_scenarios", negate = TRUE)
-rscripts <- str_subset(rscripts, "summarize_results", negate = TRUE)
-rscripts <- paste0("demonstrations/gavin/",rscripts)
+rscripts <- c("code/base_input.R",
+              "code/change_input.R",
+              "code/IBM_options.R",
+              "code/wham_mse_functions.R",
+              "code/wham_retro_functions.R")
+# rscripts <- list.files(path = "demonstrations/gavin/", pattern = "\\.R$")
+# rscripts <- str_subset(rscripts, "Run_MSE", negate = TRUE)
+# rscripts <- str_subset(rscripts, "do_mse", negate = TRUE)
+# rscripts <- str_subset(rscripts, "debug", negate = TRUE)
+# rscripts <- str_subset(rscripts, "setup_scenarios", negate = TRUE)
+# rscripts <- str_subset(rscripts, "summarize_results", negate = TRUE)
+# rscripts <- paste0("demonstrations/gavin/",rscripts)
 map(rscripts, source)
-source("demonstrations/tim/wham_retro_functions.R")
+# source("demonstrations/tim/wham_retro_functions.R")
 ##
 
 ##
