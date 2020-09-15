@@ -1,7 +1,6 @@
 .Rproj.user
 .Rhistory
 *.RData
-*.rds
 .Ruserdata
 *.Rproj
 /wham/sandbox
