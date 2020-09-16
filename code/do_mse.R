@@ -13,7 +13,7 @@ rscripts <- c("code/base_input.R",
 map(rscripts, source)
 
 ### main function for conducting MSE
-do_mse <- function(nsim = nsim, user = user, write_to_google = TRUE) {
+do_mse <- function(nsim = 7, user = "Me", write_to_google = TRUE) {
   
 # set up the type of future (for parallelization of sims using furrr)
 future::plan(future::multisession)
@@ -41,7 +41,7 @@ progress$user[todo] <- user
 progress$date_run[todo] <- today
 
 #################################
-# should this be done AFTER the sims are completed and pushed?
+# update progress file - this will be done again after the simulations are finished in case some didn't work
 # write the file back to disk & commit to update
 saveRDS(progress, file = "settings/progress_table.rds")
 #commit back to the repo so other users don't duplicate your efforts
@@ -72,6 +72,19 @@ mse_output <- mse_sim_todo %>%
 #) #ends profvis
 
 
+#check which simulations ran
+which_ran <- mse_output %>% 
+  slice(which(!is.na(wham))) %>% 
+  select(rowid) %>% 
+  as.integer() %>% 
+  I()
+
+#update progress table with simualtions that ran & those that didn't
+progress$uploaded[which_ran] <- TRUE
+which_not <- !(todo %in% which_ran)
+progress$user[which_not] <- NA
+progress$date_run[which_not] <- NA
+
 
 #save the output
 outfile = paste0("output/demo-mse-",user,"-",str_remove_all(today,"/"),".rds")
@@ -84,6 +97,17 @@ drive_upload(
   outfile,
   paste0("ibm-test/",outfile))
 }
+
+
+#################################
+# update progress file - this will be done again after the simulations are finished in case some didn't work
+# write the file back to disk & commit to update
+saveRDS(progress, file = "settings/progress_table.rds")
+#commit back to the repo so other users don't duplicate your efforts
+system('git commit -am "updates progress table"')
+system("git push")
+#################################
+
 
 } #end do_mse function
 
