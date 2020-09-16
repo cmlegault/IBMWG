@@ -21,10 +21,10 @@ map(rscripts, source)
 # specify how many realizations you want to run today
 nsim = 5
 # who is doing them?
-user = "GF"
+user = "LB"
 
 
-do_mse <- function(nsim = nsim, user = user, write_to_google = TRUE) {
+do_mse <- function(nsim = nsim, user = user, write_to_google = F) {
   
 # set up the type of future (for parallelization of sims using furrr)
 future::plan(future::multisession)
@@ -103,6 +103,6 @@ drive_upload(
 # specify how many realizations you want to run today
 nsim = 5
 # who is doing them?
-user = "GF"
-do_mse(nsim = nsim, user = user, write_to_google = TRUE)
+user = "LB"
+do_mse(nsim = nsim, user = user, write_to_google = F)
 
