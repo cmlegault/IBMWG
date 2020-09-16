@@ -21,10 +21,11 @@ input=get_base_input(n_selblocks, Fhist, Fmsy_scale)
 input$adv.yr = 2
 input$Fhist = Fhist
 input$n_selblocks = n_selblocks
-input$nprojyrs = 40
+input$nprojyrs = 4
 input$expand_method = 3
 input$M_CC_method = 3
-input$IBM=M_CC
+#input$IBM=M_CC
+input$IBM=SCAA
 source("wham_mse_functions.R")
 input$retro_type = "None"
 mse.results1=do_wham_mse_sim(input=input)

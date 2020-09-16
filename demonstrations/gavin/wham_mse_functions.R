@@ -125,7 +125,8 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   #put in wrong reference points, if necessary
   observed_sim$refpts = observed_refpts       
   observed_sim = get.IBM.input(y=observed_sim,i=0) #JJD; this adds to the y list stuff needed for index methods 
-  
+  observed_sim$scaa_nyr_add = 0
+  observed_sim$observed_om = observed_om
   
 
   sim_data_series = list(observed_sim)
@@ -139,9 +140,10 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   {
     year <- assess_years[i]
     proj_type = 5
-    print(advice[[i]])
-    print(retro_type)
-    print(Cscale)
+    #print(year)
+    #print(advice[[i]])
+    #print(retro_type)
+    #print(Cscale)
     true_om$env$data$proj_Fcatch[year:(year+adv.yr-1)] = Cscale * advice[[i]][[1]] #TJM, need to make catch higher than quota if catch misspecified
     true_om$env$data$proj_F_opt[year:(year+adv.yr-1)] = proj_type #Specify Catch #JJD,TJM
     set.seed(seed)
@@ -191,8 +193,11 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
     observed_sim$expand_method <- input$expand_method
     observed_sim$M_CC_method <- input$M_CC_method
     observed_sim = get.IBM.input(y=observed_sim,i=year) #JJD; GF
+    observed_sim$scaa_nyr_add = year-1
+    observed_sim$observed_om = observed_om
     sim_data_series[[i+1]] = observed_sim
     catch_advice = input$IBM(y=sim_data_series[[i+1]]) #JJD
+    
     advice[[i+1]] <- catch_advice
   }
   true_rep = true_om$report()
@@ -1228,8 +1233,11 @@ JoeDLM=function(y){
   return(list(fcatch,estsave,Thetasave,Wsave,Vsave))
 }
 
-SCAA = function(simdat, nyr_add=2) {
-  if(nyr_add> simdat$n_years_proj) stop(paste0("nyr_add = ", nyr_add, " is greater than number of projection years in simulated data (", simdat$n_proj_years,")"))
+SCAA = function(y) {
+  nyr_add = y$scaa_nyr_add
+  om = y$observed_om
+  y = y[names(y) != "observed_om"]
+  if(nyr_add> y$n_years_proj) stop(paste0("nyr_add = ", nyr_add, " is greater than number of projection years in simulated data (", y$n_proj_years,")"))
   FfromCatch = function(catch, NAA, waa, M, sel){
     catchF = function(logF) sum(NAA * waa * (1 - exp(-(exp(logF)*sel + M))) * exp(logF) * sel/(exp(logF)*sel + M))
     obj.fn = function(logF) (catch - catchF(logF))^2
@@ -1272,22 +1280,26 @@ SCAA = function(simdat, nyr_add=2) {
     catch = catchproj(NAA, nextF, waa, MAA, sel, R, nyr = nyr)
     return(list(catch[2], nextF))
   }
-  n_selblocks = ifelse(length(simdat$selAA) == 3, 1, 2)
+  n_selblocks = ifelse(length(y$selAA) == 3, 1, 2)
   scaa_input = get_base_input(n_selblocks, Fhist=1, Fmsy_scale=1, scaa=TRUE)
-  update_input = update_wham_input(simdat, om_wham, n_years_add=nyr_add)
-  
-  scaa_input$data = update_input$data
+  if(nyr_add>0) {
+    update_input = update_wham_input(y, om, n_years_add=nyr_add)
+    scaa_input$data = update_input$data
+    scaa_input$par = update_input$par
+    scaa_input$par$mean_rec_pars = scaa_input$par$mean_rec_pars[2]
+    scaa_input$map = update_input$map
+    scaa_input$map$trans_NAA_rho = factor(rep(NA, length(scaa_input$par$trans_NAA_rho)))
+    scaa_input$map$log_NAA_sigma = factor(rep(NA, length(scaa_input$par$log_NAA_sigma)))
+    scaa_input$map$mean_rec_pars = factor(rep(NA, length(scaa_input$par$mean_rec_pars)))
+  }
+  else {
+    update_input = om$input
+    scaa_input$data = y
+  }
   scaa_input$data$Fbar_ages = 10
   scaa_input$data$use_steepness = 0
   scaa_input$data$recruit_model = 2
-  scaa_input$par = update_input$par
-  scaa_input$par$mean_rec_pars = scaa_input$par$mean_rec_pars[2]
-  scaa_input$map = update_input$map
-  scaa_input$map$trans_NAA_rho = factor(rep(NA, length(scaa_input$par$trans_NAA_rho)))
-  scaa_input$map$log_NAA_sigma = factor(rep(NA, length(scaa_input$par$log_NAA_sigma)))
-  scaa_input$map$mean_rec_pars = factor(rep(NA, length(scaa_input$par$mean_rec_pars)))
-  catch_t = sum(simdat$agg_catch_proj[nyr_add+1,])
-  
+  catch_t = sum(y$agg_catch_proj[nyr_add+1,])
   update_sim_fit = fit_wham(scaa_input, do.fit = TRUE, do.retro = TRUE, do.sdrep=FALSE, do.osa = FALSE, MakeADFun.silent = TRUE, retro.silent = TRUE)
   rho = mohns_rho(update_sim_fit)
   catch_advice = get_SCAA_catch_advice(update_sim_fit, rho, catch_t)
