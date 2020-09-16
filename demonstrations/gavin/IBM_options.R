@@ -1,4 +1,4 @@
-IBM.options<-function(y=NULL){
+IBM.options<-function(y=NULL,adv.yr=NULL){
   
   #	additional components needed in the list for each index based method, components can be changed here
   #y$F_SPR<-run.spr(y)  #F %spr just in case using spr method; The desired %spr is specified via WHAM y$percentSPR
@@ -18,7 +18,7 @@ IBM.options<-function(y=NULL){
   
   #	true_Skate_CR	#	actual skate control rule used by NEFSC
   y$true_Skate_CR_yrsmth<-3
-  y$true_Skate_CR_assess_span<-2	#	This is the frequency of assessments and should line up with the plan for the simulations
+  y$true_Skate_CR_assess_span<-adv.yr	#	This is the frequency of assessments and should line up with the plan for the simulations
   y$true_Skate_CR_percent<-0.75		#	proportion of output assuming it is an ABC that should be the ACT, needs modification
   
   #	DLM_Z <-function(CAA,yrs=3) #	catch curve
@@ -64,7 +64,7 @@ IBM.options<-function(y=NULL){
 
 #	Joe Langan's dynamic linear model function
 y$JoeDLM_prop_inc<-0.05	#	proportion to increase biomass each year
-y$JoeDLM_n_ahead<-2 # forecasting 2 years and returning 2 years of catch advice
+y$JoeDLM_n_ahead<-adv.yr # frequency of assessments and therefore the number of years to forecasting for setting catch advice
 
   return(y)
 }
