@@ -110,7 +110,7 @@ SCAA = function(simdat, nyr_add=2)
   return(catch_advice)
 }
 
-SCAA(simdat, 20, n_selblocks)
+#SCAA(simdat)
 
 get_F_rebuild = function(fit, rho, ssbref, nyr=10) {
   print("F_rebuild start")
