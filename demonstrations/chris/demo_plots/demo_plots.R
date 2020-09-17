@@ -154,3 +154,41 @@ fd_wide %>%
   bind_cols(umap_fd$layout %>% as_tibble()) %>%
   ggplot(.,aes(x=V1,y=V2,colour=Year)) + geom_point() + facet_wrap(~scenario)
 ggsave(filename = "umap_idea.png")
+
+
+# heatmap example by liz
+# reference: https://www.r-graph-gallery.com/215-the-heatmap-function.html
+#    and:  https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/heatmap
+# make some janky data across 4 scenarios, 13 IBM methods, 3 metrics and short vs long term
+# build on chris's fake data (fd)
+# compare 13 IBMs for each of the 32 scenarios
+fd <- data.frame(IBM = factor(1:nibm),
+                 period = rep(c("short-term", "long-term"), each = nibm),
+                 catch = c(rnorm(nibm, 100, 10), rnorm(nibm, 400, 40)),
+                 ssb = c(rnorm(nibm, 1000, 100), rnorm(nibm, 2000, 200))) %>%
+  transform(period = factor(period, levels = c("short-term", "long-term")))
+fd2 <- rbind(fd, fd, fd, fd)
+fd2 <- cbind(scenario=c(rep(1,26), rep(2,26), rep(3,26), rep(4,26)), fd2)
+fd2$catch[27:52] <- runif(26, min=0.55, 0.65)*fd$catch
+fd2$catch[53:78] <- runif(26, min=1.15, 1.35)*fd$catch
+fd2$catch[79:104] <- runif(26, min=0.75, 1.05)*fd$catch
+fd2$ssb[27:52] <- runif(26, min=1.1, 1.2)*fd$ssb
+fd2$ssb[53:78] <- runif(26, min=0.8, 0.95)*fd$ssb
+fd2$ssb[79:104] <- runif(26, min=0.9, 1.1)*fd$ssb
+fd2$Ftarg[1:26] <- c(runif(13, 0.1, 0.3), runif(13, 0.2, 0.8))
+fd2$Ftarg[27:52] <- rnorm(26, mean=1, sd=0.1)*fd2$Ftarg[1:26]
+fd2$Ftarg[53:78] <- runif(26, min=0.05, max=0.45) + fd2$Ftarg[1:26]
+fd2$Ftarg[79:104] <- runif(26, min=0.05, max=0.45) + rnorm(26, mean=1, sd=0.1)*fd2$Ftarg[1:26]
+fd3 <- as.matrix(fd2[,-c(1:3)])
+rownames(fd3) <- paste0("IBM-",fd2[,2], "--Scen-", fd2[,1],"--", fd2[,3])
+
+# make heatmap 
+u <- "px"  #units for plot
+wd <- 1152 #width
+ht <- 896  #height
+reso <- 128  #resolution
+
+png(filename="Heatmap_Example.png", units=u, width=wd, height=ht, res=reso)
+heatmap(fd3, scale="column", Colv=NA, margins=c(8,10))
+dev.off()
+
