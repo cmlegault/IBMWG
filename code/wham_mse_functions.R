@@ -280,7 +280,7 @@ get.IBM.input<-function(y=NULL,i=NULL){
     y$init_q<-y$q[1,]
   }
   
-  y=IBM.options(y=y, adv.yr = input$adv.yr) # added adv.yr, the number of years between assessments to IBM.options as two IBM functions require it. 
+  y=IBM.options(y=y, adv.yr = y$adv.yr) # added adv.yr, the number of years between assessments to IBM.options as two IBM functions require it. 
   
   return(y)
 }
