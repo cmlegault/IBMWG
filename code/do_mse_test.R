@@ -30,13 +30,13 @@ map(rscripts, source)
   # load in the input objects
   input_setup <- readRDS(file = "settings/input_setup.rds")
   
-  # do a pull from the repo to get latest update & load the progress file
-  #system("git pull")
-  progress <- readRDS(file = "settings/progress_table.rds")
+  # # do a pull from the repo to get latest update & load the progress file
+  # #system("git pull")
+  # progress <- readRDS(file = "settings/progress_table.rds")
   
-  #today = "2020/08/21"
-  #today = format(Sys.Date(), "%Y/%m/%d") #for actual date
-  today = format(Sys.time(),"%Y-%m-%d-%H-%M-%S") #for actual date
+  # #today = "2020/08/21"
+  # #today = format(Sys.Date(), "%Y/%m/%d") #for actual date
+  # today = format(Sys.time(),"%Y-%m-%d-%H-%M-%S") #for actual date
   
   
   # # find the first nsim realizations that have yet to be done
