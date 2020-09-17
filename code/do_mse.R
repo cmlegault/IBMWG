@@ -3,6 +3,9 @@ library(wham)
 library(tidyverse)
 library(furrr)
 library(googledrive)
+library(dlm)
+library(RandomFieldsUtils)
+
 
 rscripts <- c("code/base_input.R",
               "code/change_input.R",
@@ -40,8 +43,8 @@ todo <- progress %>% filter(is.na(user)) %>%
   I()
 
 #specify those nsim to be being done
-progress$user[todo] <- user
-progress$date_run[todo] <- today
+progress$user[progress$rowid %in% todo] <- user
+progress$date_run[progress$rowid %in% todo] <- today
 
 #################################
 # update progress file - this will be done again after the simulations are finished in case some didn't work
@@ -66,7 +69,7 @@ mse_sim_todo <- mse_sim_setup %>%
 #profvis::profvis(
   #system.time(
 mse_output <- mse_sim_todo %>% 
-   mutate(wham = furrr::future_pmap(list(seed = .$seed, input = .$input),
+   mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
                            do_wham_mse_sim)) %>% 
 # this is the regular purrr code for iterating over the simulations
 #mutate(wham = purrr::pmap(list(seed = seed, input = input), do_wham_mse_sim))
@@ -82,11 +85,12 @@ which_ran <- mse_output %>%
   I()
 which_ran <- as.integer(which_ran$rowid)
 
-#update progress table with simualtions that ran & those that didn't
-progress$uploaded[which_ran] <- TRUE
-which_not <- !(todo %in% which_ran)
-progress$user[which_not] <- NA
-progress$date_run[which_not] <- NA
+#update progress table with simulations that ran & those that didn't
+yay <- todo[todo %in% which_ran]
+nay <- todo[!(todo %in% which_ran)]
+progress$uploaded[progress$rowid %in% yay] <- TRUE
+progress$user[progress$rowid %in% nay] <- NA
+progress$date_run[progress$rowid %in% nay] <- NA
 
 
 #save the output

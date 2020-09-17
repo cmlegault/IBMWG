@@ -126,7 +126,7 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   input$refpts = observed_refpts
   #put in wrong reference points, if necessary
   observed_sim$refpts = observed_refpts       
-  observed_sim = get.IBM.input(y=observed_sim,i=0) #JJD; this adds to the y list stuff needed for index methods 
+  observed_sim = get.IBM.input(y=observed_sim,i=0, adv.yr = adv.yr) #JJD; this adds to the y list stuff needed for index methods 
   
   
 
@@ -192,7 +192,7 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
     observed_sim$MAA = observed_om$report()$MAA
     observed_sim$expand_method <- input$expand_method
     observed_sim$M_CC_method <- input$M_CC_method
-    observed_sim = get.IBM.input(y=observed_sim,i=year) #JJD; GF
+    observed_sim = get.IBM.input(y=observed_sim, i=year, adv.yr = adv.yr) #JJD; GF
     sim_data_series[[i+1]] = observed_sim
     catch_advice = input$IBM(y=sim_data_series[[i+1]]) #JJD
     advice[[i+1]] <- catch_advice
@@ -220,7 +220,7 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
 
 
 #################JJD
-get.IBM.input<-function(y=NULL,i=NULL){
+get.IBM.input<-function(y=NULL,i=NULL, adv.yr = 2){
   #	should create single index that is consistent for all index based methods
   #	combining base period and projection period into single object
   y$seasonal_index<-rbind(y$agg_indices, y$agg_indices_proj)	#	seasonal indices as two columns.  rbind to combine base period with feedback period
@@ -280,7 +280,7 @@ get.IBM.input<-function(y=NULL,i=NULL){
     y$init_q<-y$q[1,]
   }
   
-  y=IBM.options(y=y, adv.yr = y$adv.yr) # added adv.yr, the number of years between assessments to IBM.options as two IBM functions require it. 
+  y=IBM.options(y=y, adv.yr = adv.yr) # added adv.yr, the number of years between assessments to IBM.options as two IBM functions require it. 
   
   return(y)
 }
@@ -1044,9 +1044,9 @@ ensemble<-function(y=NULL){
 #	Joe Langan's dynamic linear model function
 
 JoeDLM=function(y){
-  #two packages I use because their functions help with speed-up
-  require(dlm)
-  require(RandomFieldsUtils)
+  # #two packages I use because their functions help with speed-up
+  # require(dlm)
+  # require(RandomFieldsUtils)
   
   survey<-y$seasonal_index
   catch<-y$catch
