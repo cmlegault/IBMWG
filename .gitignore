@@ -5,3 +5,4 @@
 *.Rproj
 /wham/sandbox
 /wham/*.RDS
+/settings/*.RDS
