@@ -579,7 +579,7 @@ Itarget <- function(y)
   #print(c(I.rec, I.targ, I.thresh, I.rec/I.thresh, C.star, C.targ))
       
   names(C.targ)<-NULL
-  Itarget_list <- (C.targ, I.rec, I.thresh, I.targ)
+  Itarget_list <- list(C.targ, I.rec, I.thresh, I.targ)
   return(Itarget_list)
 }
 #Itarget(y)
