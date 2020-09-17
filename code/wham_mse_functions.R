@@ -395,7 +395,7 @@ get.stable.period <- function(y=NULL) {
   
   #Replacement ratio regression
   df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
-  ln.rr <- lm(R~F, data=df)
+  ln.rr <- invisible(lm(R~F, data=df))
   reg.pars <- summary(ln.rr)
   
   #Solve for ln(relative F) where ln(Replacement ratio) =0    
@@ -668,9 +668,9 @@ DLM_Z <-function(y)
   xc_two <- 1:length(y_two)
   y_one[y_one == "-Inf"] <- NA
   y_two[y_two == "-Inf"] <- NA
-  mod_one <<- lm(y_one ~ xc_one)
+  mod_one <<- invisible(lm(y_one ~ xc_one))
   #print(mod_one)
-  mod_two <<- lm(y_two ~ xc_two)
+  mod_two <<- invisible(lm(y_two ~ xc_two))
   #print(mod_two)
   #print(summary(mod))
   chk_one <- sum(is.na(coef(mod_one)))
@@ -803,7 +803,7 @@ ApplyPlanBsmooth_fast <- function (dat, od = ".\\",
     round_multiplier <- "NA"
   }
   if (dim(reg.use)[1] >= 2) {
-    llr_fit <- lm(log(pred) ~ Year, data = reg.use)
+    llr_fit <- invisible(lm(log(pred) ~ Year, data = reg.use))
     llr_fit.df <- data.frame(Year = reg.use$Year, llfit = exp(predict(llr_fit)))
     multiplier <- as.numeric(exp(llr_fit$coefficients[2]))
     round_multiplier <- round(multiplier, 3)
@@ -990,7 +990,7 @@ run.aim <- function(y) {
   
   #Replacement ratio regression
   df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
-  ln.rr <- lm(R~F, data=df)
+  ln.rr <- invisible(lm(R~F, data=df))
   reg.pars <- summary(ln.rr)
   
   #Solve for ln(relative F) where ln(Replacement ratio) =0    
@@ -1092,7 +1092,7 @@ JoeDLM=function(y){
   x=matrix(NA,nt,ns)
   lm.mat=matrix(NA,ns,2)
   for(i in 1:ns){
-    m=lm(catch[,i]~y.internal[,i])
+    m=invisible(lm(catch[,i]~y.internal[,i]))
     x[,i]=m$residuals
     lm.mat[i,]=m$coefficients
   }
