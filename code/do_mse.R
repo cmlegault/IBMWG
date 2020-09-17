@@ -3,6 +3,9 @@ library(wham)
 library(tidyverse)
 library(furrr)
 library(googledrive)
+library(dlm)
+library(RandomFieldsUtils)
+
 
 rscripts <- c("code/base_input.R",
               "code/change_input.R",

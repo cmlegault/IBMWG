@@ -1044,9 +1044,9 @@ ensemble<-function(y=NULL){
 #	Joe Langan's dynamic linear model function
 
 JoeDLM=function(y){
-  #two packages I use because their functions help with speed-up
-  require(dlm)
-  require(RandomFieldsUtils)
+  # #two packages I use because their functions help with speed-up
+  # require(dlm)
+  # require(RandomFieldsUtils)
   
   survey<-y$seasonal_index
   catch<-y$catch
