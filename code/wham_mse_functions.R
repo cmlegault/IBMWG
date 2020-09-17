@@ -48,8 +48,7 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
     if(Fhist == 1 & n_selblocks == 2) Cscale = 5
     if(Fhist == 2 & n_selblocks == 2) Cscale = 2.25
     observed_sim = change_catch_sim(sim = true_sim, catch_ratio = 1/Cscale, year_change = 2010, years = 1970:2019)
-  } 
-  else {
+  }   else {
     Cscale = 1
     observed_sim = true_sim
   }
@@ -61,8 +60,11 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
 
   a = exp(true_rep$log_SR_a[true_om_input$data$n_years_model])
   b = exp(true_rep$log_SR_b[true_om_input$data$n_years_model])
-  if(n_selblocks == 3) sel = true_rep$selAA[[1]][true_om_input$data$n_years_model,]
-  else sel = true_rep$selAA[[4]][true_om_input$data$n_years_model,]  
+  if(n_selblocks == 3) {
+    sel = true_rep$selAA[[1]][true_om_input$data$n_years_model,]
+  } else {
+    sel = true_rep$selAA[[4]][true_om_input$data$n_years_model,]  
+  }
   maturity = true_om_input$data$mature[true_om_input$data$n_years_model,]  
   waa = true_om_input$data$waa[1,true_om_input$data$n_years_model,] 
   fracssb = true_om_input$data$fracyr_SSB[true_om_input$data$n_years_model]
