@@ -22,11 +22,11 @@ mse_output <- readRDS("dummy_output.rds")
 # calculate performance metrics
 mse_results <- mse_output %>% 
   mutate(om_ssb = map(wham,
-                      ~pluck(.x$sim_data_series$SSB)),
+                      ~pluck(.x$result$sim_data_series$SSB)),
          catch = map(wham, 
-                     ~pluck(.x$sim_data_series$catch)),
+                     ~pluck(.x$result$sim_data_series$catch)),
          frate = map(wham, 
-                     ~pluck(.x$sim_data_series$F)),
+                     ~pluck(.x$result$sim_data_series$F)),
          catch = map(catch, na_if, y = "NaN"),
          om_ssb = map(om_ssb, na_if, y = "NaN"),
          frate = map(frate, na_if, y = "NaN"),
@@ -47,7 +47,7 @@ saveRDS(mse_results, file = "settings/perform-metrics.rds")
 #pull out the ssb metrics
 ssb_results <- mse_results %>% 
   #select(rowid, ssb_metrics) %>% 
-  select(base_scen, proj_scen, isim, ssb_metrics) %>% 
+  select(iscen, isim, ssb_metrics) %>% 
   mutate(ssb_metrics = map(ssb_metrics, enframe)) %>% 
   unnest(cols = c(ssb_metrics)) %>% 
   mutate(value = map_dbl(value, I)) %>% 
@@ -63,7 +63,7 @@ quibble <- function(x, q = c(0.25, 0.5, 0.75)) {
 }
 
 ssb_summary <- ssb_results %>% 
-  group_by(metric, base_scen, proj_scen) %>% 
+  group_by(metric, iscen) %>% 
   summarise(y = list(quibble(value, c(0.25, 0.5, 0.75)))) %>% 
   tidyr::unnest(y) %>% 
   I()
