@@ -61,11 +61,12 @@ map(rscripts, source)
   # pull out realizations to be run today from the setup list using "todo". 
   mse_sim_todo <- mse_sim_setup %>% 
     filter(isim == 1) %>% 
-    filter(IBM != "ensemble") %>% 
     #filter(rowid %in% todo) %>% 
     left_join(input_setup) %>% 
     #modify the input object here
     mutate(input = pmap(list(input=input, change=specs), change_input)) %>% 
+    unnest(cols = "specs") %>% 
+    filter(IBM != "ensemble") %>% 
     I()
   
   ### run the MSE over each row of the mse_sims todo
@@ -75,7 +76,6 @@ map(rscripts, source)
   start <- Sys.time()
   mse_output <- mse_sim_todo %>% 
     #slice(6:50) %>% 
-    unnest(cols = "specs") %>% 
      mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
                                       safe_wham_mse)) %>% 
     # this is the regular purrr code for iterating over the simulations
