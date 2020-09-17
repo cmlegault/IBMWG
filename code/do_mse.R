@@ -76,8 +76,8 @@ mse_output <- mse_sim_todo %>%
 which_ran <- mse_output %>% 
   slice(which(!is.na(wham))) %>% 
   select(rowid) %>% 
-  as.integer() %>% 
   I()
+which_ran <- as.integer(which_ran$rowid)
 
 #update progress table with simualtions that ran & those that didn't
 progress$uploaded[which_ran] <- TRUE
