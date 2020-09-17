@@ -61,6 +61,7 @@ map(rscripts, source)
   # pull out realizations to be run today from the setup list using "todo". 
   mse_sim_todo <- mse_sim_setup %>% 
     filter(isim == 1) %>% 
+    filter(IBM != "ensemble") %>% 
     #filter(rowid %in% todo) %>% 
     left_join(input_setup) %>% 
     #modify the input object here
