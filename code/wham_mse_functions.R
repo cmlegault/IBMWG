@@ -577,7 +577,7 @@ Itarget <- function(y)
         
   names(C.targ)<-NULL
   
-  Itarget_list <- c(C.targ, I.rec, I.thresh, I.targ)
+  Itarget_list <- list(C.targ, I.rec, I.thresh, I.targ)
   return(Itarget_list)
 }
 #Itarget(y)
