@@ -26,7 +26,7 @@ IBM.options<-function(y=NULL,adv.yr=NULL){
   
   
   #	M_CC	# Simple method that used catch curve to estimate Z, and assumes Fmsy = assumed M
-  y$M_CC_yrs<-3
+  y$M_CC_yrs<-y$DLM_Z_yrs
   y$M_CC_Fmin<-0.05
   #y$M_CC_method<-3 #This is now handled in setup_scenarios script so that the options are "looped" over in runs
   #1.	SPR
