@@ -22,7 +22,7 @@ map(rscripts, source)
   write_to_google = FALSE
   
   # set up the type of future (for parallelization of sims using furrr)
-  #future::plan(future::multisession)
+  future::plan(future::multisession)
   
   # load in the scenario specifications
   mse_sim_setup <- readRDS(file = "settings/mse_sim_setup.rds")
