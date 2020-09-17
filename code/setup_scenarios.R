@@ -66,7 +66,7 @@ saveRDS(input_setup, file = "settings/input_setup.rds")
 ###################
 
 mse_setup <- nu_specs %>% 
-  group_by() %>% 
+  group_by(iscen) %>% 
   nest() %>% 
   rename("specs" = data) %>% 
   ungroup() %>% 
