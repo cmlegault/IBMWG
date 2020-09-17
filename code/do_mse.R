@@ -29,10 +29,13 @@ system("git pull")
 progress <- readRDS(file = "settings/progress_table.rds")
 
 #today = "2020/08/21"
-today = format(Sys.Date(), "%Y/%m/%d") #for actual date
+#today = format(Sys.Date(), "%Y/%m/%d") #for actual date
+today = format(Sys.time(),"%Y-%m-%d-%H-%M-%S") #for actual date
+
 
 # find the first nsim realizations that have yet to be done
-todo <- progress %>% filter(is.na(user)) %>% 
+todo <- progress %>% filter(is.na(user)) %>%
+  filter(IBM != "ensemble") %>%   ## this removes the ensembles 
   slice(1:nsim) %>% select(rowid) %>% t() %>% as.numeric() %>% 
   I()
 
@@ -87,7 +90,7 @@ progress$date_run[which_not] <- NA
 
 
 #save the output
-outfile = paste0("output/demo-mse-",user,"-",str_remove_all(today,"/"),".rds")
+outfile = paste0("output/mse-",user,"-",str_remove_all(today,"-"),".rds")
 saveRDS(mse_output, file = outfile)
 
 # upload output to google drive

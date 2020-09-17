@@ -95,6 +95,7 @@ mse_sim_setup <- mse_setup %>%
   rowid_to_column() %>% 
   select(rowid,everything()) %>% 
   ungroup() %>% 
+  arrange(isim) %>%   # organizes so first realization of each is done first
   I()
 mse_sim_setup
 
@@ -102,10 +103,10 @@ mse_sim_setup
 saveRDS(mse_sim_setup, file = "settings/mse_sim_setup.rds")
 
 ## create lookup for which runs have been done
-
 progress <- mse_sim_setup %>% 
   ungroup() %>% 
-  select(rowid) %>% 
+  mutate(IBM = map_chr(specs, "IBM")) %>%
+  select(rowid, IBM) %>% 
   mutate(user = rep(NA, nrow(.)),
          date_run = rep(NA, nrow(.)),
          uploaded = rep(NA, nrow(.)))
