@@ -14,7 +14,7 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   adv.yr <- input$adv.yr
   nprojyrs <- input$nprojyrs
   retro_type <- input$retro_type
-  n_selblocks <- input$n_selblocks
+  n_selblocks <- input$data$n_selblocks
   Fhist <- input$Fhist
   
   #NEED TO PROVIDE INCORRECT M to MSE, if M is incorrect!
