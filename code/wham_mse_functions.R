@@ -21,7 +21,7 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   observed_om_input = input
   if(retro_type == "M"){
       if(Fhist == 1 & n_selblocks == 3) Mscale = 1.6
-      if(Fhist == 2 & n_selblocks == 4) Mscale = 1.8
+      if(Fhist == 2 & n_selblocks == 3) Mscale = 1.8
       if(Fhist == 1 & n_selblocks == 4) Mscale = 1.6
       if(Fhist == 2 & n_selblocks == 4) Mscale = 1.8 
       #true operating model knows correct M
