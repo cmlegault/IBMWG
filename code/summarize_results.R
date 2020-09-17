@@ -3,37 +3,39 @@
 # then for viz/analysis can just work with that tibble
 
 ## install needed libraries & scripts
-library(wham)
+#library(wham)
 library(tidyverse)
-library(furrr)
+#library(furrr)
 library(googledrive)
-rscripts <- c("code/base_input.R",
-              "code/change_input.R",
-              "code/IBM_options.R",
-              "code/performance_metrics.R",
-              "code/wham_mse_functions.R",
-              "code/wham_retro_functions.R")
+
+rscripts <- c("code/performance_metrics.R")
 map(rscripts, source)
 
+# 
+# # download the output & read them in
+# xx <- drive_ls("ibm-test/output")
+# map(xx$name,drive_download, overwrite = TRUE)
+# mse_output <- map_df(xx$name,readRDS)
+# 
+mse_output <- readRDS("dummy_output.rds")
 
-# download the output & read them in
-xx <- drive_ls("ibm-test/output")
-map(xx$name,drive_download, overwrite = TRUE)
-mse_output <- map_df(xx$name,readRDS)
-
-nprojyrs <- 40  #this will be changed so it is part of the settings
 # calculate performance metrics
 mse_results <- mse_output %>% 
   mutate(om_ssb = map(wham,
                       ~pluck(.x$sim_data_series$SSB)),
          catch = map(wham, 
                      ~pluck(.x$sim_data_series$catch)),
+         frate = map(wham, 
+                     ~pluck(.x$sim_data_series$F)),
          catch = map(catch, na_if, y = "NaN"),
          om_ssb = map(om_ssb, na_if, y = "NaN"),
+         frate = map(frate, na_if, y = "NaN"),
          refpts = map(wham, "refpts"),
-         ssb_metrics = pmap(list(om_ssb, refpts), get_ssb_metrics, nprojyrs = nprojyrs),
-         catch_metrics = pmap(list(catch, refpts), get_catch_metrics, nprojyrs = nprojyrs)) %>% 
-  select(rowid, base_scen, proj_scen, isim, ssb_metrics, catch_metrics) %>% 
+         nprojyrs = map(specs, "nprojyrs"),
+         ssb_metrics = pmap(list(om_ssb, refpts, nprojyrs), get_ssb_metrics),
+         catch_metrics = pmap(list(catch, refpts, nprojyrs), get_catch_metrics),
+         f_metrics = pmap(list(frate, refpts, nprojyrs), get_F_metrics)) %>% 
+  select(rowid, iscen, isim, ssb_metrics, catch_metrics, f_metrics) %>% 
   I()
 
 #save the performance metrics object
