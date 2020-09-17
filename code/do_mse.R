@@ -63,7 +63,7 @@ mse_sim_todo <- mse_sim_setup %>%
 #profvis::profvis(
   #system.time(
 mse_output <- mse_sim_todo %>% 
-   mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
+   mutate(wham = furrr::future_pmap(list(seed = .$seed, input = .$input),
                            do_wham_mse_sim)) %>% 
 # this is the regular purrr code for iterating over the simulations
 #mutate(wham = purrr::pmap(list(seed = seed, input = input), do_wham_mse_sim))
