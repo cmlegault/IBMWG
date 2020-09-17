@@ -577,7 +577,8 @@ Itarget <- function(y)
         
   names(C.targ)<-NULL
   
-  return(C.targ)
+  Itarget_list <- c(C.targ, I.rec, I.thresh, I.targ)
+  return(Itarget_list)
 }
 #Itarget(y)
 
@@ -1028,7 +1029,7 @@ run.aim <- function(y) {
 #----------------------------------
 ensemble<-function(y=NULL){
   advice<-Islope(y)[[1]]
-  advice<-c(advice,Itarget(y)[1])
+  advice<-c(advice,Itarget(y)[[1]])
   advice<-c(advice,true_Skate_CR(y)[[1]])
   advice<-c(advice,planBsmoothfxn(y)[[1]])
   advice<-c(advice,run.aim(y)[[1]])
