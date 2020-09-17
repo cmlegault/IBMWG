@@ -506,7 +506,7 @@ Islope <- function (y)
   slppar <- summary(Islope_lm)$coefficients[2, 1:2]
   #Islope <- rnorm(reps, slppar[1], slppar[2])  # this is if we want to use random draws based on pt estimate and std error
   Islope <- slppar[1]
-  C.targ <- cmult * mu.C * (1 + lambda * Islope)
+  C.targ <- cmult * mu.C * (1 + lambda * exp(Islope))
   
   if(cap==TRUE) # this caps the change at +/- 20% per year
   {
