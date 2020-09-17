@@ -141,9 +141,9 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   {
     year <- assess_years[i]
     proj_type = 5
-    print(advice[[i]])
-    print(retro_type)
-    print(Cscale)
+#    print(advice[[i]])
+#    print(retro_type)
+#    print(Cscale)
     true_om$env$data$proj_Fcatch[year:(year+adv.yr-1)] = Cscale * advice[[i]][[1]] #TJM, need to make catch higher than quota if catch misspecified
     true_om$env$data$proj_F_opt[year:(year+adv.yr-1)] = proj_type #Specify Catch #JJD,TJM
     set.seed(seed)
@@ -502,7 +502,7 @@ Islope <- function (y)
   C.last <- tail(catch,n=1) # most recent catch 
   
   yind <- 1:yrsmth
-  Islope_lm <- lm(log(i.use) ~ yind)
+  Islope_lm <- invisible(lm(log(i.use) ~ yind))
   slppar <- summary(Islope_lm)$coefficients[2, 1:2]
   #Islope <- rnorm(reps, slppar[1], slppar[2])  # this is if we want to use random draws based on pt estimate and std error
   Islope <- slppar[1]
@@ -607,7 +607,7 @@ true_Skate_CR <- function(y)
   abc<-I.smooth[length(I.smooth)]*median.c.b*1000		#	this appears to be the ABC, but the spread sheet also had a target C/B ratio but unknown how it was calculated
   act<-abc*percent	#	Not sure if we want to output the ABC or the ACT or...
   
-  colnames(c.b)<-'C_I'
+  names(c.b) <- 'C_I'
   skate.output<-list(abc=abc, median_C_I=median.c.b, annual_values=data.frame(index_smooth=I.smooth,catch_smooth=C.smooth, C_I=c.b) )
   return(skate.output)
 
