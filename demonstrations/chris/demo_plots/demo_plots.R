@@ -159,7 +159,7 @@ ggsave(filename = "umap_idea.png")
 # heatmap example by liz
 # reference: https://www.r-graph-gallery.com/215-the-heatmap-function.html
 #    and:  https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/heatmap
-# make some janky data across scenarios, IBM methods, multiple metrics and short vs long term
+# make some janky data across 4 scenarios, 13 IBM methods, 3 metrics and short vs long term
 # build on chris's fake data (fd)
 # compare 13 IBMs for each of the 32 scenarios
 fd <- data.frame(IBM = factor(1:nibm),
@@ -182,12 +182,12 @@ fd2$Ftarg[79:104] <- runif(26, min=0.05, max=0.45) + rnorm(26, mean=1, sd=0.1)*f
 fd3 <- as.matrix(fd2[,-c(1:3)])
 rownames(fd3) <- paste0("IBM-",fd2[,2], "--Scen-", fd2[,1],"--", fd2[,3])
 
-# make heatmap plot = last_plot(),
-u <- "px" #units for plot
-wd <- 1152 
-ht <- 896
-reso <- 128
-#par(mar=c(4,4,2,6), oma=c(2,2,1,6))
+# make heatmap 
+u <- "px"  #units for plot
+wd <- 1152 #width
+ht <- 896  #height
+reso <- 128  #resolution
+
 png(filename="Heatmap_Example.png", units=u, width=wd, height=ht, res=reso)
 heatmap(fd3, scale="column", Colv=NA, margins=c(8,10))
 dev.off()
