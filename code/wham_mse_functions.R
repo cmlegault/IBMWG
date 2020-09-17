@@ -20,10 +20,10 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   #NEED TO PROVIDE INCORRECT M to MSE, if M is incorrect!
   observed_om_input = input
   if(retro_type == "M"){
-      if(Fhist == 1 & n_selblocks == 1) Mscale = 1.6
-      if(Fhist == 2 & n_selblocks == 1) Mscale = 1.8
-      if(Fhist == 1 & n_selblocks == 2) Mscale = 1.6
-      if(Fhist == 2 & n_selblocks == 2) Mscale = 1.8 
+      if(Fhist == 1 & n_selblocks == 3) Mscale = 1.6
+      if(Fhist == 2 & n_selblocks == 4) Mscale = 1.8
+      if(Fhist == 1 & n_selblocks == 4) Mscale = 1.6
+      if(Fhist == 2 & n_selblocks == 4) Mscale = 1.8 
       #true operating model knows correct M
       true_om_input = change_M_om(observed_om_input, M_new_ratio = Mscale, n_ramp_years = 10, year_change = 2009) 
   } else true_om_input = observed_om_input #no M mis-specifcation
@@ -43,10 +43,10 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   set.seed(seed) 
   true_sim = true_om$simulate(complete= TRUE)
   if(retro_type == "Catch"){
-    if(Fhist == 1 & n_selblocks == 1) Cscale = 5
-    if(Fhist == 2 & n_selblocks == 1) Cscale = 2.5
-    if(Fhist == 1 & n_selblocks == 2) Cscale = 5
-    if(Fhist == 2 & n_selblocks == 2) Cscale = 2.25
+    if(Fhist == 1 & n_selblocks == 3) Cscale = 5
+    if(Fhist == 2 & n_selblocks == 3) Cscale = 2.5
+    if(Fhist == 1 & n_selblocks == 4) Cscale = 5
+    if(Fhist == 2 & n_selblocks == 4) Cscale = 2.25
     observed_sim = change_catch_sim(sim = true_sim, catch_ratio = 1/Cscale, year_change = 2010, years = 1970:2019)
   }   else {
     Cscale = 1
