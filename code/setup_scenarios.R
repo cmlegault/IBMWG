@@ -29,7 +29,7 @@ nu_specs <- read_csv("settings/scenarios.csv")  %>%
     TRUE ~ 4),
     M_CC_method = ifelse(IBM=="CatchCurve_F%SPR",1,3),
     IBM = case_when(
-      IBM == "PlanBsmooth" ~ "ApplyPlanBsmooth_fast", 
+      IBM == "PlanBsmooth" ~ "planBsmoothfxn", 
       str_detect(.$IBM,"ExpandSurvey") ~ "ExpandSurvey_modified",
       IBM == "AIM" ~ "run.aim",
       str_detect(.$IBM, "CatchCurve") ~ "M_CC",
