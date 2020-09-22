@@ -7,3 +7,6 @@
 /wham/*.RDS
 /settings/*.RDS
 /output/*.RDS
+/code/do_mse.R
+/code/summarize_results.R
+/code/performance_metrics.R
