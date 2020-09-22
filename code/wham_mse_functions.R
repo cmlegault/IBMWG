@@ -206,13 +206,13 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   results <- list(sim_data_series = sim_data_series[[nproj+1]], #GF #[[nprojyrs]], #JJD
                   advice = advice,
                   refpts = refpts,
-                  input = true_om$input,
+                  true_input = true_om$input,
                   observed_om = observed_om,
                   true_om = true_om,
                   true_sim = true_sim,
                   observed_sim = observed_sim,
                   seed = seed,
-                  input = input)
+                  observed_input = observed_om$input)
 
   return(results)
   
