@@ -1126,7 +1126,7 @@ JoeDLM=function(y){
     #Wslope <- solve(rwishart(df = length(ns:ng)+2 + nt,Sigma = SSinv))
     Wslope <- RandomFieldsUtils::solvex(rwishart(df = length(ns:ng)+2 + nt,Sigma = SSinv))
     Wint <- diag(0,ns)
-    W <- bdiag(Wint,Wslope)
+    W <- Matrix::bdiag(Wint,Wslope)
     
     
     return(W)
