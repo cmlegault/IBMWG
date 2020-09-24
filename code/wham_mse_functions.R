@@ -1124,7 +1124,7 @@ JoeDLM=function(y){
     
     
     #Wslope <- solve(rwishart(df = length(ns:ng)+2 + nt,Sigma = SSinv))
-    Wslope <- RandomFieldsUtils::solvex(rwishart(df = length(ns:ng)+2 + nt,Sigma = SSinv))
+    Wslope <- RandomFieldsUtils::solvex(dlm::rwishart(df = length(ns:ng)+2 + nt,Sigma = SSinv))
     Wint <- diag(0,ns)
     W <- Matrix::bdiag(Wint,Wslope)
     
@@ -1157,8 +1157,8 @@ JoeDLM=function(y){
   f=f0%x% diag(ns)
   p=ncol(f)
   jf=f; jf[,-c((p-ns+1):p)]=0;jf[,c((p-ns+1):p)]=jf[,c((p-ns+1):p)]*c(1:ns)
-  W0=bdiag(diag(ns),W01)
-  mod <- dlm(FF =f,
+  W0=Matrix::bdiag(diag(ns),W01)
+  mod <- dlm::dlm(FF =f,
              V = V0,
              GG = g ,
              W = W0,
@@ -1186,8 +1186,8 @@ JoeDLM=function(y){
   
   #Gibbs sampler
   for(it in 1:(MCMC*thin)){
-    ff=dlmFilter(y.internal,mod)
-    theta=dlmBSample(ff)
+    ff=dlm::dlmFilter(y.internal,mod)
+    theta=dlm::dlmBSample(ff)
     mod$V=sample.V(FFt,theta,y.internal,a.y,b.y,nt,ns)
     mod$W=sample.W(theta,y.internal,mod$GG,mod$W,W01,nt,ns,Trend)
     
@@ -1197,7 +1197,7 @@ JoeDLM=function(y){
     Wsave[,,it]=mod$W
     Thetasave[,,it]=theta
     Msave[,,it]=ff$m[nt+1,]
-    Csave[,,it]=dlmSvd2var(u=ff$U.C[[nt+1]],d=ff$D.C[nt+1,])
+    Csave[,,it]=dlm::dlmSvd2var(u=ff$U.C[[nt+1]],d=ff$D.C[nt+1,])
   }
   
   #Thinning
