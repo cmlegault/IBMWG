@@ -17,13 +17,13 @@ map(rscripts, source)
 
 ### main function for conducting MSE
 ### pulling out for these tests
-  nsim = 7
-  user = "Me"
-  write_to_google = FALSE
+#  nsim = 7
+#  user = "Me"
+#  write_to_google = FALSE
   
   # set up the type of future (for parallelization of sims using furrr)
   future::plan(future::multisession)
-  
+
   # load in the scenario specifications
   mse_sim_setup <- readRDS(file = "settings/mse_sim_setup.rds")
   
@@ -75,7 +75,7 @@ map(rscripts, source)
   #profvis::profvis(
   start <- Sys.time()
   mse_output <- mse_sim_todo %>% 
-    #slice(6:50) %>% 
+    #slice(1:2) %>% 
      mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
                                       safe_wham_mse)) %>% 
     # this is the regular purrr code for iterating over the simulations
@@ -84,7 +84,8 @@ map(rscripts, source)
     I()
   #) #ends profvis
   stop <- Sys.time()
-  
+  stop - start # how long runs took
+
   mse_check <- mse_output %>% 
     mutate(error = map(wham, "error"),
            error = map(error, str_flatten),
@@ -92,11 +93,12 @@ map(rscripts, source)
     #select(rowid, IBM, error) %>% 
     drop_na() %>% 
     I()
-  #mse_check
+  mse_check
 
-  saveRDS(list(start, stop), file = "elapsed.rds")  
-  saveRDS(mse_output, file = "mse_test_out.rds")
-  saveRDS(mse_check, file = "mse_check.rds")
+# uncomment lines if want to save files
+#  saveRDS(list(start, stop), file = "elapsed.rds")  
+#  saveRDS(mse_output, file = "mse_test_out.rds")
+#  saveRDS(mse_check, file = "mse_check.rds")
   
   # 
   # #check which simulations ran
