@@ -110,4 +110,6 @@ progress <- mse_sim_setup %>%
   mutate(user = rep(NA, nrow(.)),
          date_run = rep(NA, nrow(.)),
          uploaded = rep(NA, nrow(.)))
-saveRDS(progress, file = "settings/progress_table.rds")
+# commented saveRDS to prevent accidental overwriting of progress table once simulations are underway
+# be very sure you know what you're doing before uncommenting and pushing to GitHub repository
+#saveRDS(progress, file = "settings/progress_table.rds")

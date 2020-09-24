@@ -5,8 +5,6 @@
 *.Rproj
 /wham/sandbox
 /wham/*.RDS
-/settings/*.RDS
+/wham/*.rds
 /output/*.RDS
-/code/do_mse.R
-/code/summarize_results.R
-/code/performance_metrics.R
+/output/*.rds
