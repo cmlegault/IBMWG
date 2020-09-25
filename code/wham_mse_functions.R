@@ -221,24 +221,32 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
 
 #################JJD
 get.IBM.input<-function(y=NULL,i=NULL, adv.yr = 2){
-  #	should create single index that is consistent for all index based methods
+first_yr<-2		#	The first year of the base period for survey to use in the IBM functions.  Might want to start with year two as year one in the survey has a spring value, but no fall value
+offset_spr_I<-1	#	This is the number of years prior to the year we want catch advise  where we have spring survey data  e.g. we want catch advise in year 51, we have spring survey data up to year 50  (51-50=offset_spr_I )
+offset_fall_I<-2	#	This is the number of years prior to the year we want catch advise  where we have fall survey data  e.g. we want catch advise in year 51, we have fall survey data up to year 49 (assuming assessment in middle of year 50)  (51-49=offset_fall_I )
+offset_catch<-2	#	This is the number of years prior to the year we want catch advise  that we have complete catch data  e.g. we want catch advise in year 51, we have catch data through year 49 (assuming assessment in middle of year 50)  (51-49=offset_catch )
+
+  #	creates single index that is consistent for all index based methods
   #	combining base period and projection period into single object
-  y$seasonal_index<-rbind(y$agg_indices, y$agg_indices_proj)	#	seasonal indices as two columns.  rbind to combine base period with feedback period
-  y$seasonal_index<-y$seasonal_index[1:(length(y$agg_catch)+i),]
-  #took mean of fall 2019 and spring 2020 as agreed on July 2 meeting
+  y$seasonal_index_full<-rbind(y$agg_indices, y$agg_indices_proj)	#	seasonal indices as two columns.  rbind to combine base period with feedback period
+  add.na<-rep(NA,(offset_fall_I-offset_spr_I))	#	if add.na equalls NA, assumes assessment occurs mid year and second survey is not available. It then puts that number of NA's in the terminal year.  If add.na is zero, the second survey is available to the assessment model and no NA's are included
+  y$seasonal_index<-data.frame(survey_one=y$seasonal_index_full[1:(length(y$agg_catch)+i-offset_spr_I),1],survey_two=c(y$seasonal_index_full[1:(length(y$agg_catch)+i-offset_fall_I),2],add.na)  )		#	add
+  #	the annual survey index is the mean of the spring survey in year t and fall survey in year t-1 to get estimated of survey on Jan, 1 of year t
+  #took mean of fall 2019 and spring 2020, discussed on July 2 meeting
   temp.index<-data.frame(spr=c(y$seasonal_index[,1],0),fall=c(0,y$seasonal_index[,2]))
-  y$index<-rowMeans(temp.index[1:(nrow(temp.index)-1),])	#	check:Should this start at row 2?,  I had it start at row one so that the number of years stays consistent with catch even though year one only has one survey, not two with this particular method
-  #y$index<-y$index[1:i]
+  y$index<-rowMeans(temp.index[first_yr:(nrow(temp.index)-1),])	#	survey index starts at 'first_yr'.  if set to 2 survey index goes from year 2:t to avoid using the year one value which has a spring value, but no fall value for the year before the survey started
+
   
-  y$years<-seq(1,length(y$index),1)
+  y$years<-seq(1,length(y$index),1)	#	check:should this go from year 2:t, or from year 1:t-1.  Currently it goes from year 1:t-1 to follow the year for catch and is only used in planBsmooth
   
-  #	should create single catch that is consistent for all index based methods
+  #	creates single catch that is consistent for all index based methods
   y$catch<-rbind(y$agg_catch, y$agg_catch_proj)	#assuming one fleet
-  y$catch<-y$catch[1:(length(y$agg_catch)+i)]
+  y$catch<-y$catch[1:(length(y$agg_catch)+i-offset_catch)]	#	If assume assessment assessment occurs in year 50 to provide catch advise in year 51, complete catch data is only available up to year 49
+
   #	numbers at age in each survey
-  obs_survey_NAA_func<-function(y){
-    base_yr<-nrow(y$agg_indices)	#	yrs in base period
-    proj_yr<-nrow(y$agg_indices_proj)	#	yrs in feedback period, updates every run
+  obs_survey_NAA_func<-function(y,i,offset_spr_I,offset_fall_I,add.na){
+  base_yr<-nrow(y$agg_indices)	#	yrs in base period
+	proj_yr<-nrow(y$agg_indices_proj)	#	total yrs in feedback period
     
     #	base period and projections are two different objects within the list, index_paa is 3D array (first dimension is which survey)
     #	survey N = survey B/(prop at age in N * weight at age)
@@ -255,17 +263,17 @@ get.IBM.input<-function(y=NULL,i=NULL, adv.yr = 2){
     caa_survey_one_proj<-survey_one_N_proj*y$index_paa_proj[1,,]
     caa_survey_two_proj<-survey_two_N_proj*y$index_paa_proj[2,,]
     
-    #	combining base period and projection
-    caa_survey_one<-rbind(caa_survey_one_base,caa_survey_one_proj)
-    caa_survey_two<-rbind(caa_survey_two_base,caa_survey_two_proj)
+    #	combining base period and projection		#	add NA's to the missing terminal year in fall survey to make array the correct size
+    caa_survey_one<-rbind(caa_survey_one_base,caa_survey_one_proj)[1:base_yr+i-offset_spr_I,]
+    caa_survey_two<-rbind(  rbind(caa_survey_two_base,caa_survey_two_proj)[1:base_yr+i-offset_fall_I,], rep(add.na,ncol(caa_survey_two_base))  )
     
     caa_survey<-array(c(caa_survey_one,caa_survey_two),dim=c(nrow(caa_survey_one),ncol(caa_survey_one),2)  )
     caa_survey
   }	#	end function
   
-  y$index_naa<-obs_survey_NAA_func(y)
-  y$index_naa<-y$index_naa[1:(length(y$agg_catch)+i),,]
+  y$index_naa<-obs_survey_NAA_func(y,i,offset_spr_I,offset_fall_I,add.na)
   #print(y$index_naa)
+
   #	create single natural mortality that is consistent for all index based methods
   y$M<-mean(y$MAA[1,])	#	Plan is for natural mortality to be constant with age, but possibly exhibit a ramp at some point in time series.
   #	WHAM output enables age specific and year specific natural mortality
