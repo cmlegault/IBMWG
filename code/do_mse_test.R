@@ -14,6 +14,8 @@ rscripts <- c("code/base_input.R",
               "code/wham_mse_functions.R",
               "code/wham_retro_functions.R")
 map(rscripts, source)
+my_future_options = future_options()
+my_future_options$globals = ls()
 
 ### main function for conducting MSE
 ### pulling out for these tests
@@ -77,7 +79,7 @@ map(rscripts, source)
   mse_output <- mse_sim_todo %>% 
     #slice(1:2) %>% 
      mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
-                                      safe_wham_mse)) %>% 
+                                      safe_wham_mse, .options = my_future_options)) %>% 
     # this is the regular purrr code for iterating over the simulations
     #mutate(wham = purrr::pmap(list(seed = seed, input = input), safe_wham_mse)) %>% 
     select(-input) %>% 
