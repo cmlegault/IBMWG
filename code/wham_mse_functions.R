@@ -265,7 +265,7 @@ offset_catch<-2	#	This is the number of years prior to the year we want catch ad
     
     #	combining base period and projection		#	add NA's to the missing terminal year in fall survey to make array the correct size
     caa_survey_one<-rbind(caa_survey_one_base,caa_survey_one_proj)[1:base_yr+i-offset_spr_I,]
-    caa_survey_two<-rbind(  rbind(caa_survey_two_base,caa_survey_two_proj)[1:base_yr+i-offset_fall_I,], rep(add.na,ncol(caa_survey_two_base))  )
+    caa_survey_two<-rbind(  rbind(caa_survey_two_base,caa_survey_two_proj)[1:(base_yr+i-offset_fall_I),], rep(add.na,ncol(caa_survey_two_base))  )
     
     caa_survey<-array(c(caa_survey_one,caa_survey_two),dim=c(nrow(caa_survey_one),ncol(caa_survey_one),2)  )
     caa_survey
