@@ -28,9 +28,9 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
       true_om_input = change_M_om(observed_om_input, M_new_ratio = Mscale, n_ramp_years = 10, year_change = 2009) 
   } else true_om_input = observed_om_input #no M mis-specifcation
   
-  observed_om = fit_wham(observed_om_input, do.fit = FALSE)
+  observed_om = wham::fit_wham(observed_om_input, do.fit = FALSE)
   observed_rep = observed_om$report()
-  true_om = fit_wham(true_om_input, do.fit = FALSE)
+  true_om = wham::fit_wham(true_om_input, do.fit = FALSE)
   set.seed(seed) 
   #simulated data and other report items from true operating model
   true_sim = true_om$simulate(complete= TRUE)
@@ -555,7 +555,7 @@ Itarget <- function(y)
   use_yrs <- seq((base_yrs-ref_yrs+1),base_yrs,1) # use these years from the base period
   yrsmth<-y$Itarget_yrsmth
   w<-y$Itarget_w
-  I.avg <- mean(index[use_yrs]) # the average of the index over the base period
+  I.avg <- mean(index[use_yrs], na.rm = TRUE) # the average of the index over the base period
   
   if(version > 4 | version < 1)
   {
@@ -1076,7 +1076,7 @@ JoeDLM=function(y){
   burn=400
   thin=3
   
-  ref.level=apply(survey,2,FUN=function(x){quantile(x,.75)})
+  ref.level=apply(survey,2,FUN=function(x){quantile(x,.75, na.rm = TRUE)})
   
   #get things on log scale
   y.internal=log(as.matrix(survey))
