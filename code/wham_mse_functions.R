@@ -791,7 +791,7 @@ ApplyPlanBsmooth_fast <- function (dat, od = ".\\",
   dat.use <- dat %>%
     dplyr::filter(Year <= terminal.year, 
                   Year >= (terminal.year - nyears + 1)) %>% 
-    drop_na()
+    tidyr::drop_na()
   nyears <- max(dat.use$Year) - min(dat.use$Year) + 1
   if (is.na(loess.span)) 
     loess.span <- 9.9/nyears
