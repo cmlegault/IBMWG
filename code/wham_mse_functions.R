@@ -788,8 +788,9 @@ ApplyPlanBsmooth_fast <- function (dat, od = ".\\",
                                    showwarn = FALSE) {
   if (is.na(terminal.year)) 
     terminal.year <- max(dat$Year, na.rm = T)
-  dat.use <- filter(dat, Year <= terminal.year, 
-                    Year >= (terminal.year - nyears + 1)) %>% 
+  dat.use <- dat %>%
+    dplyr::filter(Year <= terminal.year, 
+                  Year >= (terminal.year - nyears + 1)) %>% 
     drop_na()
   nyears <- max(dat.use$Year) - min(dat.use$Year) + 1
   if (is.na(loess.span)) 
@@ -798,7 +799,7 @@ ApplyPlanBsmooth_fast <- function (dat, od = ".\\",
   pred_fit <- predict(lfit, se = TRUE)
   reg.dat <- data.frame(Year = dat.use$Year, pred = pred_fit$fit)
   reg.years <- seq(terminal.year - 2, terminal.year)
-  reg.use <- filter(reg.dat, Year %in% reg.years, pred > 0)
+  reg.use <- dplyr::filter(reg.dat, Year %in% reg.years, pred > 0)
   if (showwarn == TRUE) {
     if (dim(reg.use)[1] != 3) {
       print("the log-linear regression to estimate the multiplier uses less than 3 years")
