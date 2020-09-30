@@ -1053,17 +1053,21 @@ ensemble<-function(y=NULL){
 #	Joe Langan's dynamic linear model function
 
 JoeDLM=function(y){
-  # #two packages I use because their functions help with speed-up
-  # require(dlm)
-  # require(RandomFieldsUtils)
+  #two packages I use because their functions help with speed-up
+  require(dlm)
+  require(RandomFieldsUtils)
   
   survey<-y$seasonal_index
-  catch<-y$catch
-  n.ahead<-y$JoeDLM_n_ahead #number of years between assessments and used to forecast catch advise
+  catch<-c(y$catch,rbind(y$agg_catch, y$agg_catch_proj)[length(y$catch)+1]) #append catch for present year to 
+  #use partial data for spring survey
   
-  ns=ncol(y$seasonal_index)
-  nt=nrow(y$seasonal_index)
-  catch=matrix(catch,nt,1)
+  survey=cbind(survey[2:nrow(survey),1],survey[1:(nrow(survey)-1),2])
+  #survey column 1 (spring): Years 2:T, column 2 (fall): Years 1:T-1
+  #catch: Years 1:T
+  
+  ns=ncol(survey)
+  nt=nrow(survey)
+  catch=matrix(catch,nt+1,1)
   
   #set up checks to prevent log(0) issues
   for(i in 1:ns){
@@ -1071,26 +1075,26 @@ JoeDLM=function(y){
   }
   catch[which(catch==0),1]=min(catch[which(catch[,1]!=0),1])/10
   
-  # n.ahead<- 2 #forecasting n.ahead years and returning n.ahead years of catch advice
+  n.ahead<- 2 #forecasting n.ahead years and returning n.ahead years of catch advice
   
-  MCMC=1700
-  burn=400
-  thin=3
+  MCMC=1700 
+  burn=500 
+  thin=3 
   
-  ref.level=apply(survey,2,FUN=function(x){quantile(x,.75, na.rm = TRUE)})
+  ref.level=apply(survey,2,FUN=function(x){quantile(x,.75)})
   
   #get things on log scale
   y.internal=log(as.matrix(survey))
   catch=log(as.matrix(catch))
   
-  catch0=catch 
+  catch0=catch #save raw catch data before calculating catch applicable to each survey
   cat=matrix(NA,nt,ns)
   for(i in 1:nt){
-    if(i==1){#assume catch in year before t=1 is roughly the same as in t=1
-      cat[i,1]=catch0[i,]
+    if(i==1){
+      cat[i,1]=0.75*catch0[i,]+0.25*catch0[i+1,]
       cat[i,2]=catch0[i,]
     }else{
-      cat[i,1]=0.75*catch0[i-1,]+0.25*catch0[i,]
+      cat[i,1]=0.75*catch0[i,]+0.25*catch0[i+1,]
       cat[i,2]=0.25*catch0[i-1,]+0.75*catch0[i,]
     }
   }
@@ -1101,7 +1105,7 @@ JoeDLM=function(y){
   x=matrix(NA,nt,ns)
   lm.mat=matrix(NA,ns,2)
   for(i in 1:ns){
-    m=invisible(lm(catch[,i]~y.internal[,i]))
+    m=lm(catch[,i]~y.internal[,i])
     x[,i]=m$residuals
     lm.mat[i,]=m$coefficients
   }
@@ -1131,11 +1135,10 @@ JoeDLM=function(y){
     SSinv=RandomFieldsUtils::solvex(SS2)
     #SSinv=solve(SS2)
     
-    
     #Wslope <- solve(rwishart(df = length(ns:ng)+2 + nt,Sigma = SSinv))
-    Wslope <- RandomFieldsUtils::solvex(dlm::rwishart(df = length(ns:ng)+2 + nt,Sigma = SSinv))
+    Wdvars <- RandomFieldsUtils::solvex(rwishart(df = length(ns:ng)+2 + nt,Sigma = SSinv))
     Wint <- diag(0,ns)
-    W <- Matrix::bdiag(Wint,Wslope)
+    W <- bdiag(Wint,Wdvars)
     
     
     return(W)
@@ -1166,8 +1169,8 @@ JoeDLM=function(y){
   f=f0%x% diag(ns)
   p=ncol(f)
   jf=f; jf[,-c((p-ns+1):p)]=0;jf[,c((p-ns+1):p)]=jf[,c((p-ns+1):p)]*c(1:ns)
-  W0=Matrix::bdiag(diag(ns),W01)
-  mod <- dlm::dlm(FF =f,
+  W0=bdiag(diag(ns),W01)
+  mod <- dlm(FF =f,
              V = V0,
              GG = g ,
              W = W0,
@@ -1195,8 +1198,8 @@ JoeDLM=function(y){
   
   #Gibbs sampler
   for(it in 1:(MCMC*thin)){
-    ff=dlm::dlmFilter(y.internal,mod)
-    theta=dlm::dlmBSample(ff)
+    ff=dlmFilter(y.internal,mod)
+    theta=dlmBSample(ff)
     mod$V=sample.V(FFt,theta,y.internal,a.y,b.y,nt,ns)
     mod$W=sample.W(theta,y.internal,mod$GG,mod$W,W01,nt,ns,Trend)
     
@@ -1206,7 +1209,7 @@ JoeDLM=function(y){
     Wsave[,,it]=mod$W
     Thetasave[,,it]=theta
     Msave[,,it]=ff$m[nt+1,]
-    Csave[,,it]=dlm::dlmSvd2var(u=ff$U.C[[nt+1]],d=ff$D.C[nt+1,])
+    Csave[,,it]=dlmSvd2var(u=ff$U.C[[nt+1]],d=ff$D.C[nt+1,])
   }
   
   #Thinning
@@ -1256,17 +1259,17 @@ JoeDLM=function(y){
                         n.ahead,Wsave,Vsave,Msave,Csave,fit,mod,nt,ns,p){
     fcatch=param
     
-    target=rbind(exp(fit[nt,])+(ref.level-exp(fit[nt,]))*c(.05,.1),
-                 exp(fit[nt,])+(ref.level-exp(fit[nt,]))*c(.15,.2))
+    target=rbind(exp(fit[nt,])+(ref.level-exp(fit[nt,]))*c(.1,.05),
+                 exp(fit[nt,])+(ref.level-exp(fit[nt,]))*c(.2,.15))
     
     target=log(target)
     
     xf=matrix(NA,n.ahead,ns)
     for(j in 1:ns){
       if(j==1){
-        fcatch0=c(0.75*catch[nt,1]+0.25*fcatch,fcatch)
+        fcatch0=c(0.75*catch[nt+1,1]+0.25*fcatch,fcatch)
       }else{
-        fcatch0=c(0.25*catch[nt,1]+0.75*fcatch,fcatch)
+        fcatch0=c(0.25*catch[nt,1]+0.75*catch[nt+1,1],0.25*catch[nt+1,1]+0.75*fcatch)
       }
       xf[,j]=fcatch0-(target[,j]*lm.mat[j,2]+lm.mat[j,1])
     }
@@ -1294,12 +1297,12 @@ JoeDLM=function(y){
   }
   
   #use optim to solve for catch advice
-  ca=optim(par=as.numeric(catch[nt,2]),fn=catch.advice,survey=as.matrix(survey),catch=catch,ref.level=ref.level,lm.mat=lm.mat,
+  ca=optim(par=as.numeric(catch0[nt+1,1]),fn=catch.advice,survey=as.matrix(survey),catch=catch0,ref.level=ref.level,lm.mat=lm.mat,
            n.ahead=n.ahead,Wsave=Wsave,Vsave=Vsave,Msave=Msave,Csave=Csave,fit=fit,mod=mod,nt=nt,ns=ns,p=p, 
            method="Brent",lower=1,upper=max(catch0)+log(10),control=list(abstol=1e-10,reltol=1e-10))$par
   
   #average chosen catch with catch from past 2 years to smooth out changes in harvest and make approach to reference level more linear
-  ca1=mean(c(ca,mean(catch0[(nt-1):nt,1])))
+  ca1=mean(c(ca,mean(catch0[nt:(nt+1),1])))
   
   #converts catch adjustment term from optim into actual harvest levels to return as catch advice
   fcatch=exp(ca1)
@@ -1311,6 +1314,9 @@ JoeDLM=function(y){
   
   return(list(fcatch,estsave,Thetasave,Wsave,Vsave))
 }
+
+
+#	Statistical Catch At Age model
 
 SCAA = function(y) {
   nyr_add = y$scaa_nyr_add
