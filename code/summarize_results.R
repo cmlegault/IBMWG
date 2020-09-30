@@ -19,9 +19,15 @@ map(rscripts, source)
 # 
 mse_output <- readRDS("dummy_output.rds")
 
+#mse_output <- readRDS("output/mse-CML-20200930113704.rds")
+#mse_output <- readRDS("~/Dropbox/mse_test_out.rds")
+
 # calculate performance metrics
 mse_results <- mse_output %>% 
-  mutate(om_ssb = map(wham,
+  mutate(finished = map(wham, "result"),
+         finished = map(finished, "finished"),
+         size = map_dbl(wham, object.size),
+         om_ssb = map(wham,
                       ~pluck(.x$result$sim_data_series$SSB)),
          catch = map(wham, 
                      ~pluck(.x$result$sim_data_series$catch)),

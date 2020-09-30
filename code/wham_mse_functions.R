@@ -212,7 +212,8 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
                   true_sim = true_sim,
                   observed_sim = observed_sim,
                   seed = seed,
-                  observed_input = observed_om$input)
+                  observed_input = observed_om$input,
+                  finished = Sys.time())
 
   return(results)
   

@@ -69,6 +69,7 @@ my_future_options$globals = ls()
     mutate(input = pmap(list(input=input, change=specs), change_input)) %>% 
     unnest(cols = "specs") %>% 
     filter(IBM != "ensemble") %>% 
+    filter(IBM != "JoeDLM") %>% 
     I()
   
   ### run the MSE over each row of the mse_sims todo
@@ -77,7 +78,7 @@ my_future_options$globals = ls()
   #profvis::profvis(
   start <- Sys.time()
   mse_output <- mse_sim_todo %>% 
-    #slice(1:2) %>% 
+     #slice(1:20) %>% 
      mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
                                       safe_wham_mse, .options = my_future_options)) %>% 
     # this is the regular purrr code for iterating over the simulations

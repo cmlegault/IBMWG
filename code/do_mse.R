@@ -39,6 +39,7 @@ today = format(Sys.time(),"%Y-%m-%d-%H-%M-%S") #for actual date
 # find the first nsim realizations that have yet to be done
 todo <- progress %>% filter(is.na(user)) %>%
   filter(IBM != "ensemble") %>%   ## this removes the ensembles 
+  filter(IBM != "JoeDLM") %>%   ## this removes the ensembles 
   slice(1:nsim) %>% select(rowid) %>% t() %>% as.numeric() %>% 
   I()
 
