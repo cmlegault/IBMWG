@@ -19,7 +19,7 @@ map(rscripts, source)
 do_mse <- function(nsim = 7, user = "Me", write_to_google = TRUE) {
   
 # set up the type of future (for parallelization of sims using furrr)
-future::plan(future::multisession)
+#future::plan(future::multisession)
 
 # load in the scenario specifications
 mse_sim_setup <- readRDS(file = "settings/mse_sim_setup.rds")
