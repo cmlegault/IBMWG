@@ -227,6 +227,7 @@ offset_spr_I<-1	#	This is the number of years prior to the year we want catch ad
 offset_fall_I<-2	#	This is the number of years prior to the year we want catch advise  where we have fall survey data  e.g. we want catch advise in year 51, we have fall survey data up to year 49 (assuming assessment in middle of year 50)  (51-49=offset_fall_I )
 offset_catch<-2	#	This is the number of years prior to the year we want catch advise  that we have complete catch data  e.g. we want catch advise in year 51, we have catch data through year 49 (assuming assessment in middle of year 50)  (51-49=offset_catch )
 
+y$first_yr<-first_yr
   #	creates single index that is consistent for all index based methods
   #	combining base period and projection period into single object
   y$seasonal_index_full<-rbind(y$agg_indices, y$agg_indices_proj)	#	seasonal indices as two columns.  rbind to combine base period with feedback period
@@ -877,10 +878,11 @@ ExpandSurvey_modified<-function(y){
   #	expanded each survey index individually and then combined them
   #	check:PLACE HOLDER ONLY, NEED TO DETERMINE HOW TO COMBINE SURVEYS	
   #	currently takes the mean of spring survey at time T and fall survey at time T-1
+first_yr<-y$first_yr
   expanded_one<-y$seasonal_index[,1]/(y$init_q[1]*y$expand_q_scaler) #JJD
   expanded_two<-y$seasonal_index[,2]/(y$init_q[2]*y$expand_q_scaler) #JJD
   temp.calc<-data.frame(spr=c(expanded_one,0),fall=c(0,expanded_two))
-  expanded<-rowMeans(temp.calc)[1:nrow(y$seasonal_index)]	#	assumes spring survey is available in current year
+  expanded<-rowMeans(temp.calc)[first_yr:nrow(y$seasonal_index)]	#	assumes spring survey is available in current year
   y$expanded<-expanded
   f.spr.vals<-y$F_SPR	#	proxy Fmsy level from spawner per recruit (e.g. F40%)
   if(y$expand_method==4){
@@ -1190,7 +1192,7 @@ JoeDLM=function(y){
   }
   
   #bins to save Gibbs values
-  Thetasave=array(NA,c(nt+1,p,MCMC*thin))
+  #Thetasave=array(NA,c(nt+1,p,MCMC*thin))
   Msave=array(NA,c(1,p,MCMC*thin))
   Vsave=array(NA,c(ns,ns,MCMC*thin))
   Wsave=array(NA,c(p,p,MCMC*thin))
@@ -1208,7 +1210,7 @@ JoeDLM=function(y){
     estsave[,,it]=estcalc(FFt,theta,mod$V,nt,ns)
     Vsave[,,it]=mod$V
     Wsave[,,it]=mod$W
-    Thetasave[,,it]=theta
+    #Thetasave[,,it]=theta
     Msave[,,it]=ff$m[nt+1,]
     Csave[,,it]=dlmSvd2var(u=ff$U.C[[nt+1]],d=ff$D.C[nt+1,])
   }
@@ -1217,7 +1219,7 @@ JoeDLM=function(y){
   tseq=seq(1,MCMC*thin,thin)
   Vsave=Vsave[,,tseq,drop=F]
   Wsave=Wsave[,,tseq]
-  Thetasave=Thetasave[,,tseq]
+  #Thetasave=Thetasave[,,tseq]
   Msave=Msave[,,tseq,drop=F]
   Csave=Csave[,,tseq]
   estsave=estsave[,,tseq,drop=F]
@@ -1225,12 +1227,13 @@ JoeDLM=function(y){
   Vsave=Vsave[,,-(1:burn),drop=F]
   Wsave=Wsave[,,-(1:burn)]
   Csave=Csave[,,-(1:burn)]
-  Thetasave=Thetasave[,,-(1:burn)]
+  #Thetasave=Thetasave[,,-(1:burn)]
   Msave=Msave[,,-(1:burn),drop=F]
   estsave=estsave[,,-(1:burn),drop=F]
   
   #mean model fit
   fit=apply(estsave,c(1,2),mean)
+  cred.int=apply(estsave,c(1,2),FUN=function(x){quantile(x,c(.025,.975))})
   
   #forecast function, stuff is turned off so that it only returns the mean forecast
   #again, we only care about the mean in this application, so this is faster
@@ -1312,8 +1315,8 @@ JoeDLM=function(y){
   
   #output: 1) catch advice, 2) model estimates of survey indices for each iteration, 3) state variables for each iteration, 
   #4) evolution error variance for each iteration, 5) measurement error variance for each iteration
-  
-  return(list(fcatch,estsave,Thetasave,Wsave,Vsave))
+	#	  return(list(fcatch,estsave,Thetasave,Wsave,Vsave))  
+  return(list(fcatch,fit,cred.int))
 }
 
 
