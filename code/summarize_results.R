@@ -28,20 +28,21 @@ mse_results <- mse_output %>%
          finished = map(finished, "finished"),
          size = map_dbl(wham, object.size),
          om_ssb = map(wham,
-                      ~pluck(.x$result$sim_data_series$SSB)),
+                      ~pluck(.x$result$true_sim$SSB)),
          catch = map(wham, 
-                     ~pluck(.x$result$sim_data_series$catch)),
+                     ~pluck(.x$result$true_sim$pred_catch)), #true catch (without observation error)
          frate = map(wham, 
-                     ~pluck(.x$result$sim_data_series$F)),
+                     ~pluck(.x$result$true_sim$Fbar)), #Fbar is full F because it is averaged over just the plus group
          catch = map(catch, na_if, y = "NaN"),
          om_ssb = map(om_ssb, na_if, y = "NaN"),
          frate = map(frate, na_if, y = "NaN"),
-         refpts = map(wham, "refpts"),
-         nprojyrs = map(specs, "nprojyrs"),
-         ssb_metrics = pmap(list(om_ssb, refpts, nprojyrs), get_ssb_metrics),
-         catch_metrics = pmap(list(catch, refpts, nprojyrs), get_catch_metrics),
-         f_metrics = pmap(list(frate, refpts, nprojyrs), get_F_metrics)) %>% 
-  select(rowid, iscen, isim, ssb_metrics, catch_metrics, f_metrics) %>% 
+         refpts = map(wham, "refpts")#,
+         #nprojyrs = map(specs, "nprojyrs"),
+#         ssb_metrics = pmap(list(om_ssb, refpts, nprojyrs), get_ssb_metrics),
+#         catch_metrics = pmap(list(catch, refpts, nprojyrs), get_catch_metrics),
+#         f_metrics = pmap(list(frate, refpts, nprojyrs), get_F_metrics)
+         ) %>% 
+#  select(rowid, iscen, isim, ssb_metrics, catch_metrics, f_metrics) %>% 
   I()
 
 #save the performance metrics object
