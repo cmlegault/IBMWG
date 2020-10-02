@@ -43,7 +43,7 @@ mse_results <- mse_output %>%
          catch_metrics = pmap(list(catch, refpts, nprojyrs), get_catch_metrics),
          f_metrics = pmap(list(frate, refpts, nprojyrs), get_F_metrics)
          ) %>% 
-#  select(rowid, iscen, isim, ssb_metrics, catch_metrics, f_metrics) %>% 
+  select(rowid, iscen, isim, ssb_metrics, catch_metrics, f_metrics) %>% 
   I()
 
 #save the performance metrics object
