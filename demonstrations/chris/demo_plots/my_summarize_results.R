@@ -52,6 +52,7 @@ for (i in 1:nfiles){
   }else{
     myresults <- rbind(myresults, mse_results)
   }
+  print(paste("file", myfiles[i], "had", dim(mse_results)[1], "successful simulations"))
 }
 dim(myresults)
 
