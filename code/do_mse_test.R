@@ -63,11 +63,12 @@ my_future_options$globals = ls()
   # pull out realizations to be run today from the setup list using "todo". 
   mse_sim_todo <- mse_sim_setup %>% 
     filter(isim == 1) %>% 
+    mutate(IBM = map_chr(specs, "IBM")) %>% 
     #filter(rowid %in% todo) %>% 
     left_join(input_setup) %>% 
     #modify the input object here
     mutate(input = pmap(list(input=input, change=specs), change_input)) %>% 
-    unnest(cols = "specs") %>% 
+    #unnest(cols = "specs") %>% 
     filter(IBM != "ensemble") %>% 
     filter(IBM != "JoeDLM") %>% 
     I()
