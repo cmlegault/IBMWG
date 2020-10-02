@@ -38,7 +38,7 @@ mse_results <- mse_output %>%
          frate = map(frate, na_if, y = "NaN"),
          refpts = map(wham,
                      ~pluck(.x$result$refpts)),
-         #nprojyrs = map(wham, "nprojyrs"),
+         nprojyrs = map(specs, "nprojyrs"),
          ssb_metrics = pmap(list(om_ssb, refpts, nprojyrs), get_ssb_metrics),
          catch_metrics = pmap(list(catch, refpts, nprojyrs), get_catch_metrics),
          f_metrics = pmap(list(frate, refpts, nprojyrs), get_F_metrics)
