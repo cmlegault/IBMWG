@@ -36,11 +36,12 @@ mse_results <- mse_output %>%
          catch = map(catch, na_if, y = "NaN"),
          om_ssb = map(om_ssb, na_if, y = "NaN"),
          frate = map(frate, na_if, y = "NaN"),
-         refpts = map(wham, "refpts")#,
-         #nprojyrs = map(specs, "nprojyrs"),
-#         ssb_metrics = pmap(list(om_ssb, refpts, nprojyrs), get_ssb_metrics),
-#         catch_metrics = pmap(list(catch, refpts, nprojyrs), get_catch_metrics),
-#         f_metrics = pmap(list(frate, refpts, nprojyrs), get_F_metrics)
+         refpts = map(wham,
+                     ~pluck(.x$result$refpts)),
+         #nprojyrs = map(wham, "nprojyrs"),
+         ssb_metrics = pmap(list(om_ssb, refpts, nprojyrs), get_ssb_metrics),
+         catch_metrics = pmap(list(catch, refpts, nprojyrs), get_catch_metrics),
+         f_metrics = pmap(list(frate, refpts, nprojyrs), get_F_metrics)
          ) %>% 
 #  select(rowid, iscen, isim, ssb_metrics, catch_metrics, f_metrics) %>% 
   I()
