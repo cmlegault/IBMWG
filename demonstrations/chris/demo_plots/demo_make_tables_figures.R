@@ -62,3 +62,14 @@ ssb_probs_plot <- ggplot(ssb_probs, aes(x=iscen, y=value)) +
   theme_bw()
 ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs.png", ssb_probs_plot)
 
+which_rebuild <- ssb_probs %>%
+  filter(metric == "l_is_ge_bmsy", value >= 0.9) %>%
+  inner_join(., defined)
+which_rebuild$retro_type
+which_rebuild$IBMlab
+
+which_crash <- ssb_probs %>%
+  filter(metric == "l_is_less_01_bmsy", value >= 0.90) %>%
+  inner_join(., defined)
+which_crash$retro_type
+which_crash$IBMlab
