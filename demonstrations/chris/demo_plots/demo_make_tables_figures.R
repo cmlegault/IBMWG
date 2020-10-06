@@ -59,7 +59,7 @@ ssb_probs <- ssb_results %>%
 ssb_probs_plot <- ggplot(ssb_probs, aes(x=iscen, y=value)) +
   geom_point() +
   facet_wrap(~metric) +
-  labs(x="Scenario", y="Probability", title = "SSB")
+  labs(x="Scenario", y="Probability", title = "SSB") +
   theme_bw()
 ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs.png", ssb_probs_plot)
 
@@ -134,27 +134,27 @@ catch_results <- mse_results %>%
 catch_results
 #```
 
-catch_probs <- catch_results %>%
+catch_means <- catch_results %>%
   group_by(iscen, metric) %>%
   summarise_all(mean) %>%
-  filter(grepl("_is_", metric)) %>%
+  filter(grepl("_avg_catch_msy", metric)) %>%
   inner_join(., defined)
 
-catch_probs_plot <- ggplot(catch_probs, aes(x=iscen, y=value)) +
+catch_msy_plot <- ggplot(catch_means, aes(x=iscen, y=value)) +
   geom_point() +
   facet_wrap(~metric) +
-  labs(x="Scenario", y="Probability", title = "Catch")
-theme_bw()
-ggsave(filename = "demonstrations/chris/demo_plots/catch_probs.png", catch_probs_plot)
+  labs(x="Scenario", y="Mean Catch Relative to MSY") +
+  theme_bw()
+ggsave(filename = "demonstrations/chris/demo_plots/catch_msy.png", catch_msy_plot)
 
 # color code to show factors
-p1 <- catch_probs_plot + geom_point(aes(color = retro_type))
-ggsave(filename = "demonstrations/chris/demo_plots/catch_probs_retro_type.png", p1)
-p1 <- catch_probs_plot + geom_point(aes(color = IBMlab))
-ggsave(filename = "demonstrations/chris/demo_plots/catch_probs_IBMlab.png", p1)
-p1 <- catch_probs_plot + geom_point(aes(color = factor(Fhist)))
-ggsave(filename = "demonstrations/chris/demo_plots/catch_probs_Fhist.png", p1)
-p1 <- catch_probs_plot + geom_point(aes(color = factor(n_selblocks)))
-ggsave(filename = "demonstrations/chris/demo_plots/catch_probs_n_selblocks.png", p1)
-p1 <- catch_probs_plot + geom_point(aes(color = factor(catch.mult)))
-ggsave(filename = "demonstrations/chris/demo_plots/catch_probs_catch.mults.png", p1)
+p1 <- catch_msy_plot + geom_point(aes(color = retro_type))
+ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_retro_type.png", p1)
+p1 <- catch_msy_plot + geom_point(aes(color = IBMlab))
+ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_IBMlab.png", p1)
+p1 <- catch_msy_plot + geom_point(aes(color = factor(Fhist)))
+ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_Fhist.png", p1)
+p1 <- catch_msy_plot + geom_point(aes(color = factor(n_selblocks)))
+ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_n_selblocks.png", p1)
+p1 <- catch_msy_plot + geom_point(aes(color = factor(catch.mult)))
+ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_catch.mults.png", p1)
