@@ -2,20 +2,24 @@
 library(wham)
 library(tidyverse)
 library(furrr)
-library(googledrive)
+#library(googledrive)
 library(dlm)
 library(RandomFieldsUtils)
 
 
-rscripts <- c("code/base_input.R",
+rscripts <- c(#"code/base_input.R",
               "code/change_input.R",
               "code/IBM_options.R",
-              "code/performance_metrics.R",
+              #"code/performance_metrics.R",
               "code/wham_mse_functions.R",
               "code/wham_retro_functions.R")
 map(rscripts, source)
 my_future_options = future_options()
 my_future_options$globals = ls()
+my_future_options$packages <- c("wham",
+                                "tidyverse",
+                                "dlm",
+                                "RandomFieldsUtils")
 
 ### main function for conducting MSE
 ### pulling out for these tests
@@ -79,7 +83,10 @@ my_future_options$globals = ls()
   #profvis::profvis(
   start <- Sys.time()
   mse_output <- mse_sim_todo %>% 
-     #slice(1:20) %>% 
+    #group_by(IBM) %>% 
+    #slice(1) %>% 
+    #ungroup() %>% 
+    #slice(1:5) %>% 
      mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
                                       safe_wham_mse, .options = my_future_options)) %>% 
     # this is the regular purrr code for iterating over the simulations
