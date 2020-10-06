@@ -121,3 +121,40 @@ p1 <- f_probs_plot + geom_point(aes(color = factor(n_selblocks)))
 ggsave(filename = "demonstrations/chris/demo_plots/f_probs_n_selblocks.png", p1)
 p1 <- f_probs_plot + geom_point(aes(color = factor(catch.mult)))
 ggsave(filename = "demonstrations/chris/demo_plots/f_probs_catch.mults.png", p1)
+
+#pull out the catch metrics
+catch_results <- mse_results %>% 
+  #select(rowid, catch_metrics) %>% 
+  select(iscen, isim, catch_metrics) %>% 
+  mutate(catch_metrics = map(catch_metrics, enframe)) %>% 
+  unnest(cols = c(catch_metrics)) %>% 
+  mutate(value = map_dbl(value, I)) %>% 
+  rename(metric = name) %>% 
+  I()
+catch_results
+#```
+
+catch_probs <- catch_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(mean) %>%
+  filter(grepl("_is_", metric)) %>%
+  inner_join(., defined)
+
+catch_probs_plot <- ggplot(catch_probs, aes(x=iscen, y=value)) +
+  geom_point() +
+  facet_wrap(~metric) +
+  labs(x="Scenario", y="Probability", title = "Catch")
+theme_bw()
+ggsave(filename = "demonstrations/chris/demo_plots/catch_probs.png", catch_probs_plot)
+
+# color code to show factors
+p1 <- catch_probs_plot + geom_point(aes(color = retro_type))
+ggsave(filename = "demonstrations/chris/demo_plots/catch_probs_retro_type.png", p1)
+p1 <- catch_probs_plot + geom_point(aes(color = IBMlab))
+ggsave(filename = "demonstrations/chris/demo_plots/catch_probs_IBMlab.png", p1)
+p1 <- catch_probs_plot + geom_point(aes(color = factor(Fhist)))
+ggsave(filename = "demonstrations/chris/demo_plots/catch_probs_Fhist.png", p1)
+p1 <- catch_probs_plot + geom_point(aes(color = factor(n_selblocks)))
+ggsave(filename = "demonstrations/chris/demo_plots/catch_probs_n_selblocks.png", p1)
+p1 <- catch_probs_plot + geom_point(aes(color = factor(catch.mult)))
+ggsave(filename = "demonstrations/chris/demo_plots/catch_probs_catch.mults.png", p1)
