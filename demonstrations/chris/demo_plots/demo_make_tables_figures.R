@@ -158,3 +158,40 @@ p1 <- catch_msy_plot + geom_point(aes(color = factor(n_selblocks)))
 ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_n_selblocks.png", p1)
 p1 <- catch_msy_plot + geom_point(aes(color = factor(catch.mult)))
 ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_catch.mults.png", p1)
+
+# trade-off plots
+names(ssb_probs)
+names(f_probs)
+names(catch_means)
+ssb_temp <- ssb_probs %>%
+  rename(ssb_metric = metric, ssb_value = value)
+f_temp <- f_probs %>%
+  rename(f_metric = metric, f_value = value)
+catch_temp <- catch_means %>%
+  rename(catch_metric = metric, catch_value = value)
+temp <- inner_join(ssb_temp, f_temp)
+td <- inner_join(temp, catch_temp)
+names(td)
+td
+
+td1 <- td %>%
+  filter(ssb_metric == "l_is_ge_bmsy",
+         catch_metric == "l_avg_catch_msy")
+
+td1_plot <- ggplot(td1, aes(x=ssb_value, y=catch_value, color=retro_type)) +
+  geom_point() +
+  facet_wrap(~IBMlab) +
+  labs(x="Prob(SSB>=SSBmsy)", y="Mean(Catch/MSY)") +
+  theme_bw()
+ggsave(filename = "demonstrations/chris/demo_plots/tradeoff1.png", td1_plot)
+
+td2 <- td %>%
+  filter(ssb_metric == "l_is_less_05_bmsy",
+         f_metric == "l_is_gr_fmsy")
+
+td2_plot <- ggplot(td2, aes(x=ssb_value, y=f_value, color=retro_type)) +
+  geom_point() +
+  facet_wrap(~IBMlab) +
+  labs(x="Prob(SSB<0.5SSBmsy)", y="Prob(F>Fmsy)") +
+  theme_bw()
+ggsave(filename = "demonstrations/chris/demo_plots/tradeoff2.png", td2_plot)
