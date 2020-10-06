@@ -84,3 +84,40 @@ which_crash <- ssb_probs %>%
   filter(metric == "l_is_less_01_bmsy", value >= 0.90) 
 which_crash$retro_type
 which_crash$IBMlab
+
+#pull out the f metrics
+f_results <- mse_results %>% 
+  #select(rowid, f_metrics) %>% 
+  select(iscen, isim, f_metrics) %>% 
+  mutate(f_metrics = map(f_metrics, enframe)) %>% 
+  unnest(cols = c(f_metrics)) %>% 
+  mutate(value = map_dbl(value, I)) %>% 
+  rename(metric = name) %>% 
+  I()
+f_results
+#```
+
+f_probs <- f_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(mean) %>%
+  filter(grepl("_is_", metric)) %>%
+  inner_join(., defined)
+
+f_probs_plot <- ggplot(f_probs, aes(x=iscen, y=value)) +
+  geom_point() +
+  facet_wrap(~metric) +
+  labs(x="Scenario", y="Probability", title = "F") +
+  theme_bw()
+ggsave(filename = "demonstrations/chris/demo_plots/f_probs.png", f_probs_plot)
+
+# color code to show factors
+p1 <- f_probs_plot + geom_point(aes(color = retro_type))
+ggsave(filename = "demonstrations/chris/demo_plots/f_probs_retro_type.png", p1)
+p1 <- f_probs_plot + geom_point(aes(color = IBMlab))
+ggsave(filename = "demonstrations/chris/demo_plots/f_probs_IBMlab.png", p1)
+p1 <- f_probs_plot + geom_point(aes(color = factor(Fhist)))
+ggsave(filename = "demonstrations/chris/demo_plots/f_probs_Fhist.png", p1)
+p1 <- f_probs_plot + geom_point(aes(color = factor(n_selblocks)))
+ggsave(filename = "demonstrations/chris/demo_plots/f_probs_n_selblocks.png", p1)
+p1 <- f_probs_plot + geom_point(aes(color = factor(catch.mult)))
+ggsave(filename = "demonstrations/chris/demo_plots/f_probs_catch.mults.png", p1)
