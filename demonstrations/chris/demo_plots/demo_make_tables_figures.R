@@ -4,7 +4,7 @@
 library(tidyverse)
 
 # read in the performance metrics results
-mse_results <- readRDS("demonstrations/chris/demo_plots/demo-perform-metrics.rds")
+mse_results <- readRDS("C:/Users/jonathan.deroba/Documents/GitHub/IBMWG-master/demonstrations/chris/demo_plots/demo-perform-metrics.rds")
 startdim <- dim(mse_results)
 
 # remove any duplicate rows
@@ -22,7 +22,7 @@ count_table <- mse_results %>%
 count_table$n  
 
 # join with setup to figure out what's in each scenario
-defined <- readRDS("settings/mse_sim_setup.rds") %>%
+defined <- readRDS("C:/Users/jonathan.deroba/Documents/GitHub/IBMWG-master/settings/mse_sim_setup.rds") %>%
   filter(isim == 1) %>%
   select(iscen, specs) %>%
   unnest(cols = specs) %>%
@@ -56,6 +56,7 @@ ssb_probs <- ssb_results %>%
   filter(grepl("_is_", metric)) %>%
   inner_join(., defined)
 
+
 ssb_probs_plot <- ggplot(ssb_probs, aes(x=iscen, y=value)) +
   geom_point() +
   facet_wrap(~metric) +
@@ -74,6 +75,15 @@ p1 <- ssb_probs_plot + geom_point(aes(color = factor(n_selblocks)))
 #ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs_n_selblocks.png", p1)
 p1 <- ssb_probs_plot + geom_point(aes(color = factor(catch.mult)))
 #ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs_catch.mults.png", p1)
+
+#a boxplot of SSB metrics for each IBM among all scenarios ##do any always suck? do any always suck in the other direction?
+#windows(width = 10,height = 10)
+box_ssb1<- ggplot(ssb_probs, aes(x=IBMlab, y=value)) + 
+  geom_boxplot() +
+  facet_wrap(~metric) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(x="IBM", y="Probability", title = "SSB") 
+#ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs_box_among_all.png", p1)
 
 which_rebuild <- ssb_probs %>%
   filter(metric == "l_is_ge_bmsy", value >= 0.9) 
@@ -219,3 +229,7 @@ catch_msy_plot + geom_point(aes(color = factor(catch.mult)))
 td1_plot
 td2_plot
 dev.off()
+
+
+
+
