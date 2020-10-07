@@ -65,7 +65,7 @@ estimate_retro_M_rho = function(M_ratio = 1.65, nsim = 50, n_selblocks = 1, Fhis
   #scaa_input$mean_rec_pars = scaa_input$mean_rec_pars[2]
   #scaa_input = prepare_wham_om_input(scaa_input, recruit_model = 2, selectivity=sel.list)
   #scaa_input$data$Fbar_ages = 10
-  om_M_change = change_M_om(om, M_new_ratio = M_ratio, year_change = 2010) 
+  om_M_change = change_M_om(om, M_new_ratio = M_ratio, year_change = 2009) 
   om_M_change_wham = fit_wham(om_M_change, do.fit = FALSE)
 
   seed = 8675309
