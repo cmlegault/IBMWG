@@ -17,6 +17,12 @@ M_scen12 = estimate_retro_M_rho(M_ratio = 1.8, Fhist = 2) #SSB 0.47, F -0.36, R 
 M_scen21 = estimate_retro_M_rho(M_ratio = 1.6, n_selblocks = 2) #SSB 0.50, F -0.35, R 0.60
 M_scen22 = estimate_retro_M_rho(M_ratio = 1.8, n_selblocks = 2, Fhist = 2) #SSB 0.47, F -0.36, R 0.68
 
+t(sapply(paste0('scen',rep(1:2, each = 2), rep(1:2,2)), function(x)apply(get(x)[[1]][,1:3],2,median)))
+
+t(sapply(paste0('Catch_scen',rep(1:2, each = 2), rep(1:2,2)), function(x)apply(get(x)[[1]][,1:3],2,median)))
+
+t(sapply(paste0('M_scen',rep(1:2, each = 2), rep(1:2,2)), function(x)apply(get(x)[[1]][,1:3],2,median)))
+
 save(scen11,scen12,scen21,scen22,Catch_scen11,Catch_scen12,Catch_scen21,Catch_scen22,M_scen11,M_scen12,M_scen21,M_scen22, file = "demonstrations/tim/retro_res.RData")
 #load("demonstrations/tim/retro_res.RData")
 block = cbind.data.frame(retro_type = rep("None", 200), Fhist = rep(c(1,2,1,2), each = 50), selhist = rep(1:2, each = 100))
