@@ -24,7 +24,7 @@ my_future_options$packages <- c("wham",
                                 "RandomFieldsUtils")
 
 ### main function for conducting MSE
-do_mse <- function(nsim = 7, user = "Me", write_to_google = TRUE) {
+do_mse <- function(nsim = 7, user = "Me", write_to_google = FALSE) {
   
 # set up the type of future (for parallelization of sims using furrr)
 #future::plan(future::multisession)
@@ -133,8 +133,8 @@ system("git push")
 ##########################
 # example use
 # specify how many realizations you want to run today
-#nsim = 5
+#nsim = 2*224
 # who is doing them?
-#user = "GF" # your initials
-#do_mse(nsim = nsim, user = user, write_to_google = TRUE)
+#user = "LB" # your initials
+#do_mse(nsim = nsim, user = user, write_to_google = FALSE)
 
