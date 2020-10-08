@@ -52,12 +52,17 @@ ssb_results <- mse_results %>%
 ssb_results
 #```
 
+ssb_means <- ssb_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(mean) %>%
+  filter(grepl("_avg_ssb_ssbmsy", metric)) %>%
+  inner_join(., defined)
+
 ssb_probs <- ssb_results %>%
   group_by(iscen, metric) %>%
   summarise_all(mean) %>%
   filter(grepl("_is_", metric)) %>%
   inner_join(., defined)
-
 
 ssb_probs_plot <- ggplot(ssb_probs, aes(x=iscen, y=value)) +
   geom_point() +
@@ -91,8 +96,20 @@ box_ssb2 <- ggplot(ssb_probs, aes(x=nonIBMlab, y=value)) +
   geom_boxplot() +
   facet_wrap(~metric) +
   theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="IBM", y="Probability", title = "SSB") 
+  labs(x="Non-IBM Scenario", y="Probability", title = "SSB") 
 #ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs_box_nonIBM.png", box_ssb2)
+
+box_ssb3 <- ggplot(ssb_means, aes(x=IBMlab, y=value)) +
+  geom_boxplot() +
+  facet_wrap(~metric) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(x="IBM", y="SSB/SSBmsy") 
+
+box_ssb4 <- ggplot(ssb_means, aes(x=nonIBMlab, y=value)) +
+  geom_boxplot() +
+  facet_wrap(~metric) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(x="Non-IBM Scenario", y="SSB/SSBmsy") 
 
 which_rebuild <- ssb_probs %>%
   filter(metric == "l_is_ge_bmsy", value >= 0.9) 
@@ -117,6 +134,12 @@ f_results <- mse_results %>%
   I()
 f_results
 #```
+
+f_means <- f_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(mean) %>%
+  filter(grepl("_avg_f_fmsy", metric)) %>%
+  inner_join(., defined)
 
 f_probs <- f_results %>%
   group_by(iscen, metric) %>%
@@ -154,8 +177,20 @@ box_f2 <- ggplot(f_probs, aes(x=nonIBMlab, y=value)) +
   geom_boxplot() +
   facet_wrap(~metric) +
   theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="IBM", y="Probability", title = "F") 
+  labs(x="Non-IBM Scenario", y="Probability", title = "F") 
 #ggsave(filename = "demonstrations/chris/demo_plots/f_probs_box_nonIBM.png", box_f2)
+
+box_f3 <- ggplot(f_means, aes(x=IBMlab, y=value)) +
+  geom_boxplot() +
+  facet_wrap(~metric) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(x="IBM", y="F/Fmsy") 
+
+box_f4 <- ggplot(f_means, aes(x=nonIBMlab, y=value)) +
+  geom_boxplot() +
+  facet_wrap(~metric) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(x="Non-IBM Scenario", y="F/Fmsy") 
 
 
 #pull out the catch metrics
@@ -251,6 +286,8 @@ td2_plot <- ggplot(td2, aes(x=ssb_value, y=f_value, color=retro_type)) +
 pdf(file = "demonstrations/chris/demo_plots/demo_make_tables_figures.pdf")
 box_ssb1
 box_ssb2
+box_ssb3
+box_ssb4
 ssb_probs_plot
 ssb_probs_plot + geom_point(aes(color = retro_type))
 ssb_probs_plot + geom_point(aes(color = IBMlab))
@@ -259,6 +296,8 @@ ssb_probs_plot + geom_point(aes(color = factor(n_selblocks)))
 ssb_probs_plot + geom_point(aes(color = factor(catch.mult)))
 box_f1
 box_f2
+#box_f3
+#box_f4
 f_probs_plot
 f_probs_plot + geom_point(aes(color = retro_type))
 f_probs_plot + geom_point(aes(color = IBMlab))
