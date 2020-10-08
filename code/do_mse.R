@@ -133,8 +133,8 @@ system("git push")
 ##########################
 # example use
 # specify how many realizations you want to run today
-nsim = 2*224
+#nsim = 2*224
 # who is doing them?
-user = "LB" # your initials
-do_mse(nsim = nsim, user = user, write_to_google = FALSE)
+#user = "LB" # your initials
+#do_mse(nsim = nsim, user = user, write_to_google = FALSE)
 
