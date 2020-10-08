@@ -80,12 +80,12 @@ my_future_options$packages <- c("wham",
   ### run the MSE over each row of the mse_sims todo
   safe_wham_mse <- purrr::safely(do_wham_mse_sim, otherwise = NA_real_)
   #do the MSE for all simulations and scenarios
-  #profvis::profvis(
   start <- Sys.time()
+#  profvis::profvis(
   mse_output <- mse_sim_todo %>% 
-    #group_by(IBM) %>% 
-    #slice(1) %>% 
-    #ungroup() %>% 
+    group_by(IBM) %>% 
+    slice(1) %>% 
+    ungroup() %>% 
     #slice(1:5) %>% 
      mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
                                       safe_wham_mse, .options = my_future_options)) %>% 
@@ -93,7 +93,7 @@ my_future_options$packages <- c("wham",
     #mutate(wham = purrr::pmap(list(seed = seed, input = input), safe_wham_mse)) %>% 
     select(-input) %>% 
     I()
-  #) #ends profvis
+ # ) #ends profvis
   stop <- Sys.time()
   stop - start # how long runs took
 
@@ -108,8 +108,8 @@ my_future_options$packages <- c("wham",
 
 # uncomment lines if want to save files
 #  saveRDS(list(start, stop), file = "elapsed.rds")  
-#  saveRDS(mse_output, file = "mse_test_out.rds")
-#  saveRDS(mse_check, file = "mse_check.rds")
+  saveRDS(mse_output, file = "mse_test_out.rds")
+  saveRDS(mse_check, file = "mse_check.rds")
   
   # 
   # #check which simulations ran

@@ -8,6 +8,5 @@
 /wham/*.rds
 /output/*.RDS
 /output/*.rds
-/code/do_mse.R
 /code/run2.R
 /code/run25.R
