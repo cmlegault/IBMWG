@@ -310,8 +310,8 @@ ssb_probs_plot + geom_point(aes(color = factor(n_selblocks)))
 ssb_probs_plot + geom_point(aes(color = factor(catch.mult)))
 box_f1
 box_f2
-#box_f3
-#box_f4
+box_f3
+box_f4
 f_probs_plot
 f_probs_plot + geom_point(aes(color = retro_type))
 f_probs_plot + geom_point(aes(color = IBMlab))
