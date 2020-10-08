@@ -234,14 +234,14 @@ box_catch1 <- ggplot(catch_means, aes(x=IBMlab, y=value)) +
   geom_boxplot() +
   facet_wrap(~metric) +
   theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="IBM", y="Probability", title = "Catch/MSY") 
+  labs(x="IBM", y="Ratio", title = "Catch/MSY") 
 #ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_IBM.png", box_catch1)
 
 box_catch2 <- ggplot(catch_means, aes(x=nonIBMlab, y=value)) + 
   geom_boxplot() +
   facet_wrap(~metric) +
   theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="IBM", y="Probability", title = "Catch/MSY") 
+  labs(x="Non-IBM Scenario", y="Ratio", title = "Catch/MSY") 
 #ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_nonIBM.png", box_catch2)
 
 
