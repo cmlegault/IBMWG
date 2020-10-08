@@ -103,8 +103,8 @@ get_F_metrics <- function(F = NULL, refpts = NULL, nprojyrs = 40) {
     l_n_gr_f_dot_5_bmsy = length(which(F[longyrs]>F_05)),
     l_n_less_f_dot_5_bmsy = length(which(F[longyrs]<=F_05)),
     
-    s_avg_f_fmsy <- mean(s_f_fmsy,na.rm=TRUE),
-    l_avg_f_fmsy <- mean(l_f_fmsy,na.rm=TRUE)
+    s_avg_f_fmsy = mean(s_f_fmsy,na.rm=TRUE),
+    l_avg_f_fmsy = mean(l_f_fmsy,na.rm=TRUE)
   )
   return(metrics)
 }
