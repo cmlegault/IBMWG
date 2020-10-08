@@ -282,6 +282,20 @@ td2_plot <- ggplot(td2, aes(x=ssb_value, y=f_value, color=retro_type)) +
   theme_bw()
 #ggsave(filename = "demonstrations/chris/demo_plots/tradeoff2.png", td2_plot)
 
+names(ssb_means)
+names(catch_means)
+ssb2_temp <- ssb_means %>%
+  filter(metric == "l_avg_ssb_ssbmsy") %>%
+  rename(ssb_metric = metric, ssb_value = value)
+catch2_temp <- catch_temp %>%
+  filter(catch_metric == "l_avg_catch_msy")
+td3 <- inner_join(ssb2_temp, catch2_temp)
+td3_plot <- ggplot(td3, aes(x=ssb_value, y=catch_value)) +
+  geom_point() +
+  facet_wrap(~IBM) +
+  labs(x="SSB/SSBmsy", y="Catch/MSY", title="Longterm") +
+  theme_bw()
+
 # put plots so far into pdf
 pdf(file = "demonstrations/chris/demo_plots/demo_make_tables_figures.pdf")
 box_ssb1
@@ -314,6 +328,7 @@ catch_msy_plot + geom_point(aes(color = factor(n_selblocks)))
 catch_msy_plot + geom_point(aes(color = factor(catch.mult)))
 td1_plot
 td2_plot
+td3_plot
 dev.off()
 
 
