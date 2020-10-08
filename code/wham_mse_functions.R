@@ -189,8 +189,8 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
     #put in wrong reference points, if necessary
     observed_sim$refpts = observed_refpts       
     #put in wrong M, if necessary
-    observed_sim$MAA = observed_om$report()$MAA
-    #print(observed_sim$MAA)
+    #observed_sim$MAA = observed_om$report()$MAA
+    observed_sim$MAA = observed_rep$MAA
     observed_sim$expand_method <- input$expand_method
     observed_sim$M_CC_method <- input$M_CC_method
     observed_sim = get.IBM.input(y=observed_sim, i=year, adv.yr = adv.yr) #JJD; GF
