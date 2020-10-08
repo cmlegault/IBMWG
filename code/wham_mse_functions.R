@@ -190,6 +190,7 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
     observed_sim$refpts = observed_refpts       
     #put in wrong M, if necessary
     observed_sim$MAA = observed_om$report()$MAA
+    #print(observed_sim$MAA)
     observed_sim$expand_method <- input$expand_method
     observed_sim$M_CC_method <- input$M_CC_method
     observed_sim = get.IBM.input(y=observed_sim, i=year, adv.yr = adv.yr) #JJD; GF
@@ -404,7 +405,8 @@ get.stable.period <- function(y=NULL) {
   
   
   #Replacement ratio regression
-  df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
+  #df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
+  df <- data.frame(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears]))
   ln.rr <- invisible(lm(R~F, data=df))
   reg.pars <- summary(ln.rr)
   
@@ -799,7 +801,8 @@ ApplyPlanBsmooth_fast <- function (dat, od = ".\\",
     loess.span <- 9.9/nyears
   lfit <- loess(data = dat.use, avg ~ Year, span = loess.span)
   pred_fit <- predict(lfit, se = TRUE)
-  reg.dat <- data.frame(Year = dat.use$Year, pred = pred_fit$fit)
+  #reg.dat <- data.frame(Year = dat.use$Year, pred = pred_fit$fit)
+  reg.dat <- tibble::tibble(Year = dat.use$Year, pred = pred_fit$fit)
   reg.years <- seq(terminal.year - 2, terminal.year)
   reg.use <- dplyr::filter(reg.dat, Year %in% reg.years, pred > 0)
   if (showwarn == TRUE) {
@@ -809,13 +812,13 @@ ApplyPlanBsmooth_fast <- function (dat, od = ".\\",
   }
   if (dim(reg.use)[1] <= 1) {
     llr_fit <- NA
-    llr_fit.df <- data.frame(Year = integer(), llfit = double())
+    #llr_fit.df <- data.frame(Year = integer(), llfit = double())
     multiplier <- NA
     round_multiplier <- "NA"
   }
   if (dim(reg.use)[1] >= 2) {
     llr_fit <- invisible(lm(log(pred) ~ Year, data = reg.use))
-    llr_fit.df <- data.frame(Year = reg.use$Year, llfit = exp(predict(llr_fit)))
+    #llr_fit.df <- data.frame(Year = reg.use$Year, llfit = exp(predict(llr_fit)))
     multiplier <- as.numeric(exp(llr_fit$coefficients[2]))
     round_multiplier <- round(multiplier, 3)
   }
@@ -1001,7 +1004,8 @@ run.aim <- function(y) {
   
   
   #Replacement ratio regression
-  df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
+  #df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
+  df <- data.frame(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears]))
   ln.rr <- invisible(lm(R~F, data=df))
   reg.pars <- summary(ln.rr)
   
