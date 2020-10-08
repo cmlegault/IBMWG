@@ -28,7 +28,7 @@ my_future_options$packages <- c("wham",
 #  write_to_google = FALSE
   
   # set up the type of future (for parallelization of sims using furrr)
-  future::plan(future::multisession)
+#  future::plan(future::multisession)
 
   # load in the scenario specifications
   mse_sim_setup <- readRDS(file = "settings/mse_sim_setup.rds")
@@ -80,20 +80,20 @@ my_future_options$packages <- c("wham",
   ### run the MSE over each row of the mse_sims todo
   safe_wham_mse <- purrr::safely(do_wham_mse_sim, otherwise = NA_real_)
   #do the MSE for all simulations and scenarios
-  #profvis::profvis(
   start <- Sys.time()
+  profvis::profvis(
   mse_output <- mse_sim_todo %>% 
-    #group_by(IBM) %>% 
-    #slice(1) %>% 
-    #ungroup() %>% 
+    group_by(IBM) %>% 
+    slice(1) %>% 
+    ungroup() %>% 
     #slice(1:5) %>% 
-     mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
-                                      safe_wham_mse, .options = my_future_options)) %>% 
+     #mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
+    #                                  safe_wham_mse, .options = my_future_options)) %>% 
     # this is the regular purrr code for iterating over the simulations
-    #mutate(wham = purrr::pmap(list(seed = seed, input = input), safe_wham_mse)) %>% 
+    mutate(wham = purrr::pmap(list(seed = seed, input = input), safe_wham_mse)) %>% 
     select(-input) %>% 
     I()
-  #) #ends profvis
+  ) #ends profvis
   stop <- Sys.time()
   stop - start # how long runs took
 
