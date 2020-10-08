@@ -108,8 +108,8 @@ my_future_options$packages <- c("wham",
 
 # uncomment lines if want to save files
 #  saveRDS(list(start, stop), file = "elapsed.rds")  
-#  saveRDS(mse_output, file = "mse_test_out.rds")
-#  saveRDS(mse_check, file = "mse_check.rds")
+  saveRDS(mse_output, file = "mse_test_out.rds")
+  saveRDS(mse_check, file = "mse_check.rds")
   
   # 
   # #check which simulations ran
