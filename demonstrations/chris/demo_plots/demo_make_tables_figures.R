@@ -4,7 +4,7 @@
 library(tidyverse)
 
 # read in the performance metrics results
-mse_results <- readRDS("C:/Users/jonathan.deroba/Documents/GitHub/IBMWG-master/demonstrations/chris/demo_plots/demo-perform-metrics.rds")
+mse_results <- readRDS("demonstrations/chris/demo_plots/demo-perform-metrics.rds")
 startdim <- dim(mse_results)
 
 # remove any duplicate rows
@@ -22,15 +22,17 @@ count_table <- mse_results %>%
 count_table$n  
 
 # join with setup to figure out what's in each scenario
-defined <- readRDS("C:/Users/jonathan.deroba/Documents/GitHub/IBMWG-master/settings/mse_sim_setup.rds") %>%
+defined <- readRDS("settings/mse_sim_setup.rds") %>%
   filter(isim == 1) %>%
   select(iscen, specs) %>%
   unnest(cols = specs) %>%
   inner_join(count_table, input, by="iscen") %>%
-  mutate(IBMlab = paste0(IBM, expand_method, M_CC_method))
+  mutate(IBMlab = paste0(IBM, expand_method, M_CC_method)) %>%
+  mutate(nonIBMlab = paste(substr(retro_type, 1, 1), Fhist, n_selblocks, catch.mult, sep = "_"))
 defined
 names(defined)
 unique(defined$IBMlab)
+unique(defined$nonIBMlab)
 
 # another summary
 countIBM <- defined %>%
@@ -89,11 +91,13 @@ which_rebuild <- ssb_probs %>%
   filter(metric == "l_is_ge_bmsy", value >= 0.9) 
 which_rebuild$retro_type
 which_rebuild$IBMlab
+which_rebuild$nonIBMlab
 
 which_crash <- ssb_probs %>%
   filter(metric == "l_is_less_01_bmsy", value >= 0.90) 
 which_crash$retro_type
 which_crash$IBMlab
+which_crash$nonIBMlab
 
 #pull out the f metrics
 f_results <- mse_results %>% 
@@ -208,6 +212,7 @@ td2_plot <- ggplot(td2, aes(x=ssb_value, y=f_value, color=retro_type)) +
 
 # put plots so far into pdf
 pdf(file = "demonstrations/chris/demo_plots/demo_make_tables_figures.pdf")
+box_ssb1
 ssb_probs_plot
 ssb_probs_plot + geom_point(aes(color = retro_type))
 ssb_probs_plot + geom_point(aes(color = IBMlab))
