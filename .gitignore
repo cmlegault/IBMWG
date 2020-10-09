@@ -10,3 +10,5 @@
 /output/*.rds
 /code/run2.R
 /code/run25.R
+run_script_liz.R
+
