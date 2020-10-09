@@ -74,7 +74,7 @@ my_future_options$packages <- c("wham",
     mutate(input = pmap(list(input=input, change=specs), change_input)) %>% 
     #unnest(cols = "specs") %>% 
     filter(IBM != "ensemble") %>% 
-    filter(IBM != "JoeDLM") %>% 
+    filter(IBM == "JoeDLM") %>% 
     I()
   
   ### run the MSE over each row of the mse_sims todo
