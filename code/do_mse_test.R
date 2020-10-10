@@ -73,8 +73,8 @@ my_future_options$packages <- c("wham",
     #modify the input object here
     mutate(input = pmap(list(input=input, change=specs), change_input)) %>% 
     #unnest(cols = "specs") %>% 
-    filter(IBM != "ensemble") %>% 
-    filter(IBM != "JoeDLM") %>% 
+   # filter(IBM != "ensemble") %>% 
+    filter(IBM == "JoeDLM") %>% 
     I()
   
   ### run the MSE over each row of the mse_sims todo
@@ -107,7 +107,7 @@ my_future_options$packages <- c("wham",
   mse_check
 
 # uncomment lines if want to save files
-#  saveRDS(list(start, stop), file = "elapsed.rds")  
+  saveRDS(list(start, stop), file = "elapsed.rds")  
   saveRDS(mse_output, file = "mse_test_out.rds")
   saveRDS(mse_check, file = "mse_check.rds")
   
