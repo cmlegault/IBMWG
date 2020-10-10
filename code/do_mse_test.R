@@ -74,7 +74,7 @@ my_future_options$packages <- c("wham",
     mutate(input = pmap(list(input=input, change=specs), change_input)) %>% 
     #unnest(cols = "specs") %>% 
     filter(IBM != "ensemble") %>% 
-    filter(IBM == "JoeDLM") %>% 
+    filter(IBM != "JoeDLM") %>% 
     I()
   
   ### run the MSE over each row of the mse_sims todo
@@ -84,7 +84,7 @@ my_future_options$packages <- c("wham",
 #  profvis::profvis(
   mse_output <- mse_sim_todo %>% 
     group_by(IBM) %>% 
-    slice(1) %>% 
+    slice(1:10) %>% 
     ungroup() %>% 
     #slice(1:5) %>% 
      mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
