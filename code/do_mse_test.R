@@ -84,7 +84,7 @@ my_future_options$packages <- c("wham",
 #  profvis::profvis(
   mse_output <- mse_sim_todo %>% 
     group_by(IBM) %>% 
-    slice(1) %>% 
+    slice(1:10) %>% 
     ungroup() %>% 
     #slice(1:5) %>% 
      mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
