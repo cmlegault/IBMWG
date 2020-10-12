@@ -2,7 +2,7 @@
 
 ### run a given wham MSE simulation
 ## will want to abstract more of the set up from this as it's the same for each simulation
-do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
+do_wham_mse_sim <- function(seed = 42, input = NULL, true_om_obj) {  #JJD
   # retro misspecficiation is invoked if retro_type is "M" or "Catch"
   # function does 1 simulation for the wham mse
   # i.e. 1 realization of the base and projection period
@@ -10,7 +10,7 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   # now almost all set up is done in get_base_input
   if(is.null(input)) stop("need an input object like that provided by get_base_input()")
   #print(adv.yr)
-  
+  true_om = true_om_obj$om
   adv.yr <- input$adv.yr
   nprojyrs <- input$nprojyrs
   retro_type <- input$retro_type
@@ -24,13 +24,11 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
       if(Fhist == 2 & n_selblocks == 3) Mscale = 1.8
       if(Fhist == 1 & n_selblocks == 4) Mscale = 1.6
       if(Fhist == 2 & n_selblocks == 4) Mscale = 1.8 
-      #true operating model knows correct M
-      true_om_input = change_M_om(observed_om_input, M_new_ratio = Mscale, n_ramp_years = 10, year_change = 2009) 
-  } else true_om_input = observed_om_input #no M mis-specifcation
-  
+  }
+   
   observed_om = wham::fit_wham(observed_om_input, do.fit = FALSE)
   observed_rep = observed_om$report()
-  true_om = wham::fit_wham(true_om_input, do.fit = FALSE)
+  #true_om = wham::fit_wham(true_om_input, do.fit = FALSE)
   set.seed(seed) 
   #simulated data and other report items from true operating model
   true_sim = true_om$simulate(complete= TRUE)
@@ -53,86 +51,16 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
     observed_sim = true_sim
   }
   #put in wrong M, if necessary
-  observed_sim$MAA = observed_rep$MAA
+  observed_sim$MAA = true_om$observed_MAA
   #GF modify the IBM options based on the scenario
   observed_sim$expand_method <- input$expand_method
   observed_sim$M_CC_method <- input$M_CC_method
 
-  a = exp(true_rep$log_SR_a[true_om_input$data$n_years_model])
-  b = exp(true_rep$log_SR_b[true_om_input$data$n_years_model])
-  if(n_selblocks == 3) {
-    sel = true_rep$selAA[[1]][true_om_input$data$n_years_model,]
-  } else {
-    sel = true_rep$selAA[[4]][true_om_input$data$n_years_model,]  
-  }
-  maturity = true_om_input$data$mature[true_om_input$data$n_years_model,]  
-  waa = true_om_input$data$waa[1,true_om_input$data$n_years_model,] 
-  fracssb = true_om_input$data$fracyr_SSB[true_om_input$data$n_years_model]
-  true_M = true_rep$MAA[true_om_input$data$n_years_model,]
-  true_refpts = c(
-    R_MSY = exp(true_rep$log_R_MSY[true_om_input$data$n_years_model]), 
-    SSB_MSY = exp(true_rep$log_SSB_MSY[true_om_input$data$n_years_model]), 
-    F_MSY = exp(true_rep$log_FMSY[true_om_input$data$n_years_model]),
-    MSY = exp(true_rep$log_MSY[true_om_input$data$n_years_model]),
-    F_40 = exp(true_rep$log_FXSPR[true_om_input$data$n_years_model]),
-    R_0 = exp(true_rep$log_SR_R0[true_om_input$data$n_years_model]),
-    SPR_0 = exp(true_rep$log_SPR0[true_om_input$data$n_years_model]),
-    SPR_40 = exp(true_rep$log_SPR_FXSPR[true_om_input$data$n_years_model]),
-    YPR_40 = exp(true_rep$log_YPR_FXSPR[true_om_input$data$n_years_model])
-  )
-  sprmsy = true_refpts[["SSB_MSY"]]/true_refpts[["R_MSY"]]
-  spr.frac.SSB.msy = function(log_F,spr.msy = sprmsy,frac=0.5, Min = true_M){
-    spr = wham:::get_SPR(exp(log_F), M = Min, sel = sel, mat=maturity, waassb=waa, fracyrssb=fracssb, at.age = FALSE)
-    obj = (a*spr-1 - frac*(a*spr.msy-1))^2 #the necessary parts of SSB(F)
-    return(obj)
-  }
-  F05 = exp(nlminb(log(0.2), spr.frac.SSB.msy)$par)
-  F01 = exp(nlminb(log(0.2), spr.frac.SSB.msy, frac=0.1)$par)
-  true_refpts = c(
-    true_refpts, 
-    SSB0 = true_refpts[["SPR_0"]] * true_refpts[['R_0']],
-    R_40 = (a - 1/true_refpts[["SPR_40"]])/b,
-    SSB_40 = (a * true_refpts[["SPR_40"]] - 1)/b,
-    Y_40 = true_refpts[["YPR_40"]] * (a - 1/true_refpts[["SPR_40"]])/b,
-    SPR_MSY = sprmsy,
-    F_dot_5_SSB_MSY = F05,
-    F_dot_1_SSB_MSY = F01
-  )
-  observed_M = observed_rep$MAA[true_om_input$data$n_years_model,]
-  observed_refpts = c(
-    R_MSY = exp(observed_rep$log_R_MSY[true_om_input$data$n_years_model]), 
-    SSB_MSY = exp(observed_rep$log_SSB_MSY[true_om_input$data$n_years_model]), 
-    F_MSY = exp(observed_rep$log_FMSY[true_om_input$data$n_years_model]), 
-    MSY = exp(observed_rep$log_MSY[true_om_input$data$n_years_model]),
-    F_40 = exp(observed_rep$log_FXSPR[true_om_input$data$n_years_model]),
-    R_0 = exp(observed_rep$log_SR_R0[true_om_input$data$n_years_model]),
-    SPR_0 = exp(observed_rep$log_SPR0[true_om_input$data$n_years_model]),
-    SPR_40 = exp(observed_rep$log_SPR_FXSPR[true_om_input$data$n_years_model]),
-    YPR_40 = exp(observed_rep$log_YPR_FXSPR[true_om_input$data$n_years_model])
-  )
-  sprmsy = observed_refpts[["SSB_MSY"]]/observed_refpts[["R_MSY"]]
-  F05 = exp(nlminb(log(0.2), spr.frac.SSB.msy, Min = observed_M)$par)
-  F01 = exp(nlminb(log(0.2), spr.frac.SSB.msy, Min = observed_M, frac=0.1)$par)
-  observed_refpts = c(
-    observed_refpts, 
-    SSB0 = observed_refpts[["SPR_0"]] * observed_refpts[['R_0']],
-    R_40 = (a - 1/observed_refpts[["SPR_40"]])/b,
-    SSB_40 = (a * observed_refpts[["SPR_40"]] - 1)/b,
-    Y_40 = observed_refpts[["YPR_40"]] * (a - 1/observed_refpts[["SPR_40"]])/b,
-    SPR_MSY = sprmsy,
-    F_dot_5_SSB_MSY = F05,
-    F_dot_1_SSB_MSY = F01
-  )
-  input$refpts = observed_refpts
-  #put in wrong reference points, if necessary
-  observed_sim$refpts = observed_refpts       
+  observed_M = true_om$observed_MAA[true_om_input$data$n_years_model,]
   observed_sim = get.IBM.input(y=observed_sim,i=0, adv.yr = adv.yr) #JJD; this adds to the y list stuff needed for index methods 
-  
-  
 
   sim_data_series = list(observed_sim)
-  catch_advice = observed_om_input$IBM(y=observed_sim) #JJD
-  catch_advice[[1]] = input$catch.mult * catch_advice[[1]]
+  catch_advice=input$catch.mult * observed_om_input$IBM(y=observed_sim) #JJD
   advice <- list(catch_advice) 
 
   assess_years <- seq(1,(nprojyrs-adv.yr+1),by=adv.yr)
@@ -142,9 +70,6 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   {
     year <- assess_years[i]
     proj_type = 5
-#    print(advice[[i]])
-#    print(retro_type)
-#    print(Cscale)
     true_om$env$data$proj_Fcatch[year:(year+adv.yr-1)] = Cscale * advice[[i]][[1]] #TJM, need to make catch higher than quota if catch misspecified
     true_om$env$data$proj_F_opt[year:(year+adv.yr-1)] = proj_type #Specify Catch #JJD,TJM
     set.seed(seed)
@@ -196,26 +121,22 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
     observed_sim$M_CC_method <- input$M_CC_method
     observed_sim = get.IBM.input(y=observed_sim, i=year, adv.yr = adv.yr) #JJD; GF
     sim_data_series[[i+1]] = observed_sim
-    catch_advice = input$IBM(y=sim_data_series[[i+1]]) #JJD
-    catch_advice[[1]] = input$catch.mult * catch_advice[[1]]
+    catch_advice = input$catch.mult * input$IBM(y=sim_data_series[[i+1]]) #JJD
     advice[[i+1]] <- catch_advice
   }
-  true_rep = true_om$report()
+  #true_rep = true_om$report()
 
-  #both correct and incorrect reference points if M is mis-specified
-  refpts <- list(true_refpts = true_refpts,
-                 observed_refpts = observed_refpts)
 
   results <- list(sim_data_series = sim_data_series[[nproj+1]], #GF #[[nprojyrs]], #JJD
                   advice = advice,
-                  refpts = refpts,
-                  true_input = true_om$input,
-                  observed_om = observed_om,
-                  true_om = true_om,
+                  #refpts = refpts,
+                  #true_input = true_om$input,
+                  #observed_om = observed_om,
+                  #true_om = true_om,
                   true_sim = true_sim,
                   observed_sim = observed_sim,
                   seed = seed,
-                  observed_input = observed_om$input,
+                  #observed_input = observed_om$input,
                   finished = Sys.time())
 
   return(results)
@@ -407,8 +328,7 @@ get.stable.period <- function(y=NULL) {
   
   
   #Replacement ratio regression
-  #df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
-  df <- data.frame(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears]))
+  df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
   ln.rr <- invisible(lm(R~F, data=df))
   reg.pars <- summary(ln.rr)
   
@@ -803,8 +723,7 @@ ApplyPlanBsmooth_fast <- function (dat, od = ".\\",
     loess.span <- 9.9/nyears
   lfit <- loess(data = dat.use, avg ~ Year, span = loess.span)
   pred_fit <- predict(lfit, se = TRUE)
-  #reg.dat <- data.frame(Year = dat.use$Year, pred = pred_fit$fit)
-  reg.dat <- tibble::tibble(Year = dat.use$Year, pred = pred_fit$fit)
+  reg.dat <- data.frame(Year = dat.use$Year, pred = pred_fit$fit)
   reg.years <- seq(terminal.year - 2, terminal.year)
   reg.use <- dplyr::filter(reg.dat, Year %in% reg.years, pred > 0)
   if (showwarn == TRUE) {
@@ -814,13 +733,13 @@ ApplyPlanBsmooth_fast <- function (dat, od = ".\\",
   }
   if (dim(reg.use)[1] <= 1) {
     llr_fit <- NA
-    #llr_fit.df <- data.frame(Year = integer(), llfit = double())
+    llr_fit.df <- data.frame(Year = integer(), llfit = double())
     multiplier <- NA
     round_multiplier <- "NA"
   }
   if (dim(reg.use)[1] >= 2) {
     llr_fit <- invisible(lm(log(pred) ~ Year, data = reg.use))
-    #llr_fit.df <- data.frame(Year = reg.use$Year, llfit = exp(predict(llr_fit)))
+    llr_fit.df <- data.frame(Year = reg.use$Year, llfit = exp(predict(llr_fit)))
     multiplier <- as.numeric(exp(llr_fit$coefficients[2]))
     round_multiplier <- round(multiplier, 3)
   }
@@ -1006,8 +925,7 @@ run.aim <- function(y) {
   
   
   #Replacement ratio regression
-  #df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
-  df <- data.frame(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears]))
+  df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
   ln.rr <- invisible(lm(R~F, data=df))
   reg.pars <- summary(ln.rr)
   
