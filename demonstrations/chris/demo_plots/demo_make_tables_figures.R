@@ -312,7 +312,7 @@ catch2_temp <- catch_temp %>%
 td3 <- inner_join(ssb2_temp, catch2_temp)
 td3_plot <- ggplot(td3, aes(x=ssb_value, y=catch_value)) +
   geom_point() +
-  facet_wrap(~IBM) +
+  facet_wrap(~IBMlab) +
   labs(x="SSB/SSBmsy", y="Catch/MSY", title="Longterm") +
   theme_bw()
 
