@@ -11,7 +11,7 @@ startdim <- dim(mse_results)
 mse_results <- mse_results %>%
   distinct()
 enddim <- dim(mse_results)
-enddim - startdim # if greater than zero, then there were duplicates
+startdim - enddim # if greater than zero, then there were duplicates
 names(mse_results)
 head(mse_results)
 

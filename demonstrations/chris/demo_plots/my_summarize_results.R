@@ -18,6 +18,13 @@ myfiles <- str_subset(myfiles, "mse-")
 myfiles
 nfiles <- length(myfiles)
 
+# get date-time of runs
+m <- gregexpr('[0-9]+',myfiles)
+myruns <- regmatches(myfiles,m) %>%
+  unlist()
+# use the following to check if run occurred before date
+floor(as.numeric(myruns)/1e6)<=20201012
+
 for (i in 1:nfiles){
   thisrds <- readRDS(myfiles[i])
   mse_output <- thisrds %>%
@@ -47,6 +54,12 @@ for (i in 1:nfiles){
     select(rowid, iscen, isim, ssb_metrics, catch_metrics, f_metrics) %>% 
     I()
   
+  # remove catch.mult=0.75 scenarios from results if run before Oct 12
+  if (floor(as.numeric(myruns[i])/1e6)<=20201012){
+    mse_results <- mse_results %>%
+      filter(iscen <= 112)  # first half of 224 scenarios
+  }
+
   if (i == 1){
     myresults <- mse_results
   }else{
@@ -89,3 +102,15 @@ ssb_summary <- ssb_results %>%
   tidyr::unnest(y) %>% 
   I()
 ssb_summary
+
+#pull out the f metrics
+f_results <- mse_results %>% 
+  #select(rowid, f_metrics) %>% 
+  select(iscen, isim, f_metrics) %>% 
+  mutate(f_metrics = map(f_metrics, enframe)) %>% 
+  unnest(cols = c(f_metrics)) %>% 
+  mutate(value = map_dbl(value, I)) %>% 
+  rename(metric = name) %>% 
+  I()
+f_results
+#```
