@@ -11,12 +11,22 @@ library(googledrive)
 rscripts <- c("performance_metrics.R")
 map(rscripts, source)
 
+# get results done so far
+mse_results_start <- readRDS("demo-perform-metrics.rds")
+
 # will want to connect to Google Drive directly in future
 # for now using a local directory that has the files from Google Drive
 myfiles <- list.files()
 myfiles <- str_subset(myfiles, "mse-")
 myfiles
 nfiles <- length(myfiles)
+
+# subset for new runs
+newfiles <- myfiles[22:31]
+myfiles <- newfiles
+myfiles
+nfiles <- length(myfiles)
+
 
 # get date-time of runs
 m <- gregexpr('[0-9]+',myfiles)
@@ -69,10 +79,14 @@ for (i in 1:nfiles){
 }
 dim(myresults)
 
+# add new files to starting files
+myresults <- rbind(mse_results_start, myresults)
+
 #save the performance metrics object
 saveRDS(myresults, file = "demo-perform-metrics.rds")
 
 
+### example code for how to use results
 # read in the performance metrics results
 mse_results <- readRDS("demo-perform-metrics.rds")
 
