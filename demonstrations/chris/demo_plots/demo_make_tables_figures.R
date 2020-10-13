@@ -72,6 +72,7 @@ ssb_results <- mse_results %>%
 ssb_results
 #```
 
+
 ssb_means <- ssb_results %>%
   group_by(iscen, metric) %>%
   summarise_all(mean) %>%
@@ -316,6 +317,51 @@ td3_plot <- ggplot(td3, aes(x=ssb_value, y=catch_value)) +
   labs(x="SSB/SSBmsy", y="Catch/MSY", title="Longterm") +
   theme_bw()
 
+# tradeoffs by sim
+ssb_sims <- ssb_results %>%
+  filter(metric == "l_avg_ssb_ssbmsy") %>%
+  rename(ssb_metric = metric, ssb_value = value) %>%
+  inner_join(., defined)
+
+catch_sims <- catch_results %>%
+  filter(metric == "l_avg_catch_msy") %>%
+  rename(catch_metric = metric, catch_value = value) %>%
+  inner_join(., defined)
+
+simdf <- inner_join(ssb_sims, catch_sims)
+
+myscenlabs <- unique(simdf$Scenlab)
+mysmax <- max(simdf$ssb_value, na.rm = TRUE)
+mycmax <- max(simdf$catch_value, na.rm = TRUE)
+td4_plot <- list()
+for (i in 1:length(myscenlabs)){
+  tmpdf <- filter(simdf, Scenlab == myscenlabs[i])
+  td4_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value, y=catch_value)) +
+    geom_point() +
+    geom_vline(xintercept = 1, color="red", linetype="dashed") +
+    geom_hline(yintercept = 1, color="red", linetype="dashed") +
+    facet_wrap(~IBMlab) +
+    labs(x="SSB/SSBmsy", y="Catch/MSY", title=paste(myscenlabs[i], "Long Term")) +
+    expand_limits(x=mysmax, y=mycmax) +
+    theme_bw()
+  print(td4_plot[[i]])
+}
+
+myibmlabs <- sort(unique(simdf$IBMlab))
+td5_plot <- list()
+for (i in 1:length(myibmlabs)){
+  tmpdf <- filter(simdf, IBMlab == myibmlabs[i])
+  td5_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value, y=catch_value)) +
+    geom_point(color="blue") +
+    geom_vline(xintercept = 1, color="red", linetype="dashed") +
+    geom_hline(yintercept = 1, color="red", linetype="dashed") +
+    facet_wrap(~Scenlab) +
+    labs(x="SSB/SSBmsy", y="Catch/MSY", title=paste(myibmlabs[i], "Long Term")) +
+    expand_limits(x=mysmax, y=mycmax) +
+    theme_bw()
+  print(td5_plot[[i]])
+}
+
 # put plots so far into pdf
 pdf(file = "demonstrations/chris/demo_plots/demo_make_tables_figures.pdf")
 box_ssb1
@@ -349,6 +395,12 @@ catch_msy_plot + geom_point(aes(color = factor(catch.mult)))
 td1_plot
 td2_plot
 td3_plot
+for (i in 1:length(td4_plot)){
+  print(td4_plot[[i]])
+}
+for (i in 1:length(td5_plot)){
+  print(td5_plot[[i]])
+}
 dev.off()
 
 
