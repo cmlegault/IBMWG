@@ -15,17 +15,19 @@ startdim - enddim # if greater than zero, then there were duplicates
 names(mse_results)
 head(mse_results)
 
-# counts
-count_table <- mse_results %>%
-  group_by(iscen) %>%
-  summarise(n = n())
-count_table$n  
+# find and remove duplicate scenarios
+mse_sim_setup <- readRDS("settings/mse_sim_setup.rds")
+dupes <- duplicated(mse_sim_setup[,-(1:2)])
+not_dupes <- mse_sim_setup$rowid[!dupes]
+mse_results <- mse_results %>%
+  filter(rowid %in% not_dupes)
 
 # join with setup to figure out what's in each scenario
 Fhistlab <- c("O","F") # O = always overfishing, F = Fmsy in last year of base
 Sellab <- c("1", "2") # just whether 1 or 2 blocks for selectivity
 CMlab <- c("A", "R") # A = catch advice applied, R = reduced (mult=0.75)
-defined <- readRDS("settings/mse_sim_setup.rds") %>%
+defined <- mse_sim_setup %>%
+  filter(rowid %in% not_dupes) %>% 
   filter(isim == 1) %>%
   select(iscen, specs) %>%
   unnest(cols = specs) %>%

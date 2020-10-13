@@ -26,6 +26,7 @@ mse_output <- readRDS("dummy_output.rds")
 mse_results <- mse_output %>% 
   mutate(finished = map(wham, "result"),
          finished = map(finished, "finished"),
+         fin2 = Reduce(c, finished), 
          size = map_dbl(wham, object.size),
          om_ssb = map(wham,
                       ~pluck(.x$result$true_sim$SSB)),
@@ -43,6 +44,7 @@ mse_results <- mse_output %>%
          catch_metrics = pmap(list(catch, refpts, nprojyrs), get_catch_metrics),
          f_metrics = pmap(list(frate, refpts, nprojyrs), get_F_metrics)
          ) %>% 
+  slice(which(!(fin2 < "2020-10-12" & iscen > 112))) %>%   #filter the bogus catchmult 0.75 runs
   select(rowid, iscen, isim, ssb_metrics, catch_metrics, f_metrics) %>% 
   I()
 
