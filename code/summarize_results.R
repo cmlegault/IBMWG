@@ -17,7 +17,16 @@ map(rscripts, source)
 # map(xx$name,drive_download, overwrite = TRUE)
 # mse_output <- map_df(xx$name,readRDS)
 # 
-mse_output <- readRDS("dummy_output.rds")
+#mse_output <- readRDS("dummy_output.rds")
+files <- dir(path = "output",
+             pattern = "*.rds",
+             full.names = TRUE)
+files <- str_subset(files, "output/mse-")
+
+
+mse_output <- map_dfr(files, readRDS) %>% 
+  filter(map_lgl(wham, ~(.x %>% pluck("result", 1, 1) %>% is.na==FALSE))) %>% 
+  I()
 
 #mse_output <- readRDS("output/mse-CML-20200930113704.rds")
 #mse_output <- readRDS("~/Dropbox/mse_test_out.rds")
