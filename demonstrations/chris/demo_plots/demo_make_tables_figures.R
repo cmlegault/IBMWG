@@ -259,12 +259,12 @@ which_crash$Scenlab
 ### trade-off plots
 names(ssb_probs)
 names(f_probs)
-names(catch_means)
+names(catch_ratios)
 ssb_temp <- ssb_probs %>%
   rename(ssb_metric = metric, ssb_value = value)
 f_temp <- f_probs %>%
   rename(f_metric = metric, f_value = value)
-catch_temp <- catch_means %>%
+catch_temp <- catch_ratios %>%
   rename(catch_metric = metric, catch_value = value)
 temp <- inner_join(ssb_temp, f_temp)
 td <- inner_join(temp, catch_temp)
@@ -291,13 +291,14 @@ td2_plot <- ggplot(td2, aes(x=ssb_value, y=f_value, color=retro_type)) +
   labs(x="Prob(SSB<0.5SSBmsy)", y="Prob(F>Fmsy)") +
   theme_bw()
 
-names(ssb_means)
-names(catch_means)
-ssb2_temp <- ssb_means %>%
+names(ssb_ratios)
+names(catch_ratios)
+ssb2_temp <- ssb_ratios %>%
   filter(metric == "l_avg_ssb_ssbmsy") %>%
   rename(ssb_metric = metric, ssb_value = value)
-catch2_temp <- catch_temp %>%
-  filter(catch_metric == "l_avg_catch_msy")
+catch2_temp <- catch_ratios %>%
+  filter(metric == "l_avg_catch_msy") %>%
+  rename(catch_metric = metric, catch_value = value)
 td3 <- inner_join(ssb2_temp, catch2_temp)
 td3_plot <- ggplot(td3, aes(x=ssb_value, y=catch_value)) +
   geom_point() +
@@ -309,16 +310,16 @@ td3_plot <- ggplot(td3, aes(x=ssb_value, y=catch_value)) +
 ssb_sims <- ssb_results %>%
   filter(metric == "l_avg_ssb_ssbmsy") %>%
   rename(ssb_metric = metric, ssb_value = value) %>%
-  inner_join(., defined)
+  inner_join(defined, by = "iscen")
 
 catch_sims <- catch_results %>%
   filter(metric == "l_avg_catch_msy") %>%
   rename(catch_metric = metric, catch_value = value) %>%
-  inner_join(., defined)
+  inner_join(defined, by = "iscen")
 
-simdf <- inner_join(ssb_sims, catch_sims)
+simdf <- inner_join(ssb_sims, catch_sims, by = c("iscen", "isim", "retro_type", "Fhist", "n_selblocks", "IBM", "adv.yr", "Fmsy_scale", "catch.mult", "expand_method", "M_CC_method", "nprojyrs", "n", "IBMlab", "Scenlab"))
 
-myscenlabs <- unique(simdf$Scenlab)
+myscenlabs <- sort(unique(simdf$Scenlab))
 mysmax <- max(simdf$ssb_value, na.rm = TRUE)
 mycmax <- max(simdf$catch_value, na.rm = TRUE)
 td4_plot <- list()
