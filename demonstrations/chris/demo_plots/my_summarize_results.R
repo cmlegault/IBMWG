@@ -11,35 +11,22 @@ library(googledrive)
 rscripts <- c("performance_metrics.R")
 map(rscripts, source)
 
-# get results done so far
-mse_results_start <- readRDS("demo-perform-metrics.rds")
-
 # will want to connect to Google Drive directly in future
 # for now using a local directory that has the files from Google Drive
 myfiles <- list.files()
 myfiles <- str_subset(myfiles, "mse-")
 myfiles
-nfiles <- length(myfiles)
 
 # subset for new runs
-newfiles <- myfiles[22:31]
-myfiles <- newfiles
-myfiles
-nfiles <- length(myfiles)
+newfiles <- myfiles[216:250]
+nfiles <- length(newfiles)
 
-
-# get date-time of runs
-m <- gregexpr('[0-9]+',myfiles)
-myruns <- regmatches(myfiles,m) %>%
-  unlist()
-# use the following to check if run occurred before date
-floor(as.numeric(myruns)/1e6)<=20201012
-
-#for (i in 1:nfiles){
-#  thisrds <- readRDS(myfiles[i])
-#  mse_output <- thisrds %>%
-  mse_output <- map_dfr(myfiles, readRDS) %>% 
+for (i in 1:nfiles){
+  thisrds <- readRDS(newfiles[i])
+  mse_output <- thisrds %>%
     filter(map_lgl(wham, ~(.x %>% pluck("result", 1, 1) %>% is.na==FALSE)))
+#mse_output <- map_dfr(newfiles, readRDS) %>% 
+#  filter(map_lgl(wham, ~(.x %>% pluck("result", 1, 1) %>% is.na==FALSE)))
 
   # calculate performance metrics
   mse_results <- mse_output %>% 
@@ -67,67 +54,22 @@ floor(as.numeric(myruns)/1e6)<=20201012
     select(rowid, iscen, isim, ssb_metrics, catch_metrics, f_metrics) %>% 
     I()
   
-  # # remove catch.mult=0.75 scenarios from results if run before Oct 12
-  # if (floor(as.numeric(myruns[i])/1e6)<=20201012){
-  #   mse_results <- mse_results %>%
-  #     filter(iscen <= 112)  # first half of 224 scenarios
-  # }
-
-#   if (i == 1){
-#     myresults <- mse_results
-#   }else{
-#     myresults <- rbind(myresults, mse_results)
-#   }
-#   print(paste("file", myfiles[i], "had", dim(mse_results)[1], "successful simulations"))
-# }
+  if (i == 1){
+    myresults <- mse_results
+  }else{
+    myresults <- rbind(myresults, mse_results)
+  }
+  print(paste("file", newfiles[i], "had", dim(mse_results)[1], "successful simulations"))
+}
 dim(myresults)
 
-# add new files to starting files
-myresults <- rbind(mse_results_start, myresults)
+# get results done previously
+mse_results_start <- readRDS("demo-perform-metrics.rds")
+
+# add new files to previous files
+combinedresults <- rbind(mse_results_start, myresults)
 
 #save the performance metrics object
-saveRDS(myresults, file = "demo-perform-metrics.rds")
+saveRDS(combinedresults, file = "demo-perform-metrics.rds")
 
 
-### example code for how to use results
-# read in the performance metrics results
-mse_results <- readRDS("demo-perform-metrics.rds")
-
-#`mse_results` is a tibble containing the lists of SSB & catch performance metrics
-
-#pull out the ssb metrics
-ssb_results <- mse_results %>% 
-  #select(rowid, ssb_metrics) %>% 
-  select(iscen, isim, ssb_metrics) %>% 
-  mutate(ssb_metrics = map(ssb_metrics, enframe)) %>% 
-  unnest(cols = c(ssb_metrics)) %>% 
-  mutate(value = map_dbl(value, I)) %>% 
-  rename(metric = name) %>% 
-  I()
-ssb_results
-#```
-
-#summarize across simulations by scenario
-#25%, 50%, 75% quantiles
-quibble <- function(x, q = c(0.25, 0.5, 0.75)) {
-  tibble(x = quantile(x, q, na.rm = TRUE), q = q)
-}
-
-ssb_summary <- ssb_results %>% 
-  group_by(metric, iscen) %>% 
-  summarise(y = list(quibble(value, c(0.25, 0.5, 0.75)))) %>% 
-  tidyr::unnest(y) %>% 
-  I()
-ssb_summary
-
-#pull out the f metrics
-f_results <- mse_results %>% 
-  #select(rowid, f_metrics) %>% 
-  select(iscen, isim, f_metrics) %>% 
-  mutate(f_metrics = map(f_metrics, enframe)) %>% 
-  unnest(cols = c(f_metrics)) %>% 
-  mutate(value = map_dbl(value, I)) %>% 
-  rename(metric = name) %>% 
-  I()
-f_results
-#```
