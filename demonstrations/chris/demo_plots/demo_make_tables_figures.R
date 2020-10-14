@@ -3,7 +3,7 @@
 
 library(tidyverse)
 
-# read in the performance metrics results
+### read in the performance metrics results
 mse_results <- readRDS("demonstrations/chris/demo_plots/demo-perform-metrics.rds")
 startdim <- dim(mse_results)
 
@@ -22,22 +22,30 @@ not_dupes <- mse_sim_setup$rowid[!dupes]
 mse_results <- mse_results %>%
   filter(rowid %in% not_dupes)
 
-# join with setup to figure out what's in each scenario
+# counts
+count_table <- mse_results %>%
+  group_by(iscen) %>%
+  summarise(n = n())
+count_table$n 
+
+### join with setup to figure out what's in each scenario
 Fhistlab <- c("O","F") # O = always overfishing, F = Fmsy in last year of base
 Sellab <- c("1", "2") # just whether 1 or 2 blocks for selectivity
 CMlab <- c("A", "R") # A = catch advice applied, R = reduced (mult=0.75)
+EMlab <- c("FSPR", "Fstable", "FM", "Frecent")
+CClab <- c("FSPR", NA, "FM")
 defined <- mse_sim_setup %>%
   filter(rowid %in% not_dupes) %>% 
   filter(isim == 1) %>%
   select(iscen, specs) %>%
   unnest(cols = specs) %>%
-  inner_join(count_table, input, by="iscen") %>%
+  inner_join(count_table, by="iscen") %>%
   mutate(IBMlab = case_when(
     IBM == "Itarget" ~ "Itarg",
     IBM == "true_Skate_CR" ~ "Skate",
-    IBM == "M_CC" ~ paste0("CC", M_CC_method),
+    IBM == "M_CC" ~ paste("CC", CClab[M_CC_method], sep="-"),
     IBM == "planBsmoothfxn" ~ "PlanB",
-    IBM == "ExpandSurvey_modified" ~ paste0("ESB", expand_method),
+    IBM == "ExpandSurvey_modified" ~ paste("ES", EMlab[expand_method], sep="-"),
     IBM == "run.aim" ~ "AIM",
     IBM == "JoeDLM" ~ "DLM",
     TRUE ~ IBM),
@@ -62,9 +70,16 @@ nsimtab <- countIBM %>%
   pivot_wider(names_from = Scenlab, values_from = nsim)
 nsimtab
 
-#pull out the ssb metrics
+nsim_plot <- ggplot(countIBM, aes(x=Scenlab, y=nsim)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~IBMlab) +
+  labs(x="Scenario", y="Number of Simulations") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90))
+
+
+###pull out the ssb metrics
 ssb_results <- mse_results %>% 
-  #select(rowid, ssb_metrics) %>% 
   select(iscen, isim, ssb_metrics) %>% 
   mutate(ssb_metrics = map(ssb_metrics, enframe)) %>% 
   unnest(cols = c(ssb_metrics)) %>% 
@@ -72,68 +87,163 @@ ssb_results <- mse_results %>%
   rename(metric = name) %>% 
   I()
 ssb_results
-#```
+unique(ssb_results$metric)
 
+###pull out the f metrics
+f_results <- mse_results %>% 
+  select(iscen, isim, f_metrics) %>% 
+  mutate(f_metrics = map(f_metrics, enframe)) %>% 
+  unnest(cols = c(f_metrics)) %>% 
+  mutate(value = map_dbl(value, I)) %>% 
+  rename(metric = name) %>% 
+  I()
+f_results
+unique(f_results$metric)
 
-ssb_means <- ssb_results %>%
+###pull out the catch metrics
+catch_results <- mse_results %>% 
+  select(iscen, isim, catch_metrics) %>% 
+  mutate(catch_metrics = map(catch_metrics, enframe)) %>% 
+  unnest(cols = c(catch_metrics)) %>% 
+  mutate(value = map_dbl(value, I)) %>% 
+  rename(metric = name) %>% 
+  I()
+catch_results
+unique(catch_results$metric)
+
+### compute mean for all metrics for each scenario
+ssb_mean_by_scenario <- ssb_results %>%
   group_by(iscen, metric) %>%
   summarise_all(mean) %>%
-  filter(grepl("_avg_ssb_ssbmsy", metric)) %>%
-  inner_join(., defined)
+  inner_join(defined, by = "iscen")
 
-ssb_probs <- ssb_results %>%
+f_mean_by_scenario <- f_results %>%
   group_by(iscen, metric) %>%
   summarise_all(mean) %>%
-  filter(grepl("_is_", metric)) %>%
-  inner_join(., defined)
+  inner_join(defined, by = "iscen")
 
-ssb_probs_plot <- ggplot(ssb_probs, aes(x=iscen, y=value)) +
-  geom_point() +
-  facet_wrap(~metric) +
-  labs(x="Scenario", y="Probability", title = "SSB") +
-  theme_bw()
-##ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs.png", ssb_probs_plot)
+catch_mean_by_scenario <- catch_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(mean) %>%
+  inner_join(defined, by = "iscen")
 
-# color code to show factors
-p1 <- ssb_probs_plot + geom_point(aes(color = retro_type))
-#ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs_retro_type.png", p1)
-p1 <- ssb_probs_plot + geom_point(aes(color = IBMlab))
-#ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs_IBMlab.png", p1)
-p1 <- ssb_probs_plot + geom_point(aes(color = factor(Fhist)))
-#ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs_Fhist.png", p1)
-p1 <- ssb_probs_plot + geom_point(aes(color = factor(n_selblocks)))
-#ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs_n_selblocks.png", p1)
-p1 <- ssb_probs_plot + geom_point(aes(color = factor(catch.mult)))
-#ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs_catch.mults.png", p1)
+### make subsets of results for easier plotting
+ssb_probs <- ssb_mean_by_scenario %>%
+  filter(grepl("_is_", metric))
+  
+ssb_ns <- ssb_mean_by_scenario %>%
+  filter(grepl("_n_", metric))
 
-#a boxplot of SSB metrics for each IBM among all scenarios ##do any always suck? do any always suck in the other direction?
-#windows(width = 10,height = 10)
-box_ssb1 <- ggplot(ssb_probs, aes(x=IBMlab, y=value)) + 
-  geom_boxplot() +
-  facet_wrap(~metric) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="IBM", y="Probability", title = "SSB") 
-#ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs_box_IBM.png", box_ssb1)
+ssb_ratios <- ssb_mean_by_scenario %>%
+  filter(grepl("_avg_ssb_ssbmsy", metric))
 
-box_ssb2 <- ggplot(ssb_probs, aes(x=Scenlab, y=value)) + 
-  geom_boxplot() +
-  facet_wrap(~metric) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="Non-IBM Scenario", y="Probability", title = "SSB") 
-#ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs_box_nonIBM.png", box_ssb2)
+f_probs <- f_mean_by_scenario %>%
+  filter(grepl("_is_", metric))
 
-box_ssb3 <- ggplot(ssb_means, aes(x=IBMlab, y=value)) +
-  geom_boxplot() +
-  facet_wrap(~metric) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="IBM", y="SSB/SSBmsy") 
+f_ns <- f_mean_by_scenario %>%
+  filter(grepl("_n_", metric))
 
-box_ssb4 <- ggplot(ssb_means, aes(x=Scenlab, y=value)) +
-  geom_boxplot() +
-  facet_wrap(~metric) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="Non-IBM Scenario", y="SSB/SSBmsy") 
+f_ratios <- f_mean_by_scenario %>%
+  filter(grepl("_avg_f_fmsy", metric))
 
+catch_means <- catch_mean_by_scenario %>%
+  filter(metric %in% c("l_avg_catch", "l_sd_catch", "s_avg_catch", "s_sd_catch"))
+
+catch_ratios <- catch_mean_by_scenario %>%
+  filter(grepl("_avg_catch_msy", metric))
+
+catch_other <- catch_mean_by_scenario %>%
+  filter(metric %in% c("l_iav_catch", "l_prop_g_msy_2_of_3"))
+
+### plotting functions  
+confetti_plot <- function(mytib, myx, myy, myxlab, myylab, mytitle){
+  myx <- enquo(myx)
+  myy <- enquo(myy)
+  myplot <- ggplot(mytib, aes(x = !! myx, y = !! myy)) +
+    geom_point() +
+    facet_wrap(~metric) +
+    labs(x=myxlab, y=myylab, title=mytitle) +
+    theme_bw()
+  return(myplot)
+}
+
+colorize_confetti <- function(myplot){
+  print(myplot + geom_point(aes(color = retro_type)))
+  print(myplot + geom_point(aes(color = IBMlab)))
+  print(myplot + geom_point(aes(color = factor(Fhist))))
+  print(myplot + geom_point(aes(color = factor(n_selblocks))))
+  print(myplot + geom_point(aes(color = factor(catch.mult))))
+  invisible(NULL)
+}
+
+make_box_plot <- function(mytib, myx, myy, myxlab, myylab, mytitle){
+  myx <- enquo(myx)
+  myy <- enquo(myy)
+  myplot <- ggplot(mytib, aes(x = !! myx, y = !! myy)) +
+    geom_boxplot() +
+    facet_wrap(~metric) +
+    labs(x=myxlab, y=myylab, title=mytitle) +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90))
+  return(myplot)
+}
+
+### make named plots
+ssb_probs_plot <- confetti_plot(ssb_probs, iscen, value, "Scenario", "Probablity", "SSB")
+
+ssb_ns_plot <- confetti_plot(ssb_ns, iscen, value, "Scenario", "Mean Number of Years", "SSB")
+
+ssb_ratios_plot <- confetti_plot(ssb_ratios, iscen, value, "Scenario", "Mean SSB/SSBmsy", "SSB")
+
+ssb_box_probs_IBM <- make_box_plot(ssb_probs, IBMlab, value, "IBM", "Probability", "SSB")
+
+ssb_box_probs_Scen <- make_box_plot(ssb_probs, Scenlab, value, "Scenario", "Probability", "SSB")
+
+ssb_box_ns_IBM <- make_box_plot(ssb_ns, IBMlab, value, "IBM", "Mean Number of Years", "SSB")
+
+ssb_box_ns_Scen <- make_box_plot(ssb_ns, Scenlab, value, "Scenario", "Mean Number of Years", "SSB")
+
+ssb_box_ratios_IBM <- make_box_plot(ssb_ratios, IBMlab, value, "IBM", "Mean SSB/SSBmsy", "SSB")
+
+ssb_box_ratios_Scen <- make_box_plot(ssb_ratios, Scenlab, value, "Scenario", "Mean SSB/SSBmsy", "SSB")
+
+f_probs_plot <- confetti_plot(f_probs, iscen, value, "Scenario", "Probablity", "F")
+
+f_ns_plot <- confetti_plot(f_ns, iscen, value, "Scenario", "Mean Number of Years", "F")
+
+f_ratios_plot <- confetti_plot(f_ratios, iscen, value, "Scenario", "Mean F/Fmsy", "F")
+
+f_box_probs_IBM <- make_box_plot(f_probs, IBMlab, value, "IBM", "Probability", "F")
+
+f_box_probs_Scen <- make_box_plot(f_probs, Scenlab, value, "Scenario", "Probability", "F")
+
+f_box_ns_IBM <- make_box_plot(f_ns, IBMlab, value, "IBM", "Mean Number of Years", "F")
+
+f_box_ns_Scen <- make_box_plot(f_ns, Scenlab, value, "Scenario", "Mean Number of Years", "F")
+
+f_box_ratios_IBM <- make_box_plot(f_ratios, IBMlab, value, "IBM", "Mean F/Fmsy", "F")
+
+f_box_ratios_Scen <- make_box_plot(f_ratios, Scenlab, value, "Scenario", "Mean F/Fmsy", "F")
+
+catch_means_plot <- confetti_plot(catch_means, iscen, value, "Scenario", "Mean of Metric", "Catch")
+
+catch_ratios_plot <- confetti_plot(catch_ratios, iscen, value, "Scenario", "Mean Catch/MSY", "Catch")
+
+catch_other_plot <- confetti_plot(catch_other, iscen, value, "Scenario", "Mean of Metric", "Catch")
+
+catch_box_means_IBM <- make_box_plot(catch_means, IBMlab, value, "IBM", "Mean of Metric", "Catch")
+
+catch_box_means_Scen <- make_box_plot(catch_means, Scenlab, value, "Scenario", "Mean of Metric", "Catch")
+
+catch_box_ratios_IBM <- make_box_plot(catch_ratios, IBMlab, value, "IBM", "Mean Catch/MSY", "Catch")
+
+catch_box_ratios_Scen <- make_box_plot(catch_ratios, Scenlab, value, "Scenario", "Mean Catch/MSY", "Catch")
+
+catch_box_other_IBM <- make_box_plot(catch_other, IBMlab, value, "IBM", "Mean of Metric", "Catch")
+
+catch_box_other_Scen <- make_box_plot(catch_other, Scenlab, value, "Scenario", "Mean of Metric", "Catch")
+
+### examine what factors led to good and bad outcomes
 which_rebuild <- ssb_probs %>%
   filter(metric == "l_is_ge_bmsy", value >= 0.9) 
 which_rebuild$retro_type
@@ -146,129 +256,7 @@ which_crash$retro_type
 which_crash$IBMlab
 which_crash$Scenlab
 
-#pull out the f metrics
-f_results <- mse_results %>% 
-  #select(rowid, f_metrics) %>% 
-  select(iscen, isim, f_metrics) %>% 
-  mutate(f_metrics = map(f_metrics, enframe)) %>% 
-  unnest(cols = c(f_metrics)) %>% 
-  mutate(value = map_dbl(value, I)) %>% 
-  rename(metric = name) %>% 
-  I()
-f_results
-#```
-
-f_means <- f_results %>%
-  group_by(iscen, metric) %>%
-  summarise_all(mean) %>%
-  filter(grepl("_avg_f_fmsy", metric)) %>%
-  inner_join(., defined)
-
-f_probs <- f_results %>%
-  group_by(iscen, metric) %>%
-  summarise_all(mean) %>%
-  filter(grepl("_is_", metric)) %>%
-  inner_join(., defined)
-
-f_probs_plot <- ggplot(f_probs, aes(x=iscen, y=value)) +
-  geom_point() +
-  facet_wrap(~metric) +
-  labs(x="Scenario", y="Probability", title = "F") +
-  theme_bw()
-#ggsave(filename = "demonstrations/chris/demo_plots/f_probs.png", f_probs_plot)
-
-# color code to show factors
-p1 <- f_probs_plot + geom_point(aes(color = retro_type))
-#ggsave(filename = "demonstrations/chris/demo_plots/f_probs_retro_type.png", p1)
-p1 <- f_probs_plot + geom_point(aes(color = IBMlab))
-#ggsave(filename = "demonstrations/chris/demo_plots/f_probs_IBMlab.png", p1)
-p1 <- f_probs_plot + geom_point(aes(color = factor(Fhist)))
-#ggsave(filename = "demonstrations/chris/demo_plots/f_probs_Fhist.png", p1)
-p1 <- f_probs_plot + geom_point(aes(color = factor(n_selblocks)))
-#ggsave(filename = "demonstrations/chris/demo_plots/f_probs_n_selblocks.png", p1)
-p1 <- f_probs_plot + geom_point(aes(color = factor(catch.mult)))
-#ggsave(filename = "demonstrations/chris/demo_plots/f_probs_catch.mults.png", p1)
-
-box_f1 <- ggplot(f_probs, aes(x=IBMlab, y=value)) + 
-  geom_boxplot() +
-  facet_wrap(~metric) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="IBM", y="Probability", title = "F") 
-#ggsave(filename = "demonstrations/chris/demo_plots/f_probs_box_IBM.png", box_f1)
-
-box_f2 <- ggplot(f_probs, aes(x=Scenlab, y=value)) + 
-  geom_boxplot() +
-  facet_wrap(~metric) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="Non-IBM Scenario", y="Probability", title = "F") 
-#ggsave(filename = "demonstrations/chris/demo_plots/f_probs_box_nonIBM.png", box_f2)
-
-box_f3 <- ggplot(f_means, aes(x=IBMlab, y=value)) +
-  geom_boxplot() +
-  facet_wrap(~metric) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="IBM", y="F/Fmsy") 
-
-box_f4 <- ggplot(f_means, aes(x=Scenlab, y=value)) +
-  geom_boxplot() +
-  facet_wrap(~metric) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="Non-IBM Scenario", y="F/Fmsy") 
-
-
-#pull out the catch metrics
-catch_results <- mse_results %>% 
-  #select(rowid, catch_metrics) %>% 
-  select(iscen, isim, catch_metrics) %>% 
-  mutate(catch_metrics = map(catch_metrics, enframe)) %>% 
-  unnest(cols = c(catch_metrics)) %>% 
-  mutate(value = map_dbl(value, I)) %>% 
-  rename(metric = name) %>% 
-  I()
-catch_results
-#```
-
-catch_means <- catch_results %>%
-  group_by(iscen, metric) %>%
-  summarise_all(mean) %>%
-  filter(grepl("_avg_catch_msy", metric)) %>%
-  inner_join(., defined)
-
-catch_msy_plot <- ggplot(catch_means, aes(x=iscen, y=value)) +
-  geom_point() +
-  facet_wrap(~metric) +
-  labs(x="Scenario", y="Mean Catch Relative to MSY") +
-  theme_bw()
-#ggsave(filename = "demonstrations/chris/demo_plots/catch_msy.png", catch_msy_plot)
-
-# color code to show factors
-p1 <- catch_msy_plot + geom_point(aes(color = retro_type))
-#ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_retro_type.png", p1)
-p1 <- catch_msy_plot + geom_point(aes(color = IBMlab))
-#ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_IBMlab.png", p1)
-p1 <- catch_msy_plot + geom_point(aes(color = factor(Fhist)))
-#ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_Fhist.png", p1)
-p1 <- catch_msy_plot + geom_point(aes(color = factor(n_selblocks)))
-#ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_n_selblocks.png", p1)
-p1 <- catch_msy_plot + geom_point(aes(color = factor(catch.mult)))
-#ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_catch.mults.png", p1)
-
-box_catch1 <- ggplot(catch_means, aes(x=IBMlab, y=value)) + 
-  geom_boxplot() +
-  facet_wrap(~metric) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="IBM", y="Ratio", title = "Catch/MSY") 
-#ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_IBM.png", box_catch1)
-
-box_catch2 <- ggplot(catch_means, aes(x=Scenlab, y=value)) + 
-  geom_boxplot() +
-  facet_wrap(~metric) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  labs(x="Non-IBM Scenario", y="Ratio", title = "Catch/MSY") 
-#ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_nonIBM.png", box_catch2)
-
-
-# trade-off plots
+### trade-off plots
 names(ssb_probs)
 names(f_probs)
 names(catch_means)
@@ -292,7 +280,6 @@ td1_plot <- ggplot(td1, aes(x=ssb_value, y=catch_value, color=retro_type)) +
   facet_wrap(~IBMlab) +
   labs(x="Prob(SSB>=SSBmsy)", y="Mean(Catch/MSY)") +
   theme_bw()
-#ggsave(filename = "demonstrations/chris/demo_plots/tradeoff1.png", td1_plot)
 
 td2 <- td %>%
   filter(ssb_metric == "l_is_less_05_bmsy",
@@ -303,7 +290,6 @@ td2_plot <- ggplot(td2, aes(x=ssb_value, y=f_value, color=retro_type)) +
   facet_wrap(~IBMlab) +
   labs(x="Prob(SSB<0.5SSBmsy)", y="Prob(F>Fmsy)") +
   theme_bw()
-#ggsave(filename = "demonstrations/chris/demo_plots/tradeoff2.png", td2_plot)
 
 names(ssb_means)
 names(catch_means)
@@ -364,36 +350,49 @@ for (i in 1:length(myibmlabs)){
   print(td5_plot[[i]])
 }
 
-# put plots so far into pdf
+### put plots into pdf
 pdf(file = "demonstrations/chris/demo_plots/demo_make_tables_figures.pdf")
-box_ssb1
-box_ssb2
-box_ssb3
-box_ssb4
-ssb_probs_plot
-ssb_probs_plot + geom_point(aes(color = retro_type))
-ssb_probs_plot + geom_point(aes(color = IBMlab))
-ssb_probs_plot + geom_point(aes(color = factor(Fhist)))
-ssb_probs_plot + geom_point(aes(color = factor(n_selblocks)))
-ssb_probs_plot + geom_point(aes(color = factor(catch.mult)))
-box_f1
-box_f2
-box_f3
-box_f4
-f_probs_plot
-f_probs_plot + geom_point(aes(color = retro_type))
-f_probs_plot + geom_point(aes(color = IBMlab))
-f_probs_plot + geom_point(aes(color = factor(Fhist)))
-f_probs_plot + geom_point(aes(color = factor(n_selblocks)))
-f_probs_plot + geom_point(aes(color = factor(catch.mult)))
-box_catch1
-box_catch2
-catch_msy_plot
-catch_msy_plot + geom_point(aes(color = retro_type))
-catch_msy_plot + geom_point(aes(color = IBMlab))
-catch_msy_plot + geom_point(aes(color = factor(Fhist)))
-catch_msy_plot + geom_point(aes(color = factor(n_selblocks)))
-catch_msy_plot + geom_point(aes(color = factor(catch.mult)))
+nsim_plot
+
+ssb_box_probs_IBM 
+ssb_box_probs_Scen
+ssb_box_ns_IBM
+ssb_box_ns_Scen
+ssb_box_ratios_IBM 
+ssb_box_ratios_Scen
+ssb_probs_plot 
+colorize_confetti(ssb_probs_plot)
+ssb_ns_plot 
+colorize_confetti(ssb_ns_plot)
+ssb_ratios_plot 
+colorize_confetti(ssb_ratios_plot)
+
+f_box_probs_IBM 
+f_box_probs_Scen
+f_box_ns_IBM
+f_box_ns_Scen
+f_box_ratios_IBM 
+f_box_ratios_Scen
+f_probs_plot 
+colorize_confetti(f_probs_plot)
+f_ns_plot 
+colorize_confetti(f_ns_plot)
+f_ratios_plot 
+colorize_confetti(f_ratios_plot)
+
+catch_box_means_IBM
+catch_box_means_Scen
+catch_box_ratios_IBM 
+catch_box_ratios_Scen
+catch_box_other_IBM 
+catch_box_other_Scen
+catch_means_plot 
+colorize_confetti(catch_means_plot)
+catch_ratios_plot 
+colorize_confetti(catch_ratios_plot)
+catch_other_plot 
+colorize_confetti(catch_other_plot)
+
 td1_plot
 td2_plot
 td3_plot
@@ -403,6 +402,7 @@ for (i in 1:length(td4_plot)){
 for (i in 1:length(td5_plot)){
   print(td5_plot[[i]])
 }
+
 dev.off()
 
 
