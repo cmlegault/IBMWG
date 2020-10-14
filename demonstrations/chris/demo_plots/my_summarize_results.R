@@ -11,12 +11,22 @@ library(googledrive)
 rscripts <- c("performance_metrics.R")
 map(rscripts, source)
 
+# get results done so far
+mse_results_start <- readRDS("demo-perform-metrics.rds")
+
 # will want to connect to Google Drive directly in future
 # for now using a local directory that has the files from Google Drive
 myfiles <- list.files()
 myfiles <- str_subset(myfiles, "mse-")
 myfiles
 nfiles <- length(myfiles)
+
+# subset for new runs
+newfiles <- myfiles[22:31]
+myfiles <- newfiles
+myfiles
+nfiles <- length(myfiles)
+
 
 # get date-time of runs
 m <- gregexpr('[0-9]+',myfiles)
@@ -25,15 +35,17 @@ myruns <- regmatches(myfiles,m) %>%
 # use the following to check if run occurred before date
 floor(as.numeric(myruns)/1e6)<=20201012
 
-for (i in 1:nfiles){
-  thisrds <- readRDS(myfiles[i])
-  mse_output <- thisrds %>%
+#for (i in 1:nfiles){
+#  thisrds <- readRDS(myfiles[i])
+#  mse_output <- thisrds %>%
+  mse_output <- map_dfr(myfiles, readRDS) %>% 
     filter(map_lgl(wham, ~(.x %>% pluck("result", 1, 1) %>% is.na==FALSE)))
 
   # calculate performance metrics
   mse_results <- mse_output %>% 
     mutate(finished = map(wham, "result"),
            finished = map(finished, "finished"),
+           fin2 = Reduce(c, finished), 
            size = map_dbl(wham, object.size),
            om_ssb = map(wham,
                         ~pluck(.x$result$true_sim$SSB)),
@@ -51,28 +63,33 @@ for (i in 1:nfiles){
            catch_metrics = pmap(list(catch, refpts, nprojyrs), get_catch_metrics),
            f_metrics = pmap(list(frate, refpts, nprojyrs), get_F_metrics)
     ) %>% 
+    slice(which(!(fin2 < "2020-10-12" & iscen > 112))) %>%  #filter out the bogus catchmult 0.75 runs
     select(rowid, iscen, isim, ssb_metrics, catch_metrics, f_metrics) %>% 
     I()
   
-  # remove catch.mult=0.75 scenarios from results if run before Oct 12
-  if (floor(as.numeric(myruns[i])/1e6)<=20201012){
-    mse_results <- mse_results %>%
-      filter(iscen <= 112)  # first half of 224 scenarios
-  }
+  # # remove catch.mult=0.75 scenarios from results if run before Oct 12
+  # if (floor(as.numeric(myruns[i])/1e6)<=20201012){
+  #   mse_results <- mse_results %>%
+  #     filter(iscen <= 112)  # first half of 224 scenarios
+  # }
 
-  if (i == 1){
-    myresults <- mse_results
-  }else{
-    myresults <- rbind(myresults, mse_results)
-  }
-  print(paste("file", myfiles[i], "had", dim(mse_results)[1], "successful simulations"))
-}
+#   if (i == 1){
+#     myresults <- mse_results
+#   }else{
+#     myresults <- rbind(myresults, mse_results)
+#   }
+#   print(paste("file", myfiles[i], "had", dim(mse_results)[1], "successful simulations"))
+# }
 dim(myresults)
+
+# add new files to starting files
+myresults <- rbind(mse_results_start, myresults)
 
 #save the performance metrics object
 saveRDS(myresults, file = "demo-perform-metrics.rds")
 
 
+### example code for how to use results
 # read in the performance metrics results
 mse_results <- readRDS("demo-perform-metrics.rds")
 

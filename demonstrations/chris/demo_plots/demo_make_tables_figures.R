@@ -15,30 +15,52 @@ startdim - enddim # if greater than zero, then there were duplicates
 names(mse_results)
 head(mse_results)
 
-# counts
-count_table <- mse_results %>%
-  group_by(iscen) %>%
-  summarise(n = n())
-count_table$n  
+# find and remove duplicate scenarios
+mse_sim_setup <- readRDS("settings/mse_sim_setup.rds")
+dupes <- duplicated(mse_sim_setup[,-(1:2)])
+not_dupes <- mse_sim_setup$rowid[!dupes]
+mse_results <- mse_results %>%
+  filter(rowid %in% not_dupes)
 
 # join with setup to figure out what's in each scenario
-defined <- readRDS("settings/mse_sim_setup.rds") %>%
+Fhistlab <- c("O","F") # O = always overfishing, F = Fmsy in last year of base
+Sellab <- c("1", "2") # just whether 1 or 2 blocks for selectivity
+CMlab <- c("A", "R") # A = catch advice applied, R = reduced (mult=0.75)
+defined <- mse_sim_setup %>%
+  filter(rowid %in% not_dupes) %>% 
   filter(isim == 1) %>%
   select(iscen, specs) %>%
   unnest(cols = specs) %>%
   inner_join(count_table, input, by="iscen") %>%
-  mutate(IBMlab = paste0(IBM, expand_method, M_CC_method)) %>%
-  mutate(nonIBMlab = paste(substr(retro_type, 1, 1), Fhist, n_selblocks, catch.mult, sep = "_"))
+  mutate(IBMlab = case_when(
+    IBM == "Itarget" ~ "Itarg",
+    IBM == "true_Skate_CR" ~ "Skate",
+    IBM == "M_CC" ~ paste0("CC", M_CC_method),
+    IBM == "planBsmoothfxn" ~ "PlanB",
+    IBM == "ExpandSurvey_modified" ~ paste0("ESB", expand_method),
+    IBM == "run.aim" ~ "AIM",
+    IBM == "JoeDLM" ~ "DLM",
+    TRUE ~ IBM),
+    Scenlab = paste(substr(retro_type, 1, 1), Fhistlab[Fhist], Sellab[n_selblocks], ifelse(catch.mult == 1, CMlab[1], CMlab[2]), sep = ""))
 defined
 names(defined)
 unique(defined$IBMlab)
-unique(defined$nonIBMlab)
+unique(defined$Scenlab)
 
-# another summary
+# counting scenarios and simulations
 countIBM <- defined %>%
-  group_by(IBMlab) %>%
-  summarise(nscenarios = n(), nsim = sum(n))
-countIBM
+  group_by(IBMlab, Scenlab) %>%
+  summarise(nscenarios = n(), nsim = sum(n)) 
+
+nscentab <- countIBM %>%
+  select(IBMlab, Scenlab, nscenarios) %>%
+  pivot_wider(names_from = Scenlab, values_from = nscenarios)
+nscentab
+
+nsimtab <- countIBM %>%
+  select(IBMlab, Scenlab, nsim) %>%
+  pivot_wider(names_from = Scenlab, values_from = nsim)
+nsimtab
 
 #pull out the ssb metrics
 ssb_results <- mse_results %>% 
@@ -51,6 +73,7 @@ ssb_results <- mse_results %>%
   I()
 ssb_results
 #```
+
 
 ssb_means <- ssb_results %>%
   group_by(iscen, metric) %>%
@@ -92,7 +115,7 @@ box_ssb1 <- ggplot(ssb_probs, aes(x=IBMlab, y=value)) +
   labs(x="IBM", y="Probability", title = "SSB") 
 #ggsave(filename = "demonstrations/chris/demo_plots/ssb_probs_box_IBM.png", box_ssb1)
 
-box_ssb2 <- ggplot(ssb_probs, aes(x=nonIBMlab, y=value)) + 
+box_ssb2 <- ggplot(ssb_probs, aes(x=Scenlab, y=value)) + 
   geom_boxplot() +
   facet_wrap(~metric) +
   theme(axis.text.x = element_text(angle = 90)) +
@@ -105,7 +128,7 @@ box_ssb3 <- ggplot(ssb_means, aes(x=IBMlab, y=value)) +
   theme(axis.text.x = element_text(angle = 90)) +
   labs(x="IBM", y="SSB/SSBmsy") 
 
-box_ssb4 <- ggplot(ssb_means, aes(x=nonIBMlab, y=value)) +
+box_ssb4 <- ggplot(ssb_means, aes(x=Scenlab, y=value)) +
   geom_boxplot() +
   facet_wrap(~metric) +
   theme(axis.text.x = element_text(angle = 90)) +
@@ -115,13 +138,13 @@ which_rebuild <- ssb_probs %>%
   filter(metric == "l_is_ge_bmsy", value >= 0.9) 
 which_rebuild$retro_type
 which_rebuild$IBMlab
-which_rebuild$nonIBMlab
+which_rebuild$Scenlab
 
 which_crash <- ssb_probs %>%
   filter(metric == "l_is_less_01_bmsy", value >= 0.90) 
 which_crash$retro_type
 which_crash$IBMlab
-which_crash$nonIBMlab
+which_crash$Scenlab
 
 #pull out the f metrics
 f_results <- mse_results %>% 
@@ -173,7 +196,7 @@ box_f1 <- ggplot(f_probs, aes(x=IBMlab, y=value)) +
   labs(x="IBM", y="Probability", title = "F") 
 #ggsave(filename = "demonstrations/chris/demo_plots/f_probs_box_IBM.png", box_f1)
 
-box_f2 <- ggplot(f_probs, aes(x=nonIBMlab, y=value)) + 
+box_f2 <- ggplot(f_probs, aes(x=Scenlab, y=value)) + 
   geom_boxplot() +
   facet_wrap(~metric) +
   theme(axis.text.x = element_text(angle = 90)) +
@@ -186,7 +209,7 @@ box_f3 <- ggplot(f_means, aes(x=IBMlab, y=value)) +
   theme(axis.text.x = element_text(angle = 90)) +
   labs(x="IBM", y="F/Fmsy") 
 
-box_f4 <- ggplot(f_means, aes(x=nonIBMlab, y=value)) +
+box_f4 <- ggplot(f_means, aes(x=Scenlab, y=value)) +
   geom_boxplot() +
   facet_wrap(~metric) +
   theme(axis.text.x = element_text(angle = 90)) +
@@ -237,7 +260,7 @@ box_catch1 <- ggplot(catch_means, aes(x=IBMlab, y=value)) +
   labs(x="IBM", y="Ratio", title = "Catch/MSY") 
 #ggsave(filename = "demonstrations/chris/demo_plots/catch_msy_IBM.png", box_catch1)
 
-box_catch2 <- ggplot(catch_means, aes(x=nonIBMlab, y=value)) + 
+box_catch2 <- ggplot(catch_means, aes(x=Scenlab, y=value)) + 
   geom_boxplot() +
   facet_wrap(~metric) +
   theme(axis.text.x = element_text(angle = 90)) +
@@ -292,9 +315,54 @@ catch2_temp <- catch_temp %>%
 td3 <- inner_join(ssb2_temp, catch2_temp)
 td3_plot <- ggplot(td3, aes(x=ssb_value, y=catch_value)) +
   geom_point() +
-  facet_wrap(~IBM) +
+  facet_wrap(~IBMlab) +
   labs(x="SSB/SSBmsy", y="Catch/MSY", title="Longterm") +
   theme_bw()
+
+# tradeoffs by sim
+ssb_sims <- ssb_results %>%
+  filter(metric == "l_avg_ssb_ssbmsy") %>%
+  rename(ssb_metric = metric, ssb_value = value) %>%
+  inner_join(., defined)
+
+catch_sims <- catch_results %>%
+  filter(metric == "l_avg_catch_msy") %>%
+  rename(catch_metric = metric, catch_value = value) %>%
+  inner_join(., defined)
+
+simdf <- inner_join(ssb_sims, catch_sims)
+
+myscenlabs <- unique(simdf$Scenlab)
+mysmax <- max(simdf$ssb_value, na.rm = TRUE)
+mycmax <- max(simdf$catch_value, na.rm = TRUE)
+td4_plot <- list()
+for (i in 1:length(myscenlabs)){
+  tmpdf <- filter(simdf, Scenlab == myscenlabs[i])
+  td4_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value, y=catch_value)) +
+    geom_point() +
+    geom_vline(xintercept = 1, color="red", linetype="dashed") +
+    geom_hline(yintercept = 1, color="red", linetype="dashed") +
+    facet_wrap(~IBMlab) +
+    labs(x="SSB/SSBmsy", y="Catch/MSY", title=paste(myscenlabs[i], "Long Term")) +
+    expand_limits(x=mysmax, y=mycmax) +
+    theme_bw()
+  print(td4_plot[[i]])
+}
+
+myibmlabs <- sort(unique(simdf$IBMlab))
+td5_plot <- list()
+for (i in 1:length(myibmlabs)){
+  tmpdf <- filter(simdf, IBMlab == myibmlabs[i])
+  td5_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value, y=catch_value)) +
+    geom_point(color="blue") +
+    geom_vline(xintercept = 1, color="red", linetype="dashed") +
+    geom_hline(yintercept = 1, color="red", linetype="dashed") +
+    facet_wrap(~Scenlab) +
+    labs(x="SSB/SSBmsy", y="Catch/MSY", title=paste(myibmlabs[i], "Long Term")) +
+    expand_limits(x=mysmax, y=mycmax) +
+    theme_bw()
+  print(td5_plot[[i]])
+}
 
 # put plots so far into pdf
 pdf(file = "demonstrations/chris/demo_plots/demo_make_tables_figures.pdf")
@@ -329,6 +397,12 @@ catch_msy_plot + geom_point(aes(color = factor(catch.mult)))
 td1_plot
 td2_plot
 td3_plot
+for (i in 1:length(td4_plot)){
+  print(td4_plot[[i]])
+}
+for (i in 1:length(td5_plot)){
+  print(td5_plot[[i]])
+}
 dev.off()
 
 

@@ -17,7 +17,16 @@ map(rscripts, source)
 # map(xx$name,drive_download, overwrite = TRUE)
 # mse_output <- map_df(xx$name,readRDS)
 # 
-mse_output <- readRDS("dummy_output.rds")
+#mse_output <- readRDS("dummy_output.rds")
+files <- dir(path = "output",
+             pattern = "*.rds",
+             full.names = TRUE)
+files <- str_subset(files, "output/mse-")
+
+
+mse_output <- map_dfr(files, readRDS) %>% 
+  filter(map_lgl(wham, ~(.x %>% pluck("result", 1, 1) %>% is.na==FALSE))) %>% 
+  I()
 
 #mse_output <- readRDS("output/mse-CML-20200930113704.rds")
 #mse_output <- readRDS("~/Dropbox/mse_test_out.rds")
@@ -26,6 +35,7 @@ mse_output <- readRDS("dummy_output.rds")
 mse_results <- mse_output %>% 
   mutate(finished = map(wham, "result"),
          finished = map(finished, "finished"),
+         fin2 = Reduce(c, finished), 
          size = map_dbl(wham, object.size),
          om_ssb = map(wham,
                       ~pluck(.x$result$true_sim$SSB)),
@@ -43,6 +53,7 @@ mse_results <- mse_output %>%
          catch_metrics = pmap(list(catch, refpts, nprojyrs), get_catch_metrics),
          f_metrics = pmap(list(frate, refpts, nprojyrs), get_F_metrics)
          ) %>% 
+  slice(which(!(fin2 < "2020-10-12" & iscen > 112))) %>%   #filter the bogus catchmult 0.75 runs
   select(rowid, iscen, isim, ssb_metrics, catch_metrics, f_metrics) %>% 
   I()
 
