@@ -184,7 +184,7 @@ make_box_plot <- function(mytib, myx, myy, myxlab, myylab, mytitle){
     facet_wrap(~metric) +
     labs(x=myxlab, y=myylab, title=mytitle) +
     theme_bw() +
-    theme(axis.text.x = element_text(angle = 90))
+    coord_flip() 
   return(myplot)
 }
 
