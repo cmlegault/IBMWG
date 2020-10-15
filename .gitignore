@@ -14,3 +14,4 @@ run_script_liz.R
 run_script_liz2.R
 /demonstrations/tim/*.rds
 /demonstrations/tim/*.RDS
+.httr-oauth
