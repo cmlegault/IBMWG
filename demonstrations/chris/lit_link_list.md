@@ -13,7 +13,7 @@ A collection of links to papers broken into separate groups with short synopsis 
 ### Closed-loop simulations
 * [Fay](https://www.sciencedirect.com/science/article/abs/pii/S0165783611001640) et al. 2011 examines spatial impact on MSE for a stock and includes a way to summarize large number of simulation results
 * [Geromont and Butterworth](https://academic.oup.com/icesjms/article/72/1/251/815189) 2015a demonstrates how to test index-based methods through closed-loop simulation
-* [Hart and Fay](https://doi.org/10.1016/j.fishres.2019.105466) tree-regression for summarizing large number of simulation results
+* [Hart and Fay](https://doi.org/10.1016/j.fishres.2019.105466) 2020 tree-regression for summarizing large number of simulation results
 * [Hordyk]( https://doi.org/10.1111/faf.12382) et al. 2019 uses DLMtool to examine risks of misspecifying a stock assessent model
 
 ### Retrospective patterns
