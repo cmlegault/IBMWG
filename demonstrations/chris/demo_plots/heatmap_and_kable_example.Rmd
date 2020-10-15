@@ -1,7 +1,7 @@
 ---
 title: "test kable for ibmwg"
 author: "Liz Brooks"
-date: "10/6/2020"
+date: "10/14/2020"
 output: pdf_document
 ---
 
@@ -12,23 +12,27 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Demo results
 
-Here is a heatmap of all results so far, followed by a kable.
+Here is a heatmap of all results so far, followed by a kable.  
 
 ``` {r echo=FALSE, results='asis', hide=TRUE, include=FALSE}
 library(knitr)
-
+#install.packages("gplots")
+library(gplots)
 setwd("C:/Users/liz.brooks/liz/R/IBMWG/demo_plots/results/")
-source("demo_make_tables_figures.R", echo=FALSE, verbose=FALSE, local = knitr::knit_global())
+source("demo_make_tables_figures_liz2.R", echo=FALSE, verbose=FALSE, local = knitr::knit_global())
 s_met <- ssb_probs[ssb_probs$metric=="l_is_ge_bmsy",]
 f_met <- f_probs[f_probs$metric=="l_is_less_fmsy",]
-c_met <- catch_means[catch_means$metric=="l_avg_catch_msy",]
+c_met <- catch_means[catch_means$metric=="l_avg_catch",]
 
-scen_meth_name <- paste0(s_met$IBMlab, "-", s_met$retro_type, s_met$catch.mult, "-F", s_met$Fhist, "-sel", s_met$n_selblocks )
+
+#scen_meth_name <- paste0(s_met$IBMlab, "-", s_met$retro_type, s_met$catch.mult, "-F", s_met$Fhist, "-sel", s_met$n_selblocks )
+scen_meth_name <- paste0(s_met$IBMlab, "-", s_met$Scenlab)
+
 scf <- cbind(SSB=s_met$value, Catch=c_met$value, F=f_met$value)
 rownames(scf) <- scen_meth_name
 
 
-h1 <- heatmap(scf, scale="column", Colv=NA, margins=c(8,10))
+h1 <- heatmap.2(scf, scale="column", Colv=NA, margins=c(8,10))
 
 demo_df <- as.data.frame(scf[h1$rowInd,])
 
