@@ -129,6 +129,8 @@ drive_upload(
 
 #################################
 # update progress file - this will be done again after the simulations are finished in case some didn't work
+# first do a pull from the repo to ensure the push will work
+system("git pull")
 # write the file back to disk & commit to update
 saveRDS(progress, file = "settings/progress_table.rds")
 #commit back to the repo so other users don't duplicate your efforts
