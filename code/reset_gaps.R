@@ -68,8 +68,8 @@ progress$date_run[progress$rowid %in% to_reset$rowid] <- NA
 
 # add the line to save the new revised progress table here
 # # write the file back to disk & commit to update
-# saveRDS(progress, file = "settings/progress_table.rds")
-# #commit back to the repo
-# system('git commit -am "resets incorrect values in progress table"')
-# system("git push")
-# 
+saveRDS(progress, file = "settings/progress_table.rds")
+#commit back to the repo
+system('git commit -am "resets incorrect values in progress table"')
+system("git push")
+
