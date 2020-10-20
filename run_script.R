@@ -6,4 +6,4 @@ purrr::map(rscripts, source)
 future::plan(future.callr::callr)
 
 # run it
-do_mse(nsim = 25, user = "LB", write_to_google = FALSE)
+do_mse(nsim = 50, user = "LB", write_to_google = FALSE)
