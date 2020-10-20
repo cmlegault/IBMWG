@@ -127,6 +127,16 @@ catch_mean_by_scenario <- catch_results %>%
   summarise_all(mean) %>%
   inner_join(defined, by = "iscen")
 
+### save mean_by_scenario results for easier modeling and ranking
+saveRDS(ssb_mean_by_scenario, 
+        file = "demonstrations/chris/demo_plots/ssb_mean_by_scenario.rds")
+
+saveRDS(f_mean_by_scenario, 
+        file = "demonstrations/chris/demo_plots/f_mean_by_scenario.rds")
+
+saveRDS(catch_mean_by_scenario, 
+        file = "demonstrations/chris/demo_plots/catch_mean_by_scenario.rds")
+
 ### make subsets of results for easier plotting
 ssb_probs <- ssb_mean_by_scenario %>%
   filter(grepl("_is_", metric))
