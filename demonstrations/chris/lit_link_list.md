@@ -15,6 +15,7 @@ A collection of links to papers broken into separate groups with short synopsis 
 * [Geromont and Butterworth](https://academic.oup.com/icesjms/article/72/1/251/815189) 2015a demonstrates how to test index-based methods through closed-loop simulation
 * [Hart and Fay](https://doi.org/10.1016/j.fishres.2019.105466) 2020 tree-regression for summarizing large number of simulation results
 * [Hordyk]( https://doi.org/10.1111/faf.12382) et al. 2019 uses DLMtool to examine risks of misspecifying a stock assessent model
+* [Punt](https://doi.org/10.1016/j.fishres.2007.12.008) et al. 2008 summarizes a large number of simulation results through ANOVA
 
 ### Retrospective patterns
 * [Brooks and Legault](https://doi.org/10.1139/cjfas-2015-0163) 2016 uses NEFSC stocks to demonstrate a way to compare effects of different parts of projections - found starting point errors due to retrospective patterns biggest problem
