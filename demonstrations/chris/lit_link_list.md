@@ -26,6 +26,7 @@ A collection of links to papers broken into separate groups with short synopsis 
 * [Miller and Legault](https://doi.org/10.1016/j.fishres.2016.08.002) 2019 provides variance of Mohn's rho through bootstrapping and recommends always adjusting for retrospective pattern
 * [Mohn](https://doi.org/10.1006/jmsc.1999.0481) 1999 presents Mohn's rho - note the original formulation uses sum of the peels while current use is mean of the peels
 * [Punt](https://doi.org/10.1016/j.fishres.2019.105465) et al. 2020 shows retrospective patterns a major reason stock assessments are rejected around the world
+* [Punt](https://doi.org/10.1016/j.fishres.2020.105759) et al. 2021 recommends estimating M within stock assessment model to reduce errors including retrospective patterns
 * [Stewart and Martell](https://doi.org/10.1016/j.fishres.2013.09.012) 2014 shows three times the retrospective pattern has been fixed for Pacific halibut by changing how selectivity modeled
 * [Szuwalski](https://doi.org/10.1093/icesjms/fsx159) et al. 2018 conducts three by three experiment where M, growth, and selectivity cause or fix retrospective patterns and shows management advice can be wrong when incorrect source used as fix
 * [Wiedenmann and Jensen](https://doi.org/10.1139/cjfas-2016-0484) 2018 shows that catch below quota results in F above target F in many New England groundfish stocks due to retrospective pattern
