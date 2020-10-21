@@ -41,7 +41,7 @@ todo %>%
   group_by(user) %>%
   summarize(n = n())
 
-# NA user is for JoeDLM and M_CC, so OK
+# NA user is for JoeDLM and M_CC, so OK because these were not included in do_mse
 filter(todo, is.na(user)) %>%
   group_by(IBM) %>%
   summarise(n = n())
