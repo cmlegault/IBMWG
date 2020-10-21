@@ -2,6 +2,7 @@
 A collection of links to papers broken into separate groups with short synopsis of why each is included.
 
 ### Index Based Methods
+* [Dichmont](https://doi.org/10.1016/j.fishres.2006.06.009) et al. 2006 uses an IBM similar to PlanBsmooth
 * [DLMtool](https://www.datalimitedtoolkit.org/) provides a large number of possible index-based methods and a framework for conducting closed-loop simulations
 * [Geromont and Butterworth](https://academic.oup.com/icesjms/article/72/1/262/821583) 2015b compares historical performance of simple index-based approaches to age-based methods for stocks in this region
 * [Klaer](https://www.sciencedirect.com/science/article/abs/pii/S0165783612002561) et al. 2012 applies an average length-based approach in Australia
