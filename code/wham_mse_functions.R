@@ -1053,7 +1053,7 @@ ensemble<-function(y=NULL){
   advice<-c(advice,run.aim(y)[[1]])
   advice<-c(advice,M_CC(y)[[1]])
   advice<-c(advice,ExpandSurvey_modified(y)[[1]])
-  advice<-c(advice,JoeDLM(y)[[1]])
+  #advice<-c(advice,JoeDLM(y)[[1]])
   return(list(median(advice),advice))
 }
 #ensemble(y)
