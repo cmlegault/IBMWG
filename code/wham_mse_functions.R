@@ -1051,8 +1051,12 @@ ensemble<-function(y=NULL){
   advice<-c(advice,true_Skate_CR(y)[[1]])
   advice<-c(advice,planBsmoothfxn(y)[[1]])
   advice<-c(advice,run.aim(y)[[1]])
+  y$M_CC_method=1
   advice<-c(advice,M_CC(y)[[1]])
+  y$expand_method=1
   advice<-c(advice,ExpandSurvey_modified(y)[[1]])
+  y$expand_method=4
+  advice<-c(advice,ExpandSurvey_modified(y)[[1]]) 
   #advice<-c(advice,JoeDLM(y)[[1]])
   return(list(median(advice),advice))
 }
