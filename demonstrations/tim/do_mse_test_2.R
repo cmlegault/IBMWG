@@ -8,7 +8,7 @@ library(dlm)
 library(RandomFieldsUtils)
 library(dplyr)
 
-rscripts <- c(#"code/base_input.R",
+rscripts <- c("code/base_input.R",
               "code/change_input.R",
               "code/IBM_options.R",
               #"code/performance_metrics.R",
@@ -52,11 +52,16 @@ mse_sim_setup <- readRDS(file = "settings/mse_sim_setup.rds")
 
   mse_sim_todo <- mse_sim_setup %>% 
     filter(isim == 1) %>% 
-    mutate(IBM = map_chr(specs, "IBM")) %>% 
+    mutate(IBM = map_chr(specs, "IBM"),
+           Fhist = map_dbl(specs, "Fhist"),
+           n_selblocks = map_dbl(specs, "n_selblocks"),
+           retro_type = map_chr(specs, "retro_type")) %>% 
     #filter(rowid %in% todo) %>% 
-    left_join(input_setup) %>% 
+    left_join(om_objects) %>% 
     #modify the input object here
     mutate(input = pmap(list(input=input, change=specs), change_input)) %>% 
+    I()
+  mse_sim_todo
 
 my_future_options = future_options() #will also make om_objects available
 my_future_options$globals = ls()
@@ -68,23 +73,23 @@ my_future_options$packages <- c("wham",
   future::plan(future::multisession)
 
   # load in the scenario specifications
-  mse_sim_setup <- readRDS(file = "settings/mse_sim_setup.rds")
+  #mse_sim_setup <- readRDS(file = "settings/mse_sim_setup.rds")
   
   # load in the input objects
-  input_setup <- readRDS(file = "settings/input_setup.rds")
+  #input_setup <- readRDS(file = "settings/input_setup.rds")
   
-  # pull out realizations to be run today from the setup list using "todo". 
-  mse_sim_todo <- mse_sim_setup %>% 
-    filter(isim == 1) %>% 
-    mutate(IBM = map_chr(specs, "IBM")) %>% 
-    #filter(rowid %in% todo) %>% 
-    left_join(input_setup) %>% 
-    #modify the input object here
-    mutate(input = pmap(list(input=input, change=specs), change_input)) %>% 
-    #unnest(cols = "specs") %>% 
-    filter(IBM != "ensemble") %>% 
-    filter(IBM != "JoeDLM") %>% 
-    I()
+  # # pull out realizations to be run today from the setup list using "todo". 
+  # mse_sim_todo <- mse_sim_setup %>% 
+  #   filter(isim == 1) %>% 
+  #   mutate(IBM = map_chr(specs, "IBM")) %>% 
+  #   #filter(rowid %in% todo) %>% 
+  #   left_join(input_setup) %>% 
+  #   #modify the input object here
+  #   mutate(input = pmap(list(input=input, change=specs), change_input)) %>% 
+  #   #unnest(cols = "specs") %>% 
+  #   filter(IBM != "ensemble") %>% 
+  #   filter(IBM != "JoeDLM") %>% 
+  #   I()
   
   ### run the MSE over each row of the mse_sims todo
   safe_wham_mse <- purrr::safely(do_wham_mse_sim, otherwise = NA_real_)
@@ -93,11 +98,11 @@ my_future_options$packages <- c("wham",
   #profvis::profvis(
   start <- Sys.time()
   mse_output <- mse_sim_todo %>% 
-    group_by(IBM) %>% 
+    #group_by(IBM) %>% 
+    #slice(1) %>% 
+    #ungroup() %>% 
     slice(1) %>% 
-    ungroup() %>% 
-    #slice(1:5) %>% 
-     mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
+     mutate(wham = furrr::future_pmap(list(seed = seed, input = input, true_om_obj = true_om),
                                       safe_wham_mse, .options = my_future_options)) %>% 
     # this is the regular purrr code for iterating over the simulations
     #mutate(wham = purrr::pmap(list(seed = seed, input = input), safe_wham_mse)) %>% 

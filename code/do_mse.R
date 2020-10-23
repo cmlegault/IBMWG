@@ -56,7 +56,7 @@ not_dupes <- mse_sim_setup$rowid[!dupes]
 # find the first nsim realizations that have yet to be done
 todo <- progress %>% filter(is.na(user)) %>%
   filter(IBM != "ensemble") %>%   ## this removes the ensembles 
-  filter(IBM != "JoeDLM") %>%   ## this removes the ensembles 
+  #filter(IBM != "JoeDLM") %>%   ## this removes the ensembles 
   filter(rowid %in% not_dupes) %>% 
   #filter(rowid %in% catchmult) %>% 
   slice(1:nsim) %>% select(rowid) %>% t() %>% as.numeric() %>% 

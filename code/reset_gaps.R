@@ -2,7 +2,9 @@
 # GF 2020/10/07
 library(tidyverse)
 
+
 # load in progress table
+system("git pull")
 progress <- readRDS(file = "settings/progress_table.rds")
 
 #copy the progress table for my sanity's sake
@@ -19,15 +21,23 @@ system(paste0("cp settings/progress_table.rds settings/",outfile))
 
 # ideally I  think rather than reading in the performance metrics table one would read in the results fiels and check,
 # but that's essentially what is happening here.
-mse_perform <- readRDS(file = "demonstrations/chris/demo_plots/demo-perform-metrics.rds")
+mse_perform <- readRDS(file = "demonstrations/chris/demo_plots/demo-perform-metrics.rds") %>% 
+  slice(which(!duplicated(.$rowid))) %>% 
+  I()
 mse_perform
+
+
+# look at duplicates
+counts <- mse_perform  %>% group_by(iscen) %>% count()
+ggplot(counts, aes(x=iscen, y=n)) + geom_point() + ylim(0,NA)
 
 
  # look at rows that there are results for
 results_for <- progress %>% 
   slice(which(rowid %in% mse_perform$rowid == TRUE)) %>% 
   I()
-results_for %>% filter(is.na(uploaded))
+x <- results_for %>% filter(is.na(uploaded))
+table(x$user)
 
 # so there are some runs that there are results for but 
 # for which the progress table does not have an 'uploaded flag'
@@ -57,4 +67,9 @@ progress$user[progress$rowid %in% to_reset$rowid] <- NA
 progress$date_run[progress$rowid %in% to_reset$rowid] <- NA
 
 # add the line to save the new revised progress table here
+# # write the file back to disk & commit to update
+saveRDS(progress, file = "settings/progress_table.rds")
+#commit back to the repo
+system('git commit -am "resets incorrect values in progress table"')
+system("git push")
 

@@ -127,6 +127,16 @@ catch_mean_by_scenario <- catch_results %>%
   summarise_all(mean) %>%
   inner_join(defined, by = "iscen")
 
+### save mean_by_scenario results for easier modeling and ranking
+saveRDS(ssb_mean_by_scenario, 
+        file = "demonstrations/chris/demo_plots/ssb_mean_by_scenario.rds")
+
+saveRDS(f_mean_by_scenario, 
+        file = "demonstrations/chris/demo_plots/f_mean_by_scenario.rds")
+
+saveRDS(catch_mean_by_scenario, 
+        file = "demonstrations/chris/demo_plots/catch_mean_by_scenario.rds")
+
 ### make subsets of results for easier plotting
 ssb_probs <- ssb_mean_by_scenario %>%
   filter(grepl("_is_", metric))
@@ -184,7 +194,7 @@ make_box_plot <- function(mytib, myx, myy, myxlab, myylab, mytitle){
     facet_wrap(~metric) +
     labs(x=myxlab, y=myylab, title=mytitle) +
     theme_bw() +
-    theme(axis.text.x = element_text(angle = 90))
+    coord_flip() 
   return(myplot)
 }
 
@@ -307,48 +317,167 @@ td3_plot <- ggplot(td3, aes(x=ssb_value, y=catch_value)) +
   theme_bw()
 
 # tradeoffs by sim
-ssb_sims <- ssb_results %>%
+ssb_sims_l <- ssb_results %>%
   filter(metric == "l_avg_ssb_ssbmsy") %>%
-  rename(ssb_metric = metric, ssb_value = value) %>%
+  rename(ssb_metric_l = metric, ssb_value_l = value) %>%
   inner_join(defined, by = "iscen")
 
-catch_sims <- catch_results %>%
+ssb_sims_s <- ssb_results %>%
+  filter(metric == "s_avg_ssb_ssbmsy") %>%
+  rename(ssb_metric_s = metric, ssb_value_s = value) %>%
+  inner_join(defined, by = "iscen")
+
+ssb_sims <- inner_join(ssb_sims_l, ssb_sims_s, by = c("iscen", "isim", "retro_type", "Fhist", "n_selblocks", "IBM", "adv.yr", "Fmsy_scale", "catch.mult", "expand_method", "M_CC_method", "nprojyrs", "n", "IBMlab", "Scenlab"))
+
+f_sims_l <- f_results %>%
+  filter(metric == "l_avg_f_fmsy") %>%
+  rename(f_metric_l = metric, f_value_l = value) %>%
+  inner_join(defined, by = "iscen")
+
+f_sims_s <- f_results %>%
+  filter(metric == "s_avg_f_fmsy") %>%
+  rename(f_metric_s = metric, f_value_s = value) %>%
+  inner_join(defined, by = "iscen")
+
+f_sims <- inner_join(f_sims_l, f_sims_s, by = c("iscen", "isim", "retro_type", "Fhist", "n_selblocks", "IBM", "adv.yr", "Fmsy_scale", "catch.mult", "expand_method", "M_CC_method", "nprojyrs", "n", "IBMlab", "Scenlab"))
+
+catch_sims_l <- catch_results %>%
   filter(metric == "l_avg_catch_msy") %>%
-  rename(catch_metric = metric, catch_value = value) %>%
+  rename(catch_metric_l = metric, catch_value_l = value) %>%
   inner_join(defined, by = "iscen")
 
-simdf <- inner_join(ssb_sims, catch_sims, by = c("iscen", "isim", "retro_type", "Fhist", "n_selblocks", "IBM", "adv.yr", "Fmsy_scale", "catch.mult", "expand_method", "M_CC_method", "nprojyrs", "n", "IBMlab", "Scenlab"))
+catch_sims_s <- catch_results %>%
+  filter(metric == "s_avg_catch_msy") %>%
+  rename(catch_metric_s = metric, catch_value_s = value) %>%
+  inner_join(defined, by = "iscen")
+
+catch_sims <- inner_join(catch_sims_l, catch_sims_s, by = c("iscen", "isim", "retro_type", "Fhist", "n_selblocks", "IBM", "adv.yr", "Fmsy_scale", "catch.mult", "expand_method", "M_CC_method", "nprojyrs", "n", "IBMlab", "Scenlab"))
+
+tempdf <- inner_join(ssb_sims, f_sims, by = c("iscen", "isim", "retro_type", "Fhist", "n_selblocks", "IBM", "adv.yr", "Fmsy_scale", "catch.mult", "expand_method", "M_CC_method", "nprojyrs", "n", "IBMlab", "Scenlab"))
+ 
+simdf <- inner_join(tempdf, catch_sims, by = c("iscen", "isim", "retro_type", "Fhist", "n_selblocks", "IBM", "adv.yr", "Fmsy_scale", "catch.mult", "expand_method", "M_CC_method", "nprojyrs", "n", "IBMlab", "Scenlab"))
 
 myscenlabs <- sort(unique(simdf$Scenlab))
-mysmax <- max(simdf$ssb_value, na.rm = TRUE)
-mycmax <- max(simdf$catch_value, na.rm = TRUE)
-td4_plot <- list()
-for (i in 1:length(myscenlabs)){
+nscenlabs <- length(myscenlabs)
+mysmax_l <- max(simdf$ssb_value_l, na.rm = TRUE)
+myfmax_l <- max(simdf$f_value_l, na.rm = TRUE)
+mycmax_l <- max(simdf$catch_value_l, na.rm = TRUE)
+mysmax_s <- max(simdf$ssb_value_s, na.rm = TRUE)
+myfmax_s <- max(simdf$f_value_s, na.rm = TRUE)
+mycmax_s <- max(simdf$catch_value_s, na.rm = TRUE)
+
+td4_l_plot <- list()
+for (i in 1:nscenlabs){
   tmpdf <- filter(simdf, Scenlab == myscenlabs[i])
-  td4_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value, y=catch_value)) +
+  td4_l_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value_l, y=catch_value_l)) +
     geom_point() +
     geom_vline(xintercept = 1, color="red", linetype="dashed") +
     geom_hline(yintercept = 1, color="red", linetype="dashed") +
     facet_wrap(~IBMlab) +
     labs(x="SSB/SSBmsy", y="Catch/MSY", title=paste(myscenlabs[i], "Long Term")) +
-    expand_limits(x=mysmax, y=mycmax) +
+    expand_limits(x=mysmax_l, y=mycmax_l) +
     theme_bw()
-  print(td4_plot[[i]])
+  print(td4_l_plot[[i]])
+}
+
+td4_s_plot <- list()
+for (i in 1:nscenlabs){
+  tmpdf <- filter(simdf, Scenlab == myscenlabs[i])
+  td4_s_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value_s, y=catch_value_s)) +
+    geom_point() +
+    geom_vline(xintercept = 1, color="red", linetype="dashed") +
+    geom_hline(yintercept = 1, color="red", linetype="dashed") +
+    facet_wrap(~IBMlab) +
+    labs(x="SSB/SSBmsy", y="Catch/MSY", title=paste(myscenlabs[i], "Short Term")) +
+    expand_limits(x=mysmax_s, y=mycmax_s) +
+    theme_bw()
+  print(td4_s_plot[[i]])
 }
 
 myibmlabs <- sort(unique(simdf$IBMlab))
-td5_plot <- list()
+
+td5_l_plot <- list()
 for (i in 1:length(myibmlabs)){
   tmpdf <- filter(simdf, IBMlab == myibmlabs[i])
-  td5_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value, y=catch_value)) +
+  td5_l_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value_l, y=catch_value_l)) +
     geom_point(color="blue") +
     geom_vline(xintercept = 1, color="red", linetype="dashed") +
     geom_hline(yintercept = 1, color="red", linetype="dashed") +
     facet_wrap(~Scenlab) +
     labs(x="SSB/SSBmsy", y="Catch/MSY", title=paste(myibmlabs[i], "Long Term")) +
-    expand_limits(x=mysmax, y=mycmax) +
+    expand_limits(x=mysmax_l, y=mycmax_l) +
     theme_bw()
-  print(td5_plot[[i]])
+  print(td5_l_plot[[i]])
+}
+
+td5_s_plot <- list()
+for (i in 1:length(myibmlabs)){
+  tmpdf <- filter(simdf, IBMlab == myibmlabs[i])
+  td5_s_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value_s, y=catch_value_s)) +
+    geom_point(color="blue") +
+    geom_vline(xintercept = 1, color="red", linetype="dashed") +
+    geom_hline(yintercept = 1, color="red", linetype="dashed") +
+    facet_wrap(~Scenlab) +
+    labs(x="SSB/SSBmsy", y="Catch/MSY", title=paste(myibmlabs[i], "Short Term")) +
+    expand_limits(x=mysmax_s, y=mycmax_s) +
+    theme_bw()
+  print(td5_s_plot[[i]])
+}
+
+td6_l_plot <- list()
+for (i in 1:nscenlabs){
+  tmpdf <- filter(simdf, Scenlab == myscenlabs[i])
+  td6_l_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value_l, y=f_value_l)) +
+    geom_point() +
+    geom_vline(xintercept = 1, color="red", linetype="dashed") +
+    geom_hline(yintercept = 1, color="red", linetype="dashed") +
+    facet_wrap(~IBMlab) +
+    labs(x="SSB/SSBmsy", y="F/Fmsy", title=paste(myscenlabs[i], "Long Term")) +
+    expand_limits(x=mysmax_l, y=myfmax_l) +
+    theme_bw()
+  print(td6_l_plot[[i]])
+}
+
+td6_s_plot <- list()
+for (i in 1:nscenlabs){
+  tmpdf <- filter(simdf, Scenlab == myscenlabs[i])
+  td6_s_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value_s, y=f_value_s)) +
+    geom_point() +
+    geom_vline(xintercept = 1, color="red", linetype="dashed") +
+    geom_hline(yintercept = 1, color="red", linetype="dashed") +
+    facet_wrap(~IBMlab) +
+    labs(x="SSB/SSBmsy", y="F/Fmsy", title=paste(myscenlabs[i], "Short Term")) +
+    expand_limits(x=mysmax_s, y=myfmax_s) +
+    theme_bw()
+  print(td6_s_plot[[i]])
+}
+
+td7_l_plot <- list()
+for (i in 1:length(myibmlabs)){
+  tmpdf <- filter(simdf, IBMlab == myibmlabs[i])
+  td7_l_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value_l, y=f_value_l)) +
+    geom_point(color="blue") +
+    geom_vline(xintercept = 1, color="red", linetype="dashed") +
+    geom_hline(yintercept = 1, color="red", linetype="dashed") +
+    facet_wrap(~Scenlab) +
+    labs(x="SSB/SSBmsy", y="F/Fmsy", title=paste(myibmlabs[i], "Long Term")) +
+    expand_limits(x=mysmax_l, y=myfmax_l) +
+    theme_bw()
+  print(td7_l_plot[[i]])
+}
+
+td7_s_plot <- list()
+for (i in 1:length(myibmlabs)){
+  tmpdf <- filter(simdf, IBMlab == myibmlabs[i])
+  td7_s_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value_s, y=f_value_s)) +
+    geom_point(color="blue") +
+    geom_vline(xintercept = 1, color="red", linetype="dashed") +
+    geom_hline(yintercept = 1, color="red", linetype="dashed") +
+    facet_wrap(~Scenlab) +
+    labs(x="SSB/SSBmsy", y="F/Fmsy", title=paste(myibmlabs[i], "Short Term")) +
+    expand_limits(x=mysmax_s, y=myfmax_s) +
+    theme_bw()
+  print(td7_s_plot[[i]])
 }
 
 ### put plots into pdf
@@ -397,11 +526,29 @@ colorize_confetti(catch_other_plot)
 td1_plot
 td2_plot
 td3_plot
-for (i in 1:length(td4_plot)){
-  print(td4_plot[[i]])
+for (i in 1:length(td4_l_plot)){
+  print(td4_l_plot[[i]])
 }
-for (i in 1:length(td5_plot)){
-  print(td5_plot[[i]])
+for (i in 1:length(td5_l_plot)){
+  print(td5_l_plot[[i]])
+}
+for (i in 1:length(td4_s_plot)){
+  print(td4_s_plot[[i]])
+}
+for (i in 1:length(td5_s_plot)){
+  print(td5_s_plot[[i]])
+}
+for (i in 1:length(td6_l_plot)){
+  print(td6_l_plot[[i]])
+}
+for (i in 1:length(td7_l_plot)){
+  print(td7_l_plot[[i]])
+}
+for (i in 1:length(td6_s_plot)){
+  print(td6_s_plot[[i]])
+}
+for (i in 1:length(td7_s_plot)){
+  print(td7_s_plot[[i]])
 }
 
 dev.off()
