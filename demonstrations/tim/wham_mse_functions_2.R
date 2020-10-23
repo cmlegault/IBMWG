@@ -60,7 +60,8 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, true_om_obj) {  #JJD
   observed_sim = get.IBM.input(y=observed_sim,i=0, adv.yr = adv.yr) #JJD; this adds to the y list stuff needed for index methods 
 
   sim_data_series = list(observed_sim)
-  catch_advice=input$catch.mult * observed_om_input$IBM(y=observed_sim) #JJD
+  catch_advice = observed_om_input$IBM(y=observed_sim) #JJD
+  catch_advice[[1]] = input$catch.mult * catch_advice[[1]]
   advice <- list(catch_advice) 
 
   assess_years <- seq(1,(nprojyrs-adv.yr+1),by=adv.yr)
@@ -121,7 +122,8 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, true_om_obj) {  #JJD
     observed_sim$M_CC_method <- input$M_CC_method
     observed_sim = get.IBM.input(y=observed_sim, i=year, adv.yr = adv.yr) #JJD; GF
     sim_data_series[[i+1]] = observed_sim
-    catch_advice = input$catch.mult * input$IBM(y=sim_data_series[[i+1]]) #JJD
+    catch_advice = input$IBM(y=sim_data_series[[i+1]]) #JJD
+    catch_advice[[1]] = input$catch.mult * catch_advice[[1]]
     advice[[i+1]] <- catch_advice
   }
   #true_rep = true_om$report()
