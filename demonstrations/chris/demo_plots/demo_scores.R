@@ -63,22 +63,68 @@ get_mean_scores <- function(mywide){
 ssb_means <- get_mean_scores(ssb_scores) %>%
   rename("ssb" = "meanscore")
 
+ssb_means_l <- get_mean_scores(filter(ssb_scores, substr(metric, 5, 5) == "l")) %>%
+  rename("ssb_l" = "meanscore")
+
+ssb_means_s <- get_mean_scores(filter(ssb_scores, substr(metric, 5, 5) == "s")) %>%
+  rename("ssb_s" = "meanscore")
+
 f_means <- get_mean_scores(f_scores) %>%
   rename("f" = "meanscore")
 
+f_means_l <- get_mean_scores(filter(f_scores, substr(metric, 3, 3) == "l")) %>%
+  rename("f_l" = "meanscore")
+
+f_means_s <- get_mean_scores(filter(f_scores, substr(metric, 3, 3) == "s")) %>%
+  rename("f_s" = "meanscore")
+
 catch_means <- get_mean_scores(catch_scores) %>%
   rename("catch" = "meanscore")
+
+catch_means_l <- get_mean_scores(filter(catch_scores, substr(metric, 7, 7) == "l")) %>%
+  rename("catch_l" = "meanscore")
+
+catch_means_s <- get_mean_scores(filter(catch_scores, substr(metric, 7, 7) == "s")) %>%
+  rename("catch_s" = "meanscore")
 
 all_means <- inner_join(ssb_means, f_means, by = "IBM") %>%
   inner_join(catch_means, by = "IBM") %>%
   mutate(mean_of_means = (ssb + f + catch) / 3) %>%
   pivot_longer(cols = !IBM, names_to = "source", values_to = "score") 
 
+all_means_l <- inner_join(ssb_means_l, f_means_l, by = "IBM") %>%
+  inner_join(catch_means_l, by = "IBM") %>%
+  mutate(mean_of_means_l = (ssb_l + f_l + catch_l) / 3) %>%
+  pivot_longer(cols = !IBM, names_to = "source", values_to = "score") 
+
+all_means_s <- inner_join(ssb_means_s, f_means_s, by = "IBM") %>%
+  inner_join(catch_means_s, by = "IBM") %>%
+  mutate(mean_of_means_s = (ssb_s + f_s + catch_s) / 3) %>%
+  pivot_longer(cols = !IBM, names_to = "source", values_to = "score") 
+
 score_plot <- ggplot(all_means, aes(x=reorder(IBM, score), y=score)) +
   geom_bar(stat = "identity") +
   coord_flip() +
   facet_wrap(~source) +
-  labs(x="IBM", y="Score (bigger is better)") +
+  labs(x="IBM", y="Score (bigger is better)", title="All Metrics") +
   theme_bw()
 print(score_plot)
-ggsave(filename = "demonstrations/chris/demo_plots/score_plot.png")
+ggsave(filename = "demonstrations/chris/demo_plots/score_plot.png", score_plot)
+
+score_plot_l <- ggplot(all_means_l, aes(x=reorder(IBM, score), y=score)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  facet_wrap(~source) +
+  labs(x="IBM", y="Score (bigger is better)", title="Long Term Metrics Only") +
+  theme_bw()
+print(score_plot_l)
+ggsave(filename = "demonstrations/chris/demo_plots/score_plot_l.png", score_plot_l)
+
+score_plot_s <- ggplot(all_means_s, aes(x=reorder(IBM, score), y=score)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  facet_wrap(~source) +
+  labs(x="IBM", y="Score (bigger is better)", title="Short Term Metrics Only") +
+  theme_bw()
+print(score_plot_s)
+ggsave(filename = "demonstrations/chris/demo_plots/score_plot_s.png", score_plot_s)
