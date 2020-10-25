@@ -133,6 +133,5 @@ print(score_plot_s)
 pdf(file = "demonstrations/chris/demo_plots/demo_scores.pdf")
 score_plot
 score_plot_l
-dev.off()
-
 score_plot_s
+dev.off()
