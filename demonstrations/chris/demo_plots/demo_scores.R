@@ -109,7 +109,7 @@ score_plot <- ggplot(all_means, aes(x=reorder(IBM, score), y=score)) +
   labs(x="IBM", y="Score (bigger is better)", title="All Metrics") +
   theme_bw()
 print(score_plot)
-ggsave(filename = "demonstrations/chris/demo_plots/score_plot.png", score_plot)
+#ggsave(filename = "demonstrations/chris/demo_plots/score_plot.png", score_plot)
 
 score_plot_l <- ggplot(all_means_l, aes(x=reorder(IBM, score), y=score)) +
   geom_bar(stat = "identity") +
@@ -118,7 +118,7 @@ score_plot_l <- ggplot(all_means_l, aes(x=reorder(IBM, score), y=score)) +
   labs(x="IBM", y="Score (bigger is better)", title="Long Term Metrics Only") +
   theme_bw()
 print(score_plot_l)
-ggsave(filename = "demonstrations/chris/demo_plots/score_plot_l.png", score_plot_l)
+#ggsave(filename = "demonstrations/chris/demo_plots/score_plot_l.png", score_plot_l)
 
 score_plot_s <- ggplot(all_means_s, aes(x=reorder(IBM, score), y=score)) +
   geom_bar(stat = "identity") +
@@ -127,4 +127,12 @@ score_plot_s <- ggplot(all_means_s, aes(x=reorder(IBM, score), y=score)) +
   labs(x="IBM", y="Score (bigger is better)", title="Short Term Metrics Only") +
   theme_bw()
 print(score_plot_s)
-ggsave(filename = "demonstrations/chris/demo_plots/score_plot_s.png", score_plot_s)
+#ggsave(filename = "demonstrations/chris/demo_plots/score_plot_s.png", score_plot_s)
+
+### put plots into pdf
+pdf(file = "demonstrations/chris/demo_plots/demo_scores.pdf")
+score_plot
+score_plot_l
+dev.off()
+
+score_plot_s
