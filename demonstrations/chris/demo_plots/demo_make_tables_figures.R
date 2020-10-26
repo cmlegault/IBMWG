@@ -48,6 +48,7 @@ defined <- mse_sim_setup %>%
     IBM == "ExpandSurvey_modified" ~ paste("ES", EMlab[expand_method], sep="-"),
     IBM == "run.aim" ~ "AIM",
     IBM == "JoeDLM" ~ "DLM",
+    IBM == "ensemble" ~ "Ensemble",
     TRUE ~ IBM),
     Scenlab = paste(substr(retro_type, 1, 1), Fhistlab[Fhist], Sellab[n_selblocks], ifelse(catch.mult == 1, CMlab[1], CMlab[2]), sep = ""))
 defined
