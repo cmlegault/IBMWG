@@ -77,15 +77,17 @@ nsim_plot <- ggplot(countIBM, aes(x=Scenlab, y=nsim)) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90))
 
-scendf <- data.frame(x=rep(1, 4),
-                     y=seq(4, 1, -1),
-                     mytext=c("Retrotype: C=catch, M=natural mortality",
+scendf <- data.frame(x=rep(1, 5),
+                     y=seq(5, 1, -1),
+                     mytext=c("CF1A to MO2R explained",
+                              "Retrotype: C=catch, M=natural mortality",
                               "F history: F=overfishing then Fmsy, O=Always Overfishing",
                               "Selblocks: 1 or 2",
                               "Catch Advice Multiplier: A=1 (applied), R=0.75 (reduced"))
 
 scenlab_plot <- ggplot(scendf, aes(x=x, y=y)) +
   geom_text(aes(label = mytext)) +
+  expand_limits(y=c(0,6)) +
   labs(title="Scenario Label Decoder") +
   theme_void()
 
