@@ -41,7 +41,6 @@ defined <- mse_sim_setup %>%
   unnest(cols = specs) %>%
   inner_join(count_table, by="iscen") %>%
   mutate(IBMlab = case_when(
-    IBM == "Itarget" ~ "Itarg",
     IBM == "true_Skate_CR" ~ "Skate",
     IBM == "M_CC" ~ paste("CC", CClab[M_CC_method], sep="-"),
     IBM == "planBsmoothfxn" ~ "PlanB",
