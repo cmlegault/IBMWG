@@ -24,6 +24,18 @@ calc_scores <- function(myres, biggerbetter){
   return(myscores)
 }
 
+calc_resids <- function(myres, biggerbetter){
+  myresids <- myres %>%
+    group_by(IBMlab, metric) %>%
+    summarise(meanval = mean(value)) %>%
+    inner_join(biggerbetter, by = "metric") %>%
+    mutate(bb = meanval * bbmult) %>%
+    group_by(metric) %>%
+    mutate(resid = (bb - mean(bb)) / sd(bb)) %>%
+    arrange(metric)
+  return(myresids)
+}
+
 ssb_bigger_better <- data.frame(metric = unique(ssb_mean_by_scenario$metric)) %>%
   mutate(bbmult = ifelse(grepl("less", metric), -1, 1))
 
@@ -51,6 +63,25 @@ catch_scores <- calc_scores(catch_mean_by_scenario, catch_bigger_better) %>%
 all_scores <- rbind(ssb_scores, f_scores, catch_scores)
 
 write.csv(all_scores, file="demonstrations/chris/demo_plots/all_scores.csv")
+
+ssb_resids <- calc_resids(ssb_mean_by_scenario, ssb_bigger_better) %>%
+  select(IBMlab, metric, resid) %>%
+  pivot_wider(names_from = "IBMlab", values_from = "resid") %>%
+  mutate(metric = paste0("ssb_", metric))
+
+f_resids <- calc_resids(f_mean_by_scenario, f_bigger_better) %>%
+  select(IBMlab, metric, resid) %>%
+  pivot_wider(names_from = "IBMlab", values_from = "resid") %>%
+  mutate(metric = paste0("f_", metric))
+
+catch_resids <- calc_resids(catch_mean_by_scenario, catch_bigger_better) %>%
+  select(IBMlab, metric, resid) %>%
+  pivot_wider(names_from = "IBMlab", values_from = "resid") %>%
+  mutate(metric = paste0("catch_", metric))
+
+all_resids <- rbind(ssb_resids, f_resids, catch_resids)
+
+write.csv(all_resids, file="demonstrations/chris/demo_plots/all_resids.csv")
 
 get_mean_scores <- function(mywide){
   mymeans <- mywide %>%
@@ -129,9 +160,79 @@ score_plot_s <- ggplot(all_means_s, aes(x=reorder(IBM, score), y=score)) +
 print(score_plot_s)
 #ggsave(filename = "demonstrations/chris/demo_plots/score_plot_s.png", score_plot_s)
 
+### resids
+ssb_meanr <- get_mean_scores(ssb_resids) %>%
+  rename("ssb" = "meanscore")
+
+ssb_meanr_l <- get_mean_scores(filter(ssb_resids, substr(metric, 5, 5) == "l")) %>%
+  rename("ssb_l" = "meanscore")
+
+ssb_meanr_s <- get_mean_scores(filter(ssb_resids, substr(metric, 5, 5) == "s")) %>%
+  rename("ssb_s" = "meanscore")
+
+f_meanr <- get_mean_scores(f_resids) %>%
+  rename("f" = "meanscore")
+
+f_meanr_l <- get_mean_scores(filter(f_resids, substr(metric, 3, 3) == "l")) %>%
+  rename("f_l" = "meanscore")
+
+f_meanr_s <- get_mean_scores(filter(f_resids, substr(metric, 3, 3) == "s")) %>%
+  rename("f_s" = "meanscore")
+
+catch_meanr <- get_mean_scores(catch_resids) %>%
+  rename("catch" = "meanscore")
+
+catch_meanr_l <- get_mean_scores(filter(catch_resids, substr(metric, 7, 7) == "l")) %>%
+  rename("catch_l" = "meanscore")
+
+catch_meanr_s <- get_mean_scores(filter(catch_resids, substr(metric, 7, 7) == "s")) %>%
+  rename("catch_s" = "meanscore")
+
+all_meanr <- inner_join(ssb_meanr, f_meanr, by = "IBM") %>%
+  inner_join(catch_meanr, by = "IBM") %>%
+  mutate(mean_of_meanr = (ssb + f + catch) / 3) %>%
+  pivot_longer(cols = !IBM, names_to = "source", values_to = "score") 
+
+all_meanr_l <- inner_join(ssb_meanr_l, f_meanr_l, by = "IBM") %>%
+  inner_join(catch_meanr_l, by = "IBM") %>%
+  mutate(mean_of_meanr_l = (ssb_l + f_l + catch_l) / 3) %>%
+  pivot_longer(cols = !IBM, names_to = "source", values_to = "score") 
+
+all_meanr_s <- inner_join(ssb_meanr_s, f_meanr_s, by = "IBM") %>%
+  inner_join(catch_meanr_s, by = "IBM") %>%
+  mutate(mean_of_meanr_s = (ssb_s + f_s + catch_s) / 3) %>%
+  pivot_longer(cols = !IBM, names_to = "source", values_to = "score") 
+
+resid_plot <- ggplot(all_meanr, aes(x=reorder(IBM, score), y=score)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  facet_wrap(~source) +
+  labs(x="IBM", y="Standardized Residual (bigger is better)", title="All Metrics") +
+  theme_bw()
+print(resid_plot)
+
+resid_plot_l <- ggplot(all_meanr_l, aes(x=reorder(IBM, score), y=score)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  facet_wrap(~source) +
+  labs(x="IBM", y="Standardized Residual (bigger is better)", title="Long Term Metrics Only") +
+  theme_bw()
+print(resid_plot_l)
+
+resid_plot_s <- ggplot(all_meanr_s, aes(x=reorder(IBM, score), y=score)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  facet_wrap(~source) +
+  labs(x="IBM", y="Standardized Residual (bigger is better)", title="Short Term Metrics Only") +
+  theme_bw()
+print(resid_plot_s)
+
 ### put plots into pdf
 pdf(file = "demonstrations/chris/demo_plots/demo_scores.pdf")
 score_plot
 score_plot_l
 score_plot_s
+resid_plot
+resid_plot_l
+resid_plot_s
 dev.off()
