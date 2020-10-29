@@ -56,3 +56,19 @@ filter(todo, uploaded == TRUE)
 
 # can the progress_table be modified to allow rowid in todo to be rerun?
 
+# get defined from demo_make_tables_figures.R
+names(defined)
+xx <- left_join(todo, defined, by = "iscen")
+yy <- xx %>%
+  mutate(mylab = paste(IBMlab, Scenlab))
+
+myplot <- list()
+myIBM <- sort(unique(yy$IBMlab))
+for (i in 1:length(myIBM)){
+  zz <- filter(yy, IBMlab == myIBM[i])
+  myplot[[i]] <- ggplot(zz, aes(x=mylab, y=isim)) +
+    geom_point() +
+    coord_flip() +
+    theme_bw()
+  print(myplot[[i]])
+}
