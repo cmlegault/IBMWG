@@ -86,11 +86,12 @@ do_mse <- function(nsim = 7, user = "Me", write_to_google = FALSE) {
     filter(IBM != "JoeDLM") %>% 
     I()
   
-  # # save todo rows
-  # progress <- mse_sim_todo %>% 
-  #   select(rowid) %>% 
+  # # # save todo rows
+  # progress <- mse_sim_todo %>%
+  #   select(rowid) %>%
   #   mutate(user = rep(NA,nrow(.)),
-  #          date_run = rep(NA,nrow(.))) %>% 
+  #          date_run = rep(NA,nrow(.)),
+  #          uploaded = rep(NA,nrow(.))) %>%
   #   I()
   # saveRDS(progress, "settings/no_retro_progress.rds")
   
