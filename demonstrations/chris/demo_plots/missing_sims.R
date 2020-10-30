@@ -72,3 +72,17 @@ for (i in 1:length(myIBM)){
     theme_bw()
   print(myplot[[i]])
 }
+
+whichscenDLM <- filter(defined, IBMlab == "DLM")
+DLMscen <- unique(whichscenDLM$iscen)
+whichscennotDLM <- filter(defined, IBMlab != "DLM")
+notDLMscen <- unique(whichscennotDLM$iscen)
+
+todoDLM <- todosims %>%
+  filter(iscen %in% DLMscen)
+
+todonotDLM <- todosims %>%
+  filter(iscen %in% notDLMscen)
+
+saveRDS(todoDLM, file = "demonstrations/chris/demo_plots/todoDLM.rds")
+saveRDS(todonotDLM, file = "demonstrations/chris/demo_plots/todonotDLM.rds")
