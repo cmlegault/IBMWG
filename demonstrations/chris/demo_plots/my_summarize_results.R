@@ -18,8 +18,15 @@ myfiles <- str_subset(myfiles, "mse-")
 myfiles
 
 # subset for new runs
-newfiles <- myfiles[216:250]
+newfiles <- myfiles[c(146, 147, 149:151)]
 nfiles <- length(newfiles)
+
+# save database of which simulations run in each file
+filedb <- data.frame(file = character(),
+                     location = character(),
+                     rowid = integer(),
+                     iscen = integer(),
+                     isim = integer())
 
 for (i in 1:nfiles){
   thisrds <- readRDS(newfiles[i])
@@ -54,22 +61,33 @@ for (i in 1:nfiles){
     select(rowid, iscen, isim, ssb_metrics, catch_metrics, f_metrics) %>% 
     I()
   
+  # save file info
+  thisfile <- data.frame(file = newfiles[i],
+                         location = getwd(),
+                         rowid = mse_results$rowid,
+                         iscen = mse_results$iscen,
+                         isim = mse_results$isim)
+  filedb <- rbind(filedb, thisfile)
+
   if (i == 1){
     myresults <- mse_results
   }else{
     myresults <- rbind(myresults, mse_results)
   }
-  print(paste("file", newfiles[i], "had", dim(mse_results)[1], "successful simulations"))
+  print(paste("file", newfiles[i], i, "of", nfiles, "had", dim(mse_results)[1], "successful simulations"))
 }
 dim(myresults)
 
 # get results done previously
 mse_results_start <- readRDS("demo-perform-metrics.rds")
+filedb_start <- readRDS("filedb.rds")
 
 # add new files to previous files
 combinedresults <- rbind(mse_results_start, myresults)
+combinedfiles <- rbind(filedb_start, filedb)
 
 #save the performance metrics object
 saveRDS(combinedresults, file = "demo-perform-metrics.rds")
+saveRDS(combinedfiles, file = "filedb.rds")
 
 
