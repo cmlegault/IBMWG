@@ -7,7 +7,7 @@ library(dlm)
 library(RandomFieldsUtils)
 
 
-rscripts <- c("code/base_input.R",
+rscripts <- c(#"code/base_input.R",
               "code/change_input.R",
               "code/IBM_options.R",
               #"code/performance_metrics.R",

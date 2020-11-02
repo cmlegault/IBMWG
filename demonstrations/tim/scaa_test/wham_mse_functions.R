@@ -127,11 +127,11 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   #put in wrong reference points, if necessary
   observed_sim$refpts = observed_refpts       
   observed_sim = get.IBM.input(y=observed_sim,i=0, adv.yr = adv.yr) #JJD; this adds to the y list stuff needed for index methods 
-  observed_sim$scaa_nyr_add = 0
-  observed_sim$observed_om = observed_om  
+  
   
 
   sim_data_series = list(observed_sim)
+  print(names(observed_sim))
   catch_advice = observed_om_input$IBM(y=observed_sim) #JJD
   catch_advice[[1]] = input$catch.mult * catch_advice[[1]]
   advice <- list(catch_advice) 
@@ -196,8 +196,6 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
     observed_sim$expand_method <- input$expand_method
     observed_sim$M_CC_method <- input$M_CC_method
     observed_sim = get.IBM.input(y=observed_sim, i=year, adv.yr = adv.yr) #JJD; GF
-    observed_sim$scaa_nyr_add = year-1
-    observed_sim$observed_om = observed_om
     sim_data_series[[i+1]] = observed_sim
     catch_advice = input$IBM(y=sim_data_series[[i+1]]) #JJD
     catch_advice[[1]] = input$catch.mult * catch_advice[[1]]
@@ -1380,7 +1378,7 @@ SCAA = function(y) {
     #else 
     nextF = c(nextF, rep(0.75 * Fref,nyr-1))
     catch = catchproj(NAA, nextF, waa, MAA, sel, R, nyr = nyr)
-    return(list(catch[nyr], nextF))
+    return(list(catch[2], nextF))
   }
   n_selblocks = ifelse(length(y$selAA) == 3, 1, 2)
   scaa_input = get_base_input(n_selblocks, Fhist=1, Fmsy_scale=1, scaa=TRUE)
