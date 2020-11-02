@@ -22,10 +22,17 @@ not_dupes <- mse_sim_setup$rowid[!dupes]
 mse_results <- mse_results %>%
   filter(rowid %in% not_dupes)
 
+# remove duplicate rowids keeping most recently added
+revrowid <- rev(mse_results$rowid)
+myrowid_dupes <- duplicated(revrowid)
+myrowid_not_dupes <- revrowid[!myrowid_dupes]
+mse_results <- mse_results %>%
+  filter(rowid %in% myrowid_not_dupes)
+
 # counts
 count_table <- mse_results %>%
   group_by(iscen) %>%
-  summarise(n = n())
+  summarise(n = length(unique(isim)))
 count_table$n 
 
 ### join with setup to figure out what's in each scenario
@@ -39,7 +46,7 @@ defined <- mse_sim_setup %>%
   filter(isim == 1) %>%
   select(iscen, specs) %>%
   unnest(cols = specs) %>%
-  inner_join(count_table, by="iscen") %>%
+  left_join(count_table, by="iscen") %>%
   mutate(IBMlab = case_when(
     IBM == "true_Skate_CR" ~ "Skate",
     IBM == "M_CC" ~ paste("CC", CClab[M_CC_method], sep="-"),
