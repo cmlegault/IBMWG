@@ -24,7 +24,9 @@ do_wham_mse_sim <- function(seed = 42, input = NULL, true_om_obj) {  #JJD
       if(Fhist == 2 & n_selblocks == 3) Mscale = 1.8
       if(Fhist == 1 & n_selblocks == 4) Mscale = 1.6
       if(Fhist == 2 & n_selblocks == 4) Mscale = 1.8 
-  }
+  #}
+  true_om_input = change_M_om(observed_om_input, M_new_ratio = Mscale, n_ramp_years = 10, year_change = 2009) 
+  } else true_om_input = observed_om_input #no M mis-specifcation
    
   observed_om = wham::fit_wham(observed_om_input, do.fit = FALSE)
   observed_rep = observed_om$report()

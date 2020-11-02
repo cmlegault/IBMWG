@@ -41,13 +41,13 @@ defined <- mse_sim_setup %>%
   unnest(cols = specs) %>%
   inner_join(count_table, by="iscen") %>%
   mutate(IBMlab = case_when(
-    IBM == "Itarget" ~ "Itarg",
     IBM == "true_Skate_CR" ~ "Skate",
     IBM == "M_CC" ~ paste("CC", CClab[M_CC_method], sep="-"),
     IBM == "planBsmoothfxn" ~ "PlanB",
     IBM == "ExpandSurvey_modified" ~ paste("ES", EMlab[expand_method], sep="-"),
     IBM == "run.aim" ~ "AIM",
     IBM == "JoeDLM" ~ "DLM",
+    IBM == "ensemble" ~ "Ensemble",
     TRUE ~ IBM),
     Scenlab = paste(substr(retro_type, 1, 1), Fhistlab[Fhist], Sellab[n_selblocks], ifelse(catch.mult == 1, CMlab[1], CMlab[2]), sep = ""))
 defined
@@ -77,6 +77,19 @@ nsim_plot <- ggplot(countIBM, aes(x=Scenlab, y=nsim)) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90))
 
+scendf <- data.frame(x=rep(1, 5),
+                     y=seq(5, 1, -1),
+                     mytext=c("CF1A to MO2R explained",
+                              "Retrotype: C=catch, M=natural mortality",
+                              "F history: F=overfishing then Fmsy, O=Always Overfishing",
+                              "Selblocks: 1 or 2",
+                              "Catch Advice Multiplier: A=1 (applied), R=0.75 (reduced"))
+
+scenlab_plot <- ggplot(scendf, aes(x=x, y=y)) +
+  geom_text(aes(label = mytext)) +
+  expand_limits(y=c(0,6)) +
+  labs(title="Scenario Label Decoder") +
+  theme_void()
 
 ###pull out the ssb metrics
 ssb_results <- mse_results %>% 
@@ -377,7 +390,7 @@ for (i in 1:nscenlabs){
     labs(x="SSB/SSBmsy", y="Catch/MSY", title=paste(myscenlabs[i], "Long Term")) +
     expand_limits(x=mysmax_l, y=mycmax_l) +
     theme_bw()
-  print(td4_l_plot[[i]])
+#  print(td4_l_plot[[i]])
 }
 
 td4_s_plot <- list()
@@ -391,7 +404,7 @@ for (i in 1:nscenlabs){
     labs(x="SSB/SSBmsy", y="Catch/MSY", title=paste(myscenlabs[i], "Short Term")) +
     expand_limits(x=mysmax_s, y=mycmax_s) +
     theme_bw()
-  print(td4_s_plot[[i]])
+#  print(td4_s_plot[[i]])
 }
 
 myibmlabs <- sort(unique(simdf$IBMlab))
@@ -407,7 +420,7 @@ for (i in 1:length(myibmlabs)){
     labs(x="SSB/SSBmsy", y="Catch/MSY", title=paste(myibmlabs[i], "Long Term")) +
     expand_limits(x=mysmax_l, y=mycmax_l) +
     theme_bw()
-  print(td5_l_plot[[i]])
+#  print(td5_l_plot[[i]])
 }
 
 td5_s_plot <- list()
@@ -421,7 +434,7 @@ for (i in 1:length(myibmlabs)){
     labs(x="SSB/SSBmsy", y="Catch/MSY", title=paste(myibmlabs[i], "Short Term")) +
     expand_limits(x=mysmax_s, y=mycmax_s) +
     theme_bw()
-  print(td5_s_plot[[i]])
+#  print(td5_s_plot[[i]])
 }
 
 td6_l_plot <- list()
@@ -435,7 +448,7 @@ for (i in 1:nscenlabs){
     labs(x="SSB/SSBmsy", y="F/Fmsy", title=paste(myscenlabs[i], "Long Term")) +
     expand_limits(x=mysmax_l, y=myfmax_l) +
     theme_bw()
-  print(td6_l_plot[[i]])
+#  print(td6_l_plot[[i]])
 }
 
 td6_s_plot <- list()
@@ -449,7 +462,7 @@ for (i in 1:nscenlabs){
     labs(x="SSB/SSBmsy", y="F/Fmsy", title=paste(myscenlabs[i], "Short Term")) +
     expand_limits(x=mysmax_s, y=myfmax_s) +
     theme_bw()
-  print(td6_s_plot[[i]])
+#  print(td6_s_plot[[i]])
 }
 
 td7_l_plot <- list()
@@ -463,7 +476,7 @@ for (i in 1:length(myibmlabs)){
     labs(x="SSB/SSBmsy", y="F/Fmsy", title=paste(myibmlabs[i], "Long Term")) +
     expand_limits(x=mysmax_l, y=myfmax_l) +
     theme_bw()
-  print(td7_l_plot[[i]])
+#  print(td7_l_plot[[i]])
 }
 
 td7_s_plot <- list()
@@ -477,12 +490,13 @@ for (i in 1:length(myibmlabs)){
     labs(x="SSB/SSBmsy", y="F/Fmsy", title=paste(myibmlabs[i], "Short Term")) +
     expand_limits(x=mysmax_s, y=myfmax_s) +
     theme_bw()
-  print(td7_s_plot[[i]])
+#  print(td7_s_plot[[i]])
 }
 
 ### put plots into pdf
 pdf(file = "demonstrations/chris/demo_plots/demo_make_tables_figures.pdf")
 nsim_plot
+scenlab_plot
 
 ssb_box_probs_IBM 
 ssb_box_probs_Scen

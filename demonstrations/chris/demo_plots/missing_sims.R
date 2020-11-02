@@ -16,11 +16,14 @@ todosims <- data.frame(rowid = integer(),
                        isim = integer())
 for (i in 1:nscen){
   thisscen <- donescen[i]
-  donesim <- filter(done, iscen == thisscen) 
-  missingsim <- data.frame(iscen = thisscen,
-                           isim = possible[!(possible %in% donesim$isim)]) %>%
-    mutate(rowid = (iscen - 1) * 1000 + isim)
-  todosims <- rbind(todosims, missingsim)
+  donesim <- filter(done, iscen == thisscen)
+  isimdone <- sort(unique(donesim$isim))
+  if (length(isimdone) != 1000){
+    missingsim <- data.frame(iscen = thisscen,
+                             isim = possible[!(possible %in% isimdone)]) %>%
+      mutate(rowid = (iscen - 1) * 1000 + isim)
+    todosims <- rbind(todosims, missingsim)
+  }
 }
 
 ntodo <- todosims %>%
@@ -56,3 +59,33 @@ filter(todo, uploaded == TRUE)
 
 # can the progress_table be modified to allow rowid in todo to be rerun?
 
+# get defined from demo_make_tables_figures.R
+names(defined)
+xx <- left_join(todo, defined, by = "iscen")
+yy <- xx %>%
+  mutate(mylab = paste(IBMlab, Scenlab))
+
+myplot <- list()
+myIBM <- sort(unique(yy$IBMlab))
+for (i in 1:length(myIBM)){
+  zz <- filter(yy, IBMlab == myIBM[i])
+  myplot[[i]] <- ggplot(zz, aes(x=mylab, y=isim)) +
+    geom_point() +
+    coord_flip() +
+    theme_bw()
+  print(myplot[[i]])
+}
+
+whichscenDLM <- filter(defined, IBMlab == "DLM")
+DLMscen <- unique(whichscenDLM$iscen)
+whichscennotDLM <- filter(defined, IBMlab != "DLM")
+notDLMscen <- unique(whichscennotDLM$iscen)
+
+todoDLM <- todosims %>%
+  filter(iscen %in% DLMscen)
+
+todonotDLM <- todosims %>%
+  filter(iscen %in% notDLMscen)
+
+saveRDS(todoDLM, file = "demonstrations/chris/demo_plots/todoDLM.rds")
+saveRDS(todonotDLM, file = "demonstrations/chris/demo_plots/todonotDLM.rds")

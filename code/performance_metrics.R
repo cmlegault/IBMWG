@@ -57,6 +57,8 @@ get_catch_metrics <- function(catch = NULL, refpts = NULL, nprojyrs = 40) {
     s_sd_catch = sd(catch[shortyrs],na.rm=TRUE),
     l_sd_catch = sd(catch[longyrs],na.rm=TRUE),
     l_iav_catch = sqrt(sum(diff(catch[longyrs])^2)/(length(longyrs-1)))/(sum(catch[longyrs])/length(longyrs)),
+    s_iav_catch = sqrt(sum(diff(catch[shortyrs])^2)/(length(shortyrs-1)))/(sum(catch[shortyrs])/length(shortyrs)),
+    a_iav_catch = sqrt(sum(diff(catch[projyrs])^2)/(length(projyrs-1)))/(sum(catch[projyrs])/length(projyrs)),
     #s_catch_msy = s_catch_msy,
     #l_catch_msy = l_catch_msy,
     #l_is_g_msy = l_is_g_msy,
