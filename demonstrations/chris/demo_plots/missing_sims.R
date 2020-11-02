@@ -16,11 +16,14 @@ todosims <- data.frame(rowid = integer(),
                        isim = integer())
 for (i in 1:nscen){
   thisscen <- donescen[i]
-  donesim <- filter(done, iscen == thisscen) 
-  missingsim <- data.frame(iscen = thisscen,
-                           isim = possible[!(possible %in% donesim$isim)]) %>%
-    mutate(rowid = (iscen - 1) * 1000 + isim)
-  todosims <- rbind(todosims, missingsim)
+  donesim <- filter(done, iscen == thisscen)
+  isimdone <- sort(unique(donesim$isim))
+  if (length(isimdone) != 1000){
+    missingsim <- data.frame(iscen = thisscen,
+                             isim = possible[!(possible %in% isimdone)]) %>%
+      mutate(rowid = (iscen - 1) * 1000 + isim)
+    todosims <- rbind(todosims, missingsim)
+  }
 }
 
 ntodo <- todosims %>%
