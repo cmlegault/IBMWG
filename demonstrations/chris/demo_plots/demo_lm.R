@@ -25,7 +25,7 @@ lm_res <- lapply(1:length(metrics), function(x) {
   }
   lm(value_trans~retro_type+Fhist+n_selblocks+IBMlab+catch.mult
      +retro_type:Fhist+retro_type:n_selblocks+retro_type:IBMlab+retro_type:catch.mult+
-       Fhist:n_selblocks+Fhist+IBMlab+Fhist:catch.mult+
+       Fhist:n_selblocks+Fhist:IBMlab+Fhist:catch.mult+
        n_selblocks:IBMlab+n_selblocks:catch.mult+IBMlab:catch.mult,data=thisdat) })
 names(lm_res)=metrics
 
