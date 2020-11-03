@@ -11,20 +11,21 @@ rscripts <- c("code/performance_metrics.R")
 map(rscripts, source)
 
 # User defined path where output rds files are located
-#mypath <- "/net/home0/pdy/lbrooks/Git/output_oct14_IBMWG"
 #mypath <- "/net/home4/clegault/IBMWG/output"
+#mypath <- "/net/home0/pdy/lbrooks/Git/output_oct14_IBMWG"
+mypath <- "/net/home0/pdy/lbrooks/Git/IBMWG/output"
 myfiles <- list.files(mypath)
 myfiles <- str_subset(myfiles, "mse-")
 myfiles
 
 # which files are read (will skip files already in database)
-newfiles <- myfiles # can subset using brackets for testing, e.g., myfiles[1:3]
+newfiles <- myfiles[1:245] # can subset using brackets for testing, e.g., myfiles[1:3]
 nfiles <- length(newfiles)
 
 # defines names of files that are saved
 mainfile_name <- "results/perform-metrics.rds"
 dbfile_name <- "results/dbfile.rds"
-dbrowid_name <- "results/dbrowid/rds"
+dbrowid_name <- "results/dbrowid.rds"
 
 # databases of file locations and which simulations run in each file
 if(file.exists(dbfile_name)){
@@ -52,6 +53,14 @@ for (i in 1:nfiles){
     if (dim(thisrds)[1] > 0){ # skip if nothing in the file
       mse_output <- thisrds %>%
         filter(map_lgl(wham, ~(.x %>% pluck("result", 1, 1) %>% is.na==FALSE)))
+      
+      # early runs did not have "finished" variable, so set artificial one
+      # can comment out this if block for later runs to speed up
+      if (is.null(mse_output$wham[[1]]$result$finished)){
+        for (jj in 1:dim(mse_output)[1]){
+          mse_output$wham[[jj]]$result$finished = as.Date("2020-10-01")
+        }
+      }
       
       # calculate performance metrics
       mse_results <- mse_output %>% 
@@ -100,7 +109,7 @@ for (i in 1:nfiles){
         dbrowid <- rbind(dbrowid, thisrowid)
       }
       # uncomment following line to watch progress in real time
-      #print(paste("file", newfiles[i], i, "of", nfiles, "had", dim(mse_results)[1], "successful simulations"))
+      print(paste("file", newfiles[i], i, "of", nfiles, "had", dim(mse_results)[1], "successful simulations"))
     }
   }
 }
