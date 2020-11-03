@@ -21,8 +21,11 @@ my_future_options$packages <- c("wham",
                                 "dlm",
                                 "RandomFieldsUtils")
 
+# progress$user[progress$rowid==107001] <- NA     #reset run that didn't work
+#   saveRDS(progress, file = "settings/scaa_progress.rds")    #save progress after reset 
+
 ### main function for conducting MSE
-do_mse <- function(nsim = 7, user = "Me", write_to_google = FALSE) {
+do_mse_scaa <- function(nsim = 7, user = "Me", write_to_google = FALSE) {
 ### pulling out for these tests
 #  nsim = 7
 #  user = "Me"
@@ -70,11 +73,12 @@ do_mse <- function(nsim = 7, user = "Me", write_to_google = FALSE) {
            n_selblocks == 1,
            catch.mult == 1) %>% 
     I()
+  xx.todo <- xx[xx$rowid %in% todo,] #liz added; prior to this, only first row of progress table being run despite nsim>1
   
   
   # pull out realizations to be run today from the setup list using "todo". 
   mse_sim_todo <- mse_sim_setup %>% 
-    filter(rowid %in% xx$rowid) %>% 
+    filter(rowid %in% xx.todo$rowid) %>%  #liz modified xx to xx.todo
     mutate(IBM = rep("SCAA",nrow(.)),
            specs = map(specs, function(x) {x$IBM = "SCAA";return(x)})) %>% 
     #filter(rowid %in% todo) %>% 
@@ -105,7 +109,7 @@ do_mse <- function(nsim = 7, user = "Me", write_to_google = FALSE) {
     # group_by(IBM) %>% 
     #slice(1:2) %>%  #slice(1:10) %>% 
     # ungroup() %>% 
-    slice(1) %>% 
+    slice(1:nsim) %>%    #liz:  1:nsimnow seems to work after fixing xx.todo above
     mutate(wham = furrr::future_pmap(list(seed = seed, input = input),
                                      safe_wham_mse, .options = my_future_options)) %>%
     # this is the regular purrr code for iterating over the simulations
