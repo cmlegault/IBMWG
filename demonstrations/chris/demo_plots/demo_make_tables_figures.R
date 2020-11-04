@@ -1,39 +1,43 @@
 # demo_make_tables_figures.R
 # uses demo_perform-metrics.rds results to create summary tables and figures
+# changed to use results/perform-metrics_clean and _scaa files
 
 library(tidyverse)
 
-### read in the performance metrics results
-mse_results <- readRDS("demonstrations/chris/demo_plots/demo-perform-metrics.rds")
-startdim <- dim(mse_results)
-
-# remove any duplicate rows
-mse_results <- mse_results %>%
-  distinct()
-enddim <- dim(mse_results)
-startdim - enddim # if greater than zero, then there were duplicates
-names(mse_results)
-head(mse_results)
-
-# find and remove duplicate scenarios
+# ### read in the performance metrics results
+# mse_results <- readRDS("demonstrations/chris/demo_plots/demo-perform-metrics.rds")
+# startdim <- dim(mse_results)
+# 
+# # remove any duplicate rows
+# mse_results <- mse_results %>%
+#   distinct()
+# enddim <- dim(mse_results)
+# startdim - enddim # if greater than zero, then there were duplicates
+# names(mse_results)
+# head(mse_results)
+# 
+# # find and remove duplicate scenarios
+# mse_sim_setup <- readRDS("settings/mse_sim_setup.rds")
+# dupes <- duplicated(mse_sim_setup[,-(1:2)])
+# not_dupes <- mse_sim_setup$rowid[!dupes]
+# mse_results <- mse_results %>%
+#   filter(rowid %in% not_dupes)
+# 
+# # remove duplicate rowids keeping most recently added
+# revrowid <- rev(mse_results$rowid)
+# myrowid_dupes <- duplicated(revrowid)
+# myrowid_not_dupes <- revrowid[!myrowid_dupes]
+# mse_results <- mse_results %>%
+#   filter(rowid %in% myrowid_not_dupes)
+ 
+mse_results <- readRDS("results/perform-metrics_clean.rds")
+scaa_results <- readRDS("results/perform-metrics_scaa.rds")
 mse_sim_setup <- readRDS("settings/mse_sim_setup.rds")
-dupes <- duplicated(mse_sim_setup[,-(1:2)])
-not_dupes <- mse_sim_setup$rowid[!dupes]
-mse_results <- mse_results %>%
-  filter(rowid %in% not_dupes)
 
-# remove duplicate rowids keeping most recently added
-revrowid <- rev(mse_results$rowid)
-myrowid_dupes <- duplicated(revrowid)
-myrowid_not_dupes <- revrowid[!myrowid_dupes]
-mse_results <- mse_results %>%
-  filter(rowid %in% myrowid_not_dupes)
-
-# counts
 count_table <- mse_results %>%
   group_by(iscen) %>%
   summarise(n = length(unique(isim)))
-count_table$n 
+count_table$n
 
 ### join with setup to figure out what's in each scenario
 Fhistlab <- c("O","F") # O = always overfishing, F = Fmsy in last year of base
@@ -62,22 +66,33 @@ names(defined)
 unique(defined$IBMlab)
 unique(defined$Scenlab)
 
+defined_scaa <- defined %>%
+  filter(IBMlab == "Ensemble",
+         n_selblocks == 1,
+         catch.mult == 1) %>%
+  mutate(IBM = "SCAA",
+         IBMlab = "SCAA")
+
 # counting scenarios and simulations
 countIBM <- defined %>%
   group_by(IBMlab, Scenlab) %>%
   summarise(nscenarios = n(), nsim = sum(n)) 
 
-nscentab <- countIBM %>%
+countIBM_scaa <- defined_scaa %>%
+  group_by(IBMlab, Scenlab) %>%
+  summarise(nscenarios = n(), nsim = sum(n)) 
+
+nscentab <- rbind(countIBM, countIBM_scaa) %>%
   select(IBMlab, Scenlab, nscenarios) %>%
   pivot_wider(names_from = Scenlab, values_from = nscenarios)
 nscentab
 
-nsimtab <- countIBM %>%
+nsimtab <- rbind(countIBM, countIBM_scaa) %>%
   select(IBMlab, Scenlab, nsim) %>%
   pivot_wider(names_from = Scenlab, values_from = nsim)
 nsimtab
 
-nsim_plot <- ggplot(countIBM, aes(x=Scenlab, y=nsim)) +
+nsim_plot <- ggplot(rbind(countIBM, countIBM_scaa), aes(x=Scenlab, y=nsim)) +
   geom_bar(stat = "identity") +
   facet_wrap(~IBMlab) +
   labs(x="Scenario", y="Number of Simulations") +
@@ -131,6 +146,39 @@ catch_results <- mse_results %>%
 catch_results
 unique(catch_results$metric)
 
+###pull out the ssb metrics for scaa runs
+ssb_results_scaa <- scaa_results %>% 
+  select(iscen, isim, ssb_metrics) %>% 
+  mutate(ssb_metrics = map(ssb_metrics, enframe)) %>% 
+  unnest(cols = c(ssb_metrics)) %>% 
+  mutate(value = map_dbl(value, I)) %>% 
+  rename(metric = name) %>% 
+  I()
+ssb_results_scaa
+unique(ssb_results_scaa$metric)
+
+###pull out the f metrics for scaa runs
+f_results_scaa <- scaa_results %>% 
+  select(iscen, isim, f_metrics) %>% 
+  mutate(f_metrics = map(f_metrics, enframe)) %>% 
+  unnest(cols = c(f_metrics)) %>% 
+  mutate(value = map_dbl(value, I)) %>% 
+  rename(metric = name) %>% 
+  I()
+f_results_scaa
+unique(f_results_scaa$metric)
+
+###pull out the catch metrics for scaa
+catch_results_scaa <- scaa_results %>% 
+  select(iscen, isim, catch_metrics) %>% 
+  mutate(catch_metrics = map(catch_metrics, enframe)) %>% 
+  unnest(cols = c(catch_metrics)) %>% 
+  mutate(value = map_dbl(value, I)) %>% 
+  rename(metric = name) %>% 
+  I()
+catch_results_scaa
+unique(catch_results_scaa$metric)
+
 ### compute mean for all metrics for each scenario
 ssb_mean_by_scenario <- ssb_results %>%
   group_by(iscen, metric) %>%
@@ -147,14 +195,29 @@ catch_mean_by_scenario <- catch_results %>%
   summarise_all(mean) %>%
   inner_join(defined, by = "iscen")
 
+ssb_mean_by_scenario_scaa <- ssb_results_scaa %>%
+  group_by(iscen, metric) %>%
+  summarise_all(mean) %>%
+  inner_join(defined_scaa, by = "iscen")
+
+f_mean_by_scenario_scaa <- f_results_scaa %>%
+  group_by(iscen, metric) %>%
+  summarise_all(mean) %>%
+  inner_join(defined_scaa, by = "iscen")
+
+catch_mean_by_scenario_scaa <- catch_results_scaa %>%
+  group_by(iscen, metric) %>%
+  summarise_all(mean) %>%
+  inner_join(defined_scaa, by = "iscen")
+
 ### save mean_by_scenario results for easier modeling and ranking
-saveRDS(ssb_mean_by_scenario, 
+saveRDS(rbind(ssb_mean_by_scenario, ssb_mean_by_scenario_scaa), 
         file = "demonstrations/chris/demo_plots/ssb_mean_by_scenario.rds")
 
-saveRDS(f_mean_by_scenario, 
+saveRDS(rbind(f_mean_by_scenario, f_mean_by_scenario_scaa),
         file = "demonstrations/chris/demo_plots/f_mean_by_scenario.rds")
 
-saveRDS(catch_mean_by_scenario, 
+saveRDS(rbind(catch_mean_by_scenario, catch_mean_by_scenario), 
         file = "demonstrations/chris/demo_plots/catch_mean_by_scenario.rds")
 
 ### make subsets of results for easier plotting
@@ -183,7 +246,34 @@ catch_ratios <- catch_mean_by_scenario %>%
   filter(grepl("_avg_catch_msy", metric))
 
 catch_other <- catch_mean_by_scenario %>%
-  filter(metric %in% c("l_iav_catch", "l_prop_g_msy_2_of_3"))
+  filter(metric %in% c("a_iav_catch", "l_iav_catch", "s_iav_catch", "l_prop_g_msy_2_of_3"))
+
+ssb_probs_scaa <- ssb_mean_by_scenario_scaa %>%
+  filter(grepl("_is_", metric))
+
+ssb_ns_scaa <- ssb_mean_by_scenario_scaa %>%
+  filter(grepl("_n_", metric))
+
+ssb_ratios_scaa <- ssb_mean_by_scenario_scaa %>%
+  filter(grepl("_avg_ssb_ssbmsy", metric))
+
+f_probs_scaa <- f_mean_by_scenario_scaa %>%
+  filter(grepl("_is_", metric))
+
+f_ns_scaa <- f_mean_by_scenario_scaa %>%
+  filter(grepl("_n_", metric))
+
+f_ratios_scaa <- f_mean_by_scenario_scaa %>%
+  filter(grepl("_avg_f_fmsy", metric))
+
+catch_means_scaa <- catch_mean_by_scenario_scaa %>%
+  filter(metric %in% c("l_avg_catch", "l_sd_catch", "s_avg_catch", "s_sd_catch"))
+
+catch_ratios_scaa <- catch_mean_by_scenario_scaa %>%
+  filter(grepl("_avg_catch_msy", metric))
+
+catch_other_scaa <- catch_mean_by_scenario_scaa %>%
+  filter(metric %in% c("a_iav_catch", "l_iav_catch", "s_iav_catch", "l_prop_g_msy_2_of_3"))
 
 ### plotting functions  
 confetti_plot <- function(mytib, myx, myy, myxlab, myylab, mytitle){
@@ -225,15 +315,15 @@ ssb_ns_plot <- confetti_plot(ssb_ns, iscen, value, "Scenario", "Mean Number of Y
 
 ssb_ratios_plot <- confetti_plot(ssb_ratios, iscen, value, "Scenario", "Mean SSB/SSBmsy", "SSB")
 
-ssb_box_probs_IBM <- make_box_plot(ssb_probs, IBMlab, value, "IBM", "Probability", "SSB")
+ssb_box_probs_IBM <- make_box_plot(rbind(ssb_probs, ssb_probs_scaa), IBMlab, value, "IBM", "Probability", "SSB")
 
 ssb_box_probs_Scen <- make_box_plot(ssb_probs, Scenlab, value, "Scenario", "Probability", "SSB")
 
-ssb_box_ns_IBM <- make_box_plot(ssb_ns, IBMlab, value, "IBM", "Mean Number of Years", "SSB")
+ssb_box_ns_IBM <- make_box_plot(rbind(ssb_ns, ssb_ns_scaa), IBMlab, value, "IBM", "Mean Number of Years", "SSB")
 
 ssb_box_ns_Scen <- make_box_plot(ssb_ns, Scenlab, value, "Scenario", "Mean Number of Years", "SSB")
 
-ssb_box_ratios_IBM <- make_box_plot(ssb_ratios, IBMlab, value, "IBM", "Mean SSB/SSBmsy", "SSB")
+ssb_box_ratios_IBM <- make_box_plot(rbind(ssb_ratios, ssb_ratios_scaa), IBMlab, value, "IBM", "Mean SSB/SSBmsy", "SSB")
 
 ssb_box_ratios_Scen <- make_box_plot(ssb_ratios, Scenlab, value, "Scenario", "Mean SSB/SSBmsy", "SSB")
 
@@ -243,15 +333,15 @@ f_ns_plot <- confetti_plot(f_ns, iscen, value, "Scenario", "Mean Number of Years
 
 f_ratios_plot <- confetti_plot(f_ratios, iscen, value, "Scenario", "Mean F/Fmsy", "F")
 
-f_box_probs_IBM <- make_box_plot(f_probs, IBMlab, value, "IBM", "Probability", "F")
+f_box_probs_IBM <- make_box_plot(rbind(f_probs, f_probs_scaa), IBMlab, value, "IBM", "Probability", "F")
 
 f_box_probs_Scen <- make_box_plot(f_probs, Scenlab, value, "Scenario", "Probability", "F")
 
-f_box_ns_IBM <- make_box_plot(f_ns, IBMlab, value, "IBM", "Mean Number of Years", "F")
+f_box_ns_IBM <- make_box_plot(rbind(f_ns, f_ns_scaa), IBMlab, value, "IBM", "Mean Number of Years", "F")
 
 f_box_ns_Scen <- make_box_plot(f_ns, Scenlab, value, "Scenario", "Mean Number of Years", "F")
 
-f_box_ratios_IBM <- make_box_plot(f_ratios, IBMlab, value, "IBM", "Mean F/Fmsy", "F")
+f_box_ratios_IBM <- make_box_plot(rbind(f_ratios, f_ratios_scaa), IBMlab, value, "IBM", "Mean F/Fmsy", "F")
 
 f_box_ratios_Scen <- make_box_plot(f_ratios, Scenlab, value, "Scenario", "Mean F/Fmsy", "F")
 
@@ -261,26 +351,26 @@ catch_ratios_plot <- confetti_plot(catch_ratios, iscen, value, "Scenario", "Mean
 
 catch_other_plot <- confetti_plot(catch_other, iscen, value, "Scenario", "Mean of Metric", "Catch")
 
-catch_box_means_IBM <- make_box_plot(catch_means, IBMlab, value, "IBM", "Mean of Metric", "Catch")
+catch_box_means_IBM <- make_box_plot(rbind(catch_means, catch_means_scaa), IBMlab, value, "IBM", "Mean of Metric", "Catch")
 
 catch_box_means_Scen <- make_box_plot(catch_means, Scenlab, value, "Scenario", "Mean of Metric", "Catch")
 
-catch_box_ratios_IBM <- make_box_plot(catch_ratios, IBMlab, value, "IBM", "Mean Catch/MSY", "Catch")
+catch_box_ratios_IBM <- make_box_plot(rbind(catch_ratios, catch_ratios_scaa), IBMlab, value, "IBM", "Mean Catch/MSY", "Catch")
 
 catch_box_ratios_Scen <- make_box_plot(catch_ratios, Scenlab, value, "Scenario", "Mean Catch/MSY", "Catch")
 
-catch_box_other_IBM <- make_box_plot(catch_other, IBMlab, value, "IBM", "Mean of Metric", "Catch")
+catch_box_other_IBM <- make_box_plot(rbind(catch_other, catch_other_scaa), IBMlab, value, "IBM", "Mean of Metric", "Catch")
 
 catch_box_other_Scen <- make_box_plot(catch_other, Scenlab, value, "Scenario", "Mean of Metric", "Catch")
 
 ### examine what factors led to good and bad outcomes
-which_rebuild <- ssb_probs %>%
+which_rebuild <- rbind(ssb_probs, ssb_probs_scaa) %>%
   filter(metric == "l_is_ge_bmsy", value >= 0.9) 
 which_rebuild$retro_type
 which_rebuild$IBMlab
 which_rebuild$Scenlab
 
-which_crash <- ssb_probs %>%
+which_crash <- rbind(ssb_probs, ssb_probs_scaa) %>%
   filter(metric == "l_is_less_01_bmsy", value >= 0.90) 
 which_crash$retro_type
 which_crash$IBMlab
@@ -290,11 +380,11 @@ which_crash$Scenlab
 names(ssb_probs)
 names(f_probs)
 names(catch_ratios)
-ssb_temp <- ssb_probs %>%
+ssb_temp <- rbind(ssb_probs, ssb_probs_scaa) %>%
   rename(ssb_metric = metric, ssb_value = value)
-f_temp <- f_probs %>%
+f_temp <- rbind(f_probs, f_probs_scaa) %>%
   rename(f_metric = metric, f_value = value)
-catch_temp <- catch_ratios %>%
+catch_temp <- rbind(catch_ratios, catch_ratios_scaa) %>%
   rename(catch_metric = metric, catch_value = value)
 temp <- inner_join(ssb_temp, f_temp)
 td <- inner_join(temp, catch_temp)
@@ -313,7 +403,8 @@ td1_plot <- ggplot(td1, aes(x=ssb_value, y=catch_value, color=retro_type)) +
 
 td2 <- td %>%
   filter(ssb_metric == "l_is_less_05_bmsy",
-         f_metric == "l_is_gr_fmsy")
+         f_metric == "l_is_gr_fmsy",
+         IBMlab != "SCAA")
 
 td2_plot <- ggplot(td2, aes(x=ssb_value, y=f_value, color=retro_type)) +
   geom_point() +
@@ -323,10 +414,10 @@ td2_plot <- ggplot(td2, aes(x=ssb_value, y=f_value, color=retro_type)) +
 
 names(ssb_ratios)
 names(catch_ratios)
-ssb2_temp <- ssb_ratios %>%
+ssb2_temp <- rbind(ssb_ratios, ssb_ratios_scaa) %>%
   filter(metric == "l_avg_ssb_ssbmsy") %>%
   rename(ssb_metric = metric, ssb_value = value)
-catch2_temp <- catch_ratios %>%
+catch2_temp <- rbind(catch_ratios, catch_ratios_scaa) %>%
   filter(metric == "l_avg_catch_msy") %>%
   rename(catch_metric = metric, catch_value = value)
 td3 <- inner_join(ssb2_temp, catch2_temp)
@@ -337,45 +428,48 @@ td3_plot <- ggplot(td3, aes(x=ssb_value, y=catch_value)) +
   theme_bw()
 
 # tradeoffs by sim
-ssb_sims_l <- ssb_results %>%
+ssb_sims_l <- rbind(ssb_results, ssb_results_scaa) %>%
   filter(metric == "l_avg_ssb_ssbmsy") %>%
   rename(ssb_metric_l = metric, ssb_value_l = value) %>%
-  inner_join(defined, by = "iscen")
+  inner_join(rbind(defined, defined_scaa), by = "iscen")
 
-ssb_sims_s <- ssb_results %>%
+ssb_sims_s <- rbind(ssb_results, ssb_results_scaa) %>%
   filter(metric == "s_avg_ssb_ssbmsy") %>%
   rename(ssb_metric_s = metric, ssb_value_s = value) %>%
-  inner_join(defined, by = "iscen")
+  inner_join(rbind(defined, defined_scaa), by = "iscen")
 
 ssb_sims <- inner_join(ssb_sims_l, ssb_sims_s, by = c("iscen", "isim", "retro_type", "Fhist", "n_selblocks", "IBM", "adv.yr", "Fmsy_scale", "catch.mult", "expand_method", "M_CC_method", "nprojyrs", "n", "IBMlab", "Scenlab"))
 
-f_sims_l <- f_results %>%
+f_sims_l <- rbind(f_results, f_results_scaa) %>%
   filter(metric == "l_avg_f_fmsy") %>%
   rename(f_metric_l = metric, f_value_l = value) %>%
-  inner_join(defined, by = "iscen")
+  inner_join(rbind(defined, defined_scaa), by = "iscen")
 
-f_sims_s <- f_results %>%
+f_sims_s <- rbind(f_results, f_results_scaa) %>%
   filter(metric == "s_avg_f_fmsy") %>%
   rename(f_metric_s = metric, f_value_s = value) %>%
-  inner_join(defined, by = "iscen")
+  inner_join(rbind(defined, defined_scaa), by = "iscen")
 
 f_sims <- inner_join(f_sims_l, f_sims_s, by = c("iscen", "isim", "retro_type", "Fhist", "n_selblocks", "IBM", "adv.yr", "Fmsy_scale", "catch.mult", "expand_method", "M_CC_method", "nprojyrs", "n", "IBMlab", "Scenlab"))
 
-catch_sims_l <- catch_results %>%
+catch_sims_l <- rbind(catch_results, catch_results_scaa) %>%
   filter(metric == "l_avg_catch_msy") %>%
   rename(catch_metric_l = metric, catch_value_l = value) %>%
-  inner_join(defined, by = "iscen")
+  inner_join(rbind(defined, defined_scaa), by = "iscen")
 
-catch_sims_s <- catch_results %>%
+catch_sims_s <- rbind(catch_results, catch_results_scaa) %>%
   filter(metric == "s_avg_catch_msy") %>%
   rename(catch_metric_s = metric, catch_value_s = value) %>%
-  inner_join(defined, by = "iscen")
+  inner_join(rbind(defined, defined_scaa), by = "iscen")
 
 catch_sims <- inner_join(catch_sims_l, catch_sims_s, by = c("iscen", "isim", "retro_type", "Fhist", "n_selblocks", "IBM", "adv.yr", "Fmsy_scale", "catch.mult", "expand_method", "M_CC_method", "nprojyrs", "n", "IBMlab", "Scenlab"))
 
 tempdf <- inner_join(ssb_sims, f_sims, by = c("iscen", "isim", "retro_type", "Fhist", "n_selblocks", "IBM", "adv.yr", "Fmsy_scale", "catch.mult", "expand_method", "M_CC_method", "nprojyrs", "n", "IBMlab", "Scenlab"))
  
 simdf <- inner_join(tempdf, catch_sims, by = c("iscen", "isim", "retro_type", "Fhist", "n_selblocks", "IBM", "adv.yr", "Fmsy_scale", "catch.mult", "expand_method", "M_CC_method", "nprojyrs", "n", "IBMlab", "Scenlab"))
+
+
+## NOTE: simdf creates too many rows of data - subsequent plots do not appear correct, need to figure out what is going wrong with the joins
 
 myscenlabs <- sort(unique(simdf$Scenlab))
 nscenlabs <- length(myscenlabs)
@@ -402,7 +496,7 @@ for (i in 1:nscenlabs){
 
 td4_s_plot <- list()
 for (i in 1:nscenlabs){
-  tmpdf <- filter(simdf, Scenlab == myscenlabs[i])
+  tmpdf <- filter(simdf, Scenlab == myscenlabs[i], IBMlab != "SCAA")
   td4_s_plot[[i]] <- ggplot(tmpdf, aes(x=ssb_value_s, y=catch_value_s)) +
     geom_point() +
     geom_vline(xintercept = 1, color="red", linetype="dashed") +
@@ -547,30 +641,30 @@ colorize_confetti(catch_other_plot)
 td1_plot
 td2_plot
 td3_plot
-for (i in 1:length(td4_l_plot)){
-  print(td4_l_plot[[i]])
-}
-for (i in 1:length(td5_l_plot)){
-  print(td5_l_plot[[i]])
-}
-for (i in 1:length(td4_s_plot)){
-  print(td4_s_plot[[i]])
-}
-for (i in 1:length(td5_s_plot)){
-  print(td5_s_plot[[i]])
-}
-for (i in 1:length(td6_l_plot)){
-  print(td6_l_plot[[i]])
-}
-for (i in 1:length(td7_l_plot)){
-  print(td7_l_plot[[i]])
-}
-for (i in 1:length(td6_s_plot)){
-  print(td6_s_plot[[i]])
-}
-for (i in 1:length(td7_s_plot)){
-  print(td7_s_plot[[i]])
-}
+# for (i in 1:length(td4_l_plot)){
+#   print(td4_l_plot[[i]])
+# }
+# for (i in 1:length(td5_l_plot)){
+#   print(td5_l_plot[[i]])
+# }
+# for (i in 1:length(td4_s_plot)){
+#   print(td4_s_plot[[i]])
+# }
+# for (i in 1:length(td5_s_plot)){
+#   print(td5_s_plot[[i]])
+# }
+# for (i in 1:length(td6_l_plot)){
+#   print(td6_l_plot[[i]])
+# }
+# for (i in 1:length(td7_l_plot)){
+#   print(td7_l_plot[[i]])
+# }
+# for (i in 1:length(td6_s_plot)){
+#   print(td6_s_plot[[i]])
+# }
+# for (i in 1:length(td7_s_plot)){
+#   print(td7_s_plot[[i]])
+# }
 
 dev.off()
 
