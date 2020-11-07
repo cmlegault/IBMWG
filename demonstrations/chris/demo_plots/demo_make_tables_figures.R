@@ -52,7 +52,7 @@ count_table <- mse_results %>%
 count_table$n
 
 ### join with setup to figure out what's in each scenario
-Fhistlab <- c("O","F") # O = always overfishing, F = Fmsy in last year of base
+Fhistlab <- c("F","O") # O = always overfishing, F = Fmsy in last year of base
 Sellab <- c("1", "2") # just whether 1 or 2 blocks for selectivity
 CMlab <- c("A", "R") # A = catch advice applied, R = reduced (mult=0.75)
 EMlab <- c("FSPR", "Fstable", "FM", "Frecent")
