@@ -77,84 +77,95 @@ myssb_sum <- myssb %>%
   summarise(y = list(quibble(ssb, c(0.05, 0.25, 0.5, 0.75, 0.95)))) %>% 
   unnest(y) %>% 
   I() %>%
-  inner_join(filter(refpts, period == 1), by = "iscen")
+  inner_join(filter(refpts, period == 1), by = "iscen") %>%
+  mutate(refpt = ssbmsy)
 
 myssb_sum_wide <- myssb_sum %>%
   mutate(q = paste0("q", q)) %>%
   pivot_wider(names_from = q, values_from = x) 
   
-ssb_plot <- ggplot(myssb_sum_wide, aes(x=year)) +
-  geom_ribbon(aes(ymin = q0.05, ymax=q0.95), fill="grey25") +
-  geom_ribbon(aes(ymin = q0.25, ymax=q0.75), fill="grey90") +
-  geom_line(aes(y=q0.5), size=1.1) +
-  geom_line(aes(y = ssbmsy), color = "blue") +
-  facet_grid(retro_type~Fhist+n_selblocks) +
-  labs(x="Year", y="SSB") +
-  expand_limits(y=0) +
-  scale_x_continuous(guide = guide_axis(check.overlap = TRUE)) +
-  theme_bw()
-
 myf_sum <- myf %>%
   group_by(iscen, year) %>%
   summarise(y = list(quibble(f, c(0.05, 0.25, 0.5, 0.75, 0.95)))) %>% 
   unnest(y) %>% 
   I() %>%
-  inner_join(filter(refpts, period == 1), by = "iscen")
+  inner_join(filter(refpts, period == 1), by = "iscen") %>%
+  mutate(refpt = fmsy)
 
 myf_sum_wide <- myf_sum %>%
   mutate(q = paste0("q", q)) %>%
   pivot_wider(names_from = q, values_from = x) 
-
-f_plot <- ggplot(myf_sum_wide, aes(x=year)) +
-  geom_ribbon(aes(ymin = q0.05, ymax=q0.95), fill="grey25") +
-  geom_ribbon(aes(ymin = q0.25, ymax=q0.75), fill="grey90") +
-  geom_line(aes(y=q0.5), size=1.1) +
-  geom_line(aes(y = fmsy), color = "blue") +
-  facet_grid(retro_type~Fhist+n_selblocks) +
-  labs(x="Year", y="F") +
-  expand_limits(y=0) +
-  scale_x_continuous(guide = guide_axis(check.overlap = TRUE)) +
-  theme_bw()
 
 mycatch_sum <- mycatch %>%
   group_by(iscen, year) %>%
   summarise(y = list(quibble(catch, c(0.05, 0.25, 0.5, 0.75, 0.95)))) %>% 
   unnest(y) %>% 
   I() %>%
-  inner_join(filter(refpts, period == 1), by = "iscen")
+  inner_join(filter(refpts, period == 1), by = "iscen") %>%
+  mutate(refpt = msy)
 
 mycatch_sum_wide <- mycatch_sum %>%
   mutate(q = paste0("q", q)) %>%
   pivot_wider(names_from = q, values_from = x) 
 
-catch_plot <- ggplot(mycatch_sum_wide, aes(x=year)) +
-  geom_ribbon(aes(ymin = q0.05, ymax=q0.95), fill="grey25") +
-  geom_ribbon(aes(ymin = q0.25, ymax=q0.75), fill="grey90") +
-  geom_line(aes(y=q0.5), size=1.1) +
-  geom_line(aes(y = msy), color = "blue") +
-  facet_grid(retro_type~Fhist+n_selblocks) +
-  labs(x="Year", y="Catch") +
-  expand_limits(y=0) +
-  scale_x_continuous(guide = guide_axis(check.overlap = TRUE)) +
-  theme_bw()
 
-mydf <- data.frame(x=rep(1, 5),
-                   y=seq(5, 1, -1),
-                   z=c("MSY reference point (blue line) from 1970 conditions",
-                       "Fhist: F = Fmsy in second period, O = Overfishing throughout",
-                       "Selbocks: 1, 2",
-                       "Retro source: Catch, M",
-                       "Dark grey fill 90% CI, light grey fill inner quartile, solid line median"))
+descdf <- data.frame(x=rep(1, 5),
+                     y=seq(5, 1, -1),
+                     z=c("MSY reference point (blue line) from 1970 conditions",
+                         "Fhist: F = Fmsy in second period, O = Overfishing throughout",
+                         "Selbocks: 1, 2",
+                         "Retro source: Catch, M",
+                         "Dark grey fill 90% CI, light grey fill inner quartile, solid line median"))
 
-myplot <- ggplot(mydf, aes(x=x, y=y)) +
+descplot <- ggplot(descdf, aes(x=x, y=y)) +
   geom_text(aes(label = z)) +
   expand_limits(y=c(0,6)) +
   labs(title = "Plots explained") +
   theme_void()
 
+make_base_plots <- function(mytibble, myylab, myylab2){
+  myplot <- ggplot(mycatch_sum_wide, aes(x=year)) +
+    geom_ribbon(aes(ymin = q0.05, ymax=q0.95), fill="grey25") +
+    geom_ribbon(aes(ymin = q0.25, ymax=q0.75), fill="grey90") +
+    geom_line(aes(y=q0.5), size=1.1) +
+    geom_line(aes(y = refpt), color = "blue") +
+    facet_grid(retro_type~Fhist+n_selblocks) +
+    labs(x="Year", y=myylab) +
+    expand_limits(y=0) +
+    scale_x_continuous(guide = guide_axis(check.overlap = TRUE)) +
+    theme_bw()
+  
+  myrelplot <- ggplot(mycatch_sum_wide, aes(x=year)) +
+    geom_ribbon(aes(ymin = q0.05/refpt, ymax=q0.95/refpt), fill="grey25") +
+    geom_ribbon(aes(ymin = q0.25/refpt, ymax=q0.75/refpt), fill="grey90") +
+    geom_line(aes(y=q0.5/refpt), size=1.1) +
+    geom_hline(yintercept = 1.0, color = "blue") +
+    facet_grid(retro_type~Fhist+n_selblocks) +
+    labs(x="Year", y=myylab2) +
+    expand_limits(y=0) +
+    scale_x_continuous(guide = guide_axis(check.overlap = TRUE)) +
+    theme_bw()
+  
+  myplots <- list(myplot = myplot,
+                  myrelplot = myrelplot)
+  return(myplots)
+}
+
+ssb_plots <- make_base_plots(myssb_sum_wide, "SSB", "SSB/SSBmsy")
+
+f_plots <- make_base_plots(myf_sum_wide, "F", "F/Fmsy")
+
+catch_plots <- make_base_plots(mycatch_sum_wide, "Catch", "Catch/MSY")
+
 pdf(file = "demonstrations/chris/base_sims/base_sims_plots.pdf")
-myplot
-ssb_plot
-f_plot
-catch_plot
+descplot
+
+ssb_plots$myplt
+f_plots$myplot
+catch_plots$myplot
+
+ssb_plots$myrelplt
+f_plots$myrelplot
+catch_plots$myrelplot
+
 dev.off()
