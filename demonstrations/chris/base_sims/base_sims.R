@@ -124,7 +124,7 @@ descplot <- ggplot(descdf, aes(x=x, y=y)) +
   theme_void()
 
 make_base_plots <- function(mytibble, myylab, myylab2){
-  myplot <- ggplot(mycatch_sum_wide, aes(x=year)) +
+  myplot <- ggplot(mytibble, aes(x=year)) +
     geom_ribbon(aes(ymin = q0.05, ymax=q0.95), fill="grey25") +
     geom_ribbon(aes(ymin = q0.25, ymax=q0.75), fill="grey90") +
     geom_line(aes(y=q0.5), size=1.1) +
@@ -135,7 +135,7 @@ make_base_plots <- function(mytibble, myylab, myylab2){
     scale_x_continuous(guide = guide_axis(check.overlap = TRUE)) +
     theme_bw()
   
-  myrelplot <- ggplot(mycatch_sum_wide, aes(x=year)) +
+  myrelplot <- ggplot(mytibble, aes(x=year)) +
     geom_ribbon(aes(ymin = q0.05/refpt, ymax=q0.95/refpt), fill="grey25") +
     geom_ribbon(aes(ymin = q0.25/refpt, ymax=q0.75/refpt), fill="grey90") +
     geom_line(aes(y=q0.5/refpt), size=1.1) +
@@ -160,11 +160,11 @@ catch_plots <- make_base_plots(mycatch_sum_wide, "Catch", "Catch/MSY")
 pdf(file = "demonstrations/chris/base_sims/base_sims_plots.pdf")
 descplot
 
-ssb_plots$myplt
+ssb_plots$myplot
 f_plots$myplot
 catch_plots$myplot
 
-ssb_plots$myrelplt
+ssb_plots$myrelplot
 f_plots$myrelplot
 catch_plots$myrelplot
 
