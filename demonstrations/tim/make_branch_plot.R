@@ -123,6 +123,47 @@ my_future_options$packages <- c("wham",
   matplot(1970:2059, R/1000, type = 'l', lty = 1, add = TRUE)
   dev.off()
   
+  catch = sapply(mse_output$wham, function(x) c(x$result$true_sim$pred_catch))
+  png("demonstrations/tim/catch_branch.png", family = "Times", units = "in", type = "cairo-png", height = 10, width = 10, res = 500)
+  par(oma = c(0,0,0,0), mar = c(5,5,1,1))
+  matplot(1970:2059, catch, type = 'n', lty = 1, ylab = "Catch (mt)", xlab = "Year", cex.lab = 2, cex.axis = 1.5)
+  grid(col = gray(0.7), lwd = 2)
+  matplot(1970:2059, catch, type = 'l', lty = 1, add = TRUE)
+  dev.off()
+
+  png("demonstrations/tim/all_branch.png", units = "in", type = "cairo-png", height = 10, width = 10, res = 500)#, family = "Times")
+  par(oma = c(4,0,0,0), mar = c(1,5,1,1), mfrow = c(2,2))
+  
+  matplot(1970:2059, ssb/1000, type = 'n', lty = 1, ylab = "SSB (kmt)", xlab = "", axes = FALSE, cex.lab = 2, cex.axis = 1.5)
+  grid(col = gray(0.7), lwd = 2)
+  axis(2, lwd = 2, cex.axis = 1.5)
+  axis(1, labels = FALSE, lwd = 2, cex.axis = 1.5)
+  box(lwd = 2)
+  matplot(1970:2059, ssb/1000, type = 'l', lty = 1, add = TRUE, lwd = 2)
+
+  matplot(1970:2059, R/1000, type = 'n', lty = 1, ylab = "Recruitment (10^6)", xlab = "", axes = FALSE, cex.lab = 2, cex.axis = 1.5)
+  grid(col = gray(0.7), lwd = 2)
+  axis(2, lwd = 2, cex.axis = 1.5)
+  axis(1, labels = FALSE, lwd = 2, cex.axis = 1.5)
+  box(lwd = 2)
+  matplot(1970:2059, R/1000, type = 'l', lty = 1, add = TRUE, lwd = 2)
+
+  matplot(1970:2059, F, type = 'n', lty = 1, ylab = "F", xlab = "", axes = FALSE, cex.lab = 2, cex.axis = 1.5)
+  grid(col = gray(0.7), lwd = 2)
+  axis(2, lwd = 2, cex.axis = 1.5)
+  axis(1, lwd = 2, cex.axis = 1.5)
+  box(lwd = 2)
+  matplot(1970:2059, F, type = 'l', lty = 1, add = TRUE, lwd = 2)
+
+  matplot(1970:2059, catch, type = 'n', lty = 1, ylab = "Catch (mt)", xlab = "", axes = FALSE, cex.lab = 2, cex.axis = 1.5)
+  grid(col = gray(0.7), lwd = 2)
+  axis(2, lwd = 2, cex.axis = 1.5)
+  axis(1, lwd = 2, cex.axis = 1.5)
+  box(lwd = 2)
+  matplot(1970:2059, catch, type = 'l', lty = 1, add = TRUE, lwd = 2)
+  mtext(side = 1, outer = TRUE, line = 3, "Year", cex = 2)
+  dev.off()
+  
   saveRDS(mse_output, file = "demonstrations/tim/branch_res.rds")
   
   # 
