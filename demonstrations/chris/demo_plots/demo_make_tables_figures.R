@@ -32,10 +32,18 @@ library(tidyverse)
  
 mse_results <- readRDS("results/perform-metrics_clean.rds")
 scaa_results <- readRDS("results/perform-metrics_scaa.rds")
+noretro_results <- readRDS("results/perform-metrics_noretro.rds")
 mse_sim_setup <- readRDS("settings/mse_sim_setup.rds")
 dupes <- duplicated(mse_sim_setup[,-(1:2)])
 not_dupes <- mse_sim_setup$rowid[!dupes]
+
 mse_results <- mse_results %>%
+  filter(rowid %in% not_dupes)
+
+scaa_results <- scaa_results %>%
+  filter(rowid %in% not_dupes)
+
+noretro_results <- noretro_results %>%
   filter(rowid %in% not_dupes)
 
 count_table <- mse_results %>%
@@ -44,7 +52,7 @@ count_table <- mse_results %>%
 count_table$n
 
 ### join with setup to figure out what's in each scenario
-Fhistlab <- c("O","F") # O = always overfishing, F = Fmsy in last year of base
+Fhistlab <- c("F","O") # O = always overfishing, F = Fmsy in last year of base
 Sellab <- c("1", "2") # just whether 1 or 2 blocks for selectivity
 CMlab <- c("A", "R") # A = catch advice applied, R = reduced (mult=0.75)
 EMlab <- c("FSPR", "Fstable", "FM", "Frecent")
@@ -77,6 +85,14 @@ defined_scaa <- defined %>%
   mutate(IBM = "SCAA",
          IBMlab = "SCAA")
 
+defined_noretro <- defined %>%
+  filter(IBMlab != "DLM",
+         retro_type == "Catch",
+         n_selblocks == 1,
+         catch.mult == 1) %>%
+  mutate(retro_type = "None",
+         Scenlab = paste0("N", Fhistlab[Fhist], "1A"))
+
 # counting scenarios and simulations
 countIBM <- defined %>%
   group_by(IBMlab, Scenlab) %>%
@@ -86,17 +102,22 @@ countIBM_scaa <- defined_scaa %>%
   group_by(IBMlab, Scenlab) %>%
   summarise(nscenarios = n(), nsim = sum(n)) 
 
-nscentab <- rbind(countIBM, countIBM_scaa) %>%
+countIBM_noretro <- defined_noretro %>%
+  group_by(IBMlab, Scenlab) %>%
+  summarise(nscenarios = n(), nsim = sum(n)) 
+
+nscentab <- rbind(countIBM, countIBM_scaa, countIBM_noretro) %>%
   select(IBMlab, Scenlab, nscenarios) %>%
   pivot_wider(names_from = Scenlab, values_from = nscenarios)
 nscentab
 
-nsimtab <- rbind(countIBM, countIBM_scaa) %>%
+nsimtab <- rbind(countIBM, countIBM_scaa, countIBM_noretro) %>%
   select(IBMlab, Scenlab, nsim) %>%
   pivot_wider(names_from = Scenlab, values_from = nsim)
 nsimtab
 
-nsim_plot <- ggplot(rbind(countIBM, countIBM_scaa), aes(x=Scenlab, y=nsim)) +
+nsim_plot <- ggplot(rbind(countIBM, countIBM_scaa, countIBM_noretro), 
+                    aes(x=Scenlab, y=nsim)) +
   geom_bar(stat = "identity") +
   facet_wrap(~IBMlab) +
   labs(x="Scenario", y="Number of Simulations") +
@@ -106,7 +127,7 @@ nsim_plot <- ggplot(rbind(countIBM, countIBM_scaa), aes(x=Scenlab, y=nsim)) +
 scendf <- data.frame(x=rep(1, 5),
                      y=seq(5, 1, -1),
                      mytext=c("CF1A to MO2R explained",
-                              "Retrotype: C=catch, M=natural mortality",
+                              "Retrotype: C=catch, M=natural mortality, N=None",
                               "F history: F=overfishing then Fmsy, O=Always Overfishing",
                               "Selblocks: 1 or 2",
                               "Catch Advice Multiplier: A=1 (applied), R=0.75 (reduced"))
@@ -183,6 +204,39 @@ catch_results_scaa <- scaa_results %>%
 catch_results_scaa
 unique(catch_results_scaa$metric)
 
+###pull out the ssb metrics for noretro runs
+ssb_results_noretro <- noretro_results %>% 
+  select(iscen, isim, ssb_metrics) %>% 
+  mutate(ssb_metrics = map(ssb_metrics, enframe)) %>% 
+  unnest(cols = c(ssb_metrics)) %>% 
+  mutate(value = map_dbl(value, I)) %>% 
+  rename(metric = name) %>% 
+  I()
+ssb_results_noretro
+unique(ssb_results_noretro$metric)
+
+###pull out the f metrics for noretro runs
+f_results_noretro <- noretro_results %>% 
+  select(iscen, isim, f_metrics) %>% 
+  mutate(f_metrics = map(f_metrics, enframe)) %>% 
+  unnest(cols = c(f_metrics)) %>% 
+  mutate(value = map_dbl(value, I)) %>% 
+  rename(metric = name) %>% 
+  I()
+f_results_noretro
+unique(f_results_noretro$metric)
+
+###pull out the catch metrics for noretro
+catch_results_noretro <- noretro_results %>% 
+  select(iscen, isim, catch_metrics) %>% 
+  mutate(catch_metrics = map(catch_metrics, enframe)) %>% 
+  unnest(cols = c(catch_metrics)) %>% 
+  mutate(value = map_dbl(value, I)) %>% 
+  rename(metric = name) %>% 
+  I()
+catch_results_noretro
+unique(catch_results_noretro$metric)
+
 ### compute mean for all metrics for each scenario
 ssb_mean_by_scenario <- ssb_results %>%
   group_by(iscen, metric) %>%
@@ -214,8 +268,24 @@ catch_mean_by_scenario_scaa <- catch_results_scaa %>%
   summarise_all(mean) %>%
   inner_join(defined_scaa, by = "iscen")
 
-# get main results corresponding to scenarios done for SCAA
+ssb_mean_by_scenario_noretro <- ssb_results_noretro %>%
+  group_by(iscen, metric) %>%
+  summarise_all(mean) %>%
+  inner_join(defined_noretro, by = "iscen")
+
+f_mean_by_scenario_noretro <- f_results_noretro %>%
+  group_by(iscen, metric) %>%
+  summarise_all(mean) %>%
+  inner_join(defined_noretro, by = "iscen")
+
+catch_mean_by_scenario_noretro <- catch_results_noretro %>%
+  group_by(iscen, metric) %>%
+  summarise_all(mean) %>%
+  inner_join(defined_noretro, by = "iscen")
+
+# get main results corresponding to scenarios done for SCAA and noretro
 scaa_scen <- unique(ssb_mean_by_scenario_scaa$Scenlab)
+noretro_scen <- unique(ssb_mean_by_scenario_noretro$Scenlab)
 
 ssb_mean_by_scenario_scen <- ssb_mean_by_scenario %>%
   filter(Scenlab %in% scaa_scen)
@@ -226,14 +296,17 @@ f_mean_by_scenario_scen <- f_mean_by_scenario %>%
 catch_mean_by_scenario_scen <- catch_mean_by_scenario %>%
   filter(Scenlab %in% scaa_scen)
 
-# combine scaa and main limited to scaa scenarios into scaa
-ssb_mean_by_scenario_scaa <- rbind(ssb_mean_by_scenario_scaa, 
+# combine scaa, noretro, and main limited to scaa scenarios into scaa
+ssb_mean_by_scenario_scaa <- rbind(ssb_mean_by_scenario_scaa,
+                                   ssb_mean_by_scenario_noretro,
                                    ssb_mean_by_scenario_scen)
 
-f_mean_by_scenario_scaa <- rbind(f_mean_by_scenario_scaa, 
+f_mean_by_scenario_scaa <- rbind(f_mean_by_scenario_scaa,
+                                 f_mean_by_scenario_noretro,
                                  f_mean_by_scenario_scen)
 
-catch_mean_by_scenario_scaa <- rbind(catch_mean_by_scenario_scaa, 
+catch_mean_by_scenario_scaa <- rbind(catch_mean_by_scenario_scaa,
+                                     catch_mean_by_scenario_noretro,
                                      catch_mean_by_scenario_scen)
 
 ### save mean_by_scenario results for easier modeling and ranking
@@ -372,7 +445,7 @@ ssb_box_ns_Scen_scaa <- make_box_plot(ssb_ns_scaa, Scenlab, value, "Scenario", "
 
 ssb_box_ratios_IBM_scaa <- make_box_plot(ssb_ratios_scaa, IBMlab, value, "IBM", "Mean SSB/SSBmsy", "SSB (SCAA scenarios)")
 
-ssb_box_ratios_Scen <- make_box_plot(ssb_ratios, Scenlab, value, "Scenario", "Mean SSB/SSBmsy", "SSB (SCAA scenarios)")
+ssb_box_ratios_Scen_scaa <- make_box_plot(ssb_ratios_scaa, Scenlab, value, "Scenario", "Mean SSB/SSBmsy", "SSB (SCAA scenarios)")
 
 f_probs_plot <- confetti_plot(f_probs, iscen, value, "Scenario", "Probablity", "F")
 
@@ -605,10 +678,55 @@ sims <- rbind(ssb_sims, f_sims, catch_sims) %>%
   distinct() %>%
   pivot_wider(names_from = metric, values_from = value)
 
+# have to so the scaa, noretro, and scen by parts then combine
+ssb_sims_scaa <- ssb_results_scaa %>%
+  filter(grepl("avg_ssb_ssbmsy", metric)) %>%
+  inner_join(defined_scaa, by = c("iscen"))
+
+f_sims_scaa <- f_results_scaa %>%
+  filter(grepl("avg_f_fmsy", metric)) %>%
+  inner_join(defined_scaa, by = c("iscen"))
+
+catch_sims_scaa <- catch_results_scaa %>%
+  filter(grepl("avg_catch_msy", metric)) %>%
+  inner_join(defined_scaa, by = c("iscen"))
+
+ssb_sims_noretro <- ssb_results_noretro %>%
+  filter(grepl("avg_ssb_ssbmsy", metric)) %>%
+  inner_join(defined_noretro, by = c("iscen"))
+
+f_sims_noretro <- f_results_noretro %>%
+  filter(grepl("avg_f_fmsy", metric)) %>%
+  inner_join(defined_noretro, by = c("iscen"))
+
+catch_sims_noretro <- catch_results_noretro %>%
+  filter(grepl("avg_catch_msy", metric)) %>%
+  inner_join(defined_noretro, by = c("iscen"))
+
+ssb_sims_scen <- ssb_sims %>%
+  filter(Scenlab %in% scaa_scen)
+
+f_sims_scen <- f_sims %>%
+  filter(Scenlab %in% scaa_scen)
+
+catch_sims_scen <- catch_sims %>%
+  filter(Scenlab %in% scaa_scen)
+
+sims_scaa <- rbind(ssb_sims_scaa, f_sims_scaa, catch_sims_scaa,
+                   ssb_sims_noretro, f_sims_noretro, catch_sims_noretro,
+                   ssb_sims_scen, f_sims_scen, catch_sims_scen) %>%
+  distinct() %>%
+  pivot_wider(names_from = metric, values_from = value)
+
 myscenlabs <- sort(unique(sims$Scenlab))
 nscenlabs <- length(myscenlabs)
 myibmlabs <- sort(unique(sims$IBMlab))
 nibmlabs <- length(myibmlabs)
+
+myscenlabs_scaa <- sort(unique(sims_scaa$Scenlab))
+nscenlabs_scaa <- length(myscenlabs_scaa)
+myibmlabs_scaa <- sort(unique(sims_scaa$IBMlab))
+nibmlabs_scaa <- length(myibmlabs_scaa)
 
 mysmax_l <- max(sims$l_avg_ssb_ssbmsy, na.rm = TRUE)
 myfmax_l <- max(sims$l_avg_f_fmsy, na.rm = TRUE)
@@ -616,6 +734,13 @@ mycmax_l <- max(sims$l_avg_catch_msy, na.rm = TRUE)
 mysmax_s <- max(sims$s_avg_ssb_ssbmsy, na.rm = TRUE)
 myfmax_s <- max(sims$s_avg_f_fmsy, na.rm = TRUE)
 mycmax_s <- max(sims$s_avg_catch_msy, na.rm = TRUE)
+
+mysmax_l_scaa <- max(sims_scaa$l_avg_ssb_ssbmsy, na.rm = TRUE)
+myfmax_l_scaa <- max(sims_scaa$l_avg_f_fmsy, na.rm = TRUE)
+mycmax_l_scaa <- max(sims_scaa$l_avg_catch_msy, na.rm = TRUE)
+mysmax_s_scaa <- max(sims_scaa$s_avg_ssb_ssbmsy, na.rm = TRUE)
+myfmax_s_scaa <- max(sims_scaa$s_avg_f_fmsy, na.rm = TRUE)
+mycmax_s_scaa <- max(sims_scaa$s_avg_catch_msy, na.rm = TRUE)
 
 td4_l_IBM_plot <- list()
 for (i in 1:nscenlabs){
@@ -650,6 +775,42 @@ for (i in 1:length(myibmlabs)){
     mutate(x_value=s_avg_ssb_ssbmsy, y_value=s_avg_catch_msy)
   mytitle <- paste(myibmlabs[i], "Short Term")
   td4_s_Scen_plot[[i]] <- make_td_sim_plot(tmpdf, "SSB/SSBmsy", "Catch/MSY", mytitle, mysmax_s, mycmax_s, "blue") +
+    facet_wrap(~Scenlab)
+}
+
+td4_l_IBM_scaa_plot <- list()
+for (i in 1:nscenlabs_scaa){
+  tmpdf <- filter(sims_scaa, Scenlab == myscenlabs_scaa[i]) %>%
+    mutate(x_value=l_avg_ssb_ssbmsy, y_value=l_avg_catch_msy)
+  mytitle <- paste(myscenlabs_scaa[i], "Long Term (SCAA scenarios)")
+  td4_l_IBM_scaa_plot[[i]] <- make_td_sim_plot(tmpdf, "SSB/SSBmsy", "Catch/MSY", mytitle, mysmax_l_scaa, mycmax_l_scaa, "black") +
+    facet_wrap(~IBMlab)
+}
+
+td4_s_IBM_scaa_plot <- list()
+for (i in 1:nscenlabs_scaa){
+  tmpdf <- filter(sims_scaa, Scenlab == myscenlabs_scaa[i]) %>%
+    mutate(x_value=l_avg_ssb_ssbmsy, y_value=l_avg_catch_msy)
+  mytitle <- paste(myscenlabs_scaa[i], "Short Term (SCAA scenarios)")
+  td4_s_IBM_scaa_plot[[i]] <- make_td_sim_plot(tmpdf, "SSB/SSBmsy", "Catch/MSY", mytitle, mysmax_s_scaa, mycmax_s_scaa, "black") +
+    facet_wrap(~IBMlab)
+}
+
+td4_l_Scen_scaa_plot <- list()
+for (i in 1:length(myibmlabs_scaa)){
+  tmpdf <- filter(sims_scaa, IBMlab == myibmlabs_scaa[i]) %>%
+    mutate(x_value=l_avg_ssb_ssbmsy, y_value=l_avg_catch_msy)
+  mytitle <- paste(myibmlabs_scaa[i], "Long Term (SCAA scenarios)")
+  td4_l_Scen_scaa_plot[[i]] <- make_td_sim_plot(tmpdf, "SSB/SSBmsy", "Catch/MSY", mytitle, mysmax_l_scaa, mycmax_l_scaa, "blue") +
+    facet_wrap(~Scenlab)
+}
+
+td4_s_Scen_scaa_plot <- list()
+for (i in 1:length(myibmlabs_scaa)){
+  tmpdf <- filter(sims_scaa, IBMlab == myibmlabs_scaa[i]) %>%
+    mutate(x_value=l_avg_ssb_ssbmsy, y_value=l_avg_catch_msy)
+  mytitle <- paste(myibmlabs_scaa[i], "Short Term (SCAA scenarios)")
+  td4_s_Scen_scaa_plot[[i]] <- make_td_sim_plot(tmpdf, "SSB/SSBmsy", "Catch/MSY", mytitle, mysmax_s_scaa, mycmax_s_scaa, "blue") +
     facet_wrap(~Scenlab)
 }
 
@@ -741,6 +902,19 @@ for (i in 1:length(td4_l_Scen_plot)){
 }
 for (i in 1:length(td4_s_Scen_plot)){
   print(td4_s_Scen_plot[[i]])
+}
+
+for (i in 1:length(td4_l_IBM_scaa_plot)){
+  print(td4_l_IBM_scaa_plot[[i]])
+}
+for (i in 1:length(td4_s_IBM_scaa_plot)){
+  print(td4_s_IBM_scaa_plot[[i]])
+}
+for (i in 1:length(td4_l_Scen_scaa_plot)){
+  print(td4_l_Scen_scaa_plot[[i]])
+}
+for (i in 1:length(td4_s_Scen_scaa_plot)){
+  print(td4_s_Scen_scaa_plot[[i]])
 }
 
 dev.off()
