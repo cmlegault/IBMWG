@@ -7,19 +7,37 @@
 #    http://shiny.rstudio.com/
 #
 
+# note: need to set working directory to source file location before running app
+
 library(shiny)
 library(tidyverse)
 
 all_scores <- read.csv(file = "all_scores.csv")
 all_resids <- read.csv(file = "all_resids.csv")
-all_metrics <- all_scores$metric
+scaa_scores <- read.csv(file = "all_scores_scaa.csv")
+scaa_resids <- read.csv(file = "all_resids_scaa.csv")
+
 all_scores_long <- all_scores %>%
     pivot_longer(cols = -c(1, 2), names_to = "IBM", values_to = "value") %>%
-    mutate(source = "Rank")
+    mutate(source = "Rank",
+           scenset = "base")
 all_resids_long <- all_resids %>%
     pivot_longer(cols = -c(1, 2), names_to = "IBM", values_to = "value") %>%
-    mutate(source = "Resid")
-all_values <- rbind(all_scores_long, all_resids_long)
+    mutate(source = "Resid",
+           scenset = "base")
+scaa_scores_long <- scaa_scores %>%
+    pivot_longer(cols = -c(1, 2), names_to = "IBM", values_to = "value") %>%
+    mutate(source = "Rank",
+           scenset = "scaa")
+scaa_resids_long <- scaa_resids %>%
+    pivot_longer(cols = -c(1, 2), names_to = "IBM", values_to = "value") %>%
+    mutate(source = "Resid",
+           scenset = "scaa")
+
+all_values <- rbind(all_scores_long, all_resids_long, 
+                    scaa_scores_long, scaa_resids_long)
+
+all_metrics <- all_scores$metric
 
 
 # Define UI for application that draws a histogram
@@ -35,6 +53,10 @@ ui <- fluidPage(
                         "Metrics:",
                         all_metrics,
                         multiple = TRUE),
+            radioButtons("myset",
+                         "Set:",
+                         choices = c("base", "scaa"),
+                         selected = "base"),
             radioButtons("showres",
                          "Plot:",
                          choices = c("Rank", "Resid", "Both"),
@@ -64,6 +86,7 @@ server <- function(input, output) {
         }
         
         myvalues <- all_values %>%
+            filter(scenset == input$myset) %>%
             filter(metric %in% input$metrics) %>%
             filter(source %in% mysource) %>%
             group_by(IBM, source) %>%
@@ -78,18 +101,28 @@ server <- function(input, output) {
     })
     
     output$rankTable <- renderTable({
-        if (is.null(input$metrics)){
+        if (is.null(input$metrics) | input$showres == "Resid"){
             return(NULL)
         }
-        myscores <- all_scores %>%
+
+        myscores <- all_scores
+        if (input$myset == "scaa"){
+            myscores <- scaa_scores
+        }
+        mytable <- myscores %>%
             filter(metric %in% input$metrics)
     })
     
     output$residTable <- renderTable({
-        if (is.null(input$metrics)){
+        if (is.null(input$metrics) | input$showres == "Rank"){
             return(NULL)
         }
-        myscores <- all_resids %>%
+        
+        myscores <- all_resids
+        if (input$myset == "scaa"){
+            myscores <- scaa_resids
+        }
+        mytable <- myscores %>%
             filter(metric %in% input$metrics)
     })
     

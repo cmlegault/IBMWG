@@ -1,6 +1,6 @@
 # calc_scores.R
 # calculate mean rank and residual scores by scenario results across metrics
-# see shiny app in demonstrations/chris/scorer directory for interactive plots
+# see shiny app in demonstrations/chris/scorer_app for interactive plots
 
 library(tidyverse)
 
