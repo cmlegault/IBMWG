@@ -66,6 +66,7 @@ my_future_options$packages <- c("wham",
   
   # pull out realizations to be run today from the setup list using "todo". 
   mse_sim_todo <- mse_sim_setup %>% filter(seed == 7084879) %>%
+  #mse_sim_todo <- mse_sim_setup %>% filter(isim == 2) %>%
     mutate(IBM = map_chr(specs, "IBM"),
            Fhist = map_dbl(specs, "Fhist"),
            n_selblocks = map_dbl(specs, "n_selblocks"),
@@ -165,6 +166,7 @@ my_future_options$packages <- c("wham",
   dev.off()
   
   saveRDS(mse_output, file = "demonstrations/tim/branch_res.rds")
+#  saveRDS(mse_output, file = "demonstrations/tim/branch_res2.rds")
   
   # 
   # #check which simulations ran
