@@ -1,0 +1,8 @@
+"","Islope","Itarget","Skate","ES-Frecent","ES-FSPR","ES-FM","AIM","DLM","CC-FM","PlanB","ES-Fstable","CC-FSPR","Ensemble"
+"retro_type           ",0,0,0,0,0,0,0,0,0,0,0,0,0
+"Fhist                ",NA,0,0,0,0,0,0,0,0,0,0,0,0
+"n_selblocks          ",0,NA,0,0,0,0,0,0.05,0,0,0,0,0.001
+"catch.mult           ",0,0,0,0,0,0,0,0,0,0,0,0,0
+"retro_type:Fhist     ",0,0,0,0,0.01,0.05,0,0,0,0,0,0,0.001
+"retro_type:catch.mult",NA,0,0,NA,0,0,0,0.05,0,0.01,0,0,0
+"Fhist:catch.mult     ",0,0.05,0,0.01,0,0,NA,0.001,0,NA,NA,0,NA
