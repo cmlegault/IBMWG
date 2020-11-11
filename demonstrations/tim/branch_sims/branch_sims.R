@@ -5,7 +5,8 @@ library(tidyverse)
 
 # rds file available in Google Drive IBMWG/ResultFiles folder
 mydir <- "C:/Users/chris.legault/Desktop/myIBMWG/branchsims"
-dat <- readRDS(file.path(mydir, "branch_res.rds"))
+#dat <- readRDS(file.path(mydir, "branch_res.rds"))
+dat <- readRDS(file.path(mydir, "branch_res2.rds"))
 dat
 
 # define runs
@@ -102,7 +103,8 @@ for (i in 1:nibm){
     theme(plot.title = element_text(colour = "blue"))
 }
 
-pdf(file = "demonstrations/tim/branch_sims/branch_sims.pdf")
+#pdf(file = "demonstrations/tim/branch_sims/branch_sims.pdf")
+pdf(file = "demonstrations/tim/branch_sims/branch_sims2.pdf")
 walk(mult_ts_plot, print)
 dev.off()
 
