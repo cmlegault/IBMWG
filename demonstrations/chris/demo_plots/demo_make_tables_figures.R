@@ -3,6 +3,10 @@
 # changed to use results/perform-metrics_clean and _scaa files
 
 library(tidyverse)
+library(aplpack)
+library(pracma)
+library(car)
+library(gplots)
 
 # ### read in the performance metrics results
 # mse_results <- readRDS("demonstrations/chris/demo_plots/demo-perform-metrics.rds")
@@ -30,10 +34,10 @@ library(tidyverse)
 # mse_results <- mse_results %>%
 #   filter(rowid %in% myrowid_not_dupes)
  
-mse_results <- readRDS("results/perform-metrics_clean.rds")
-scaa_results <- readRDS("results/perform-metrics_scaa.rds")
-noretro_results <- readRDS("results/perform-metrics_noretro.rds")
-mse_sim_setup <- readRDS("settings/mse_sim_setup.rds")
+mse_results <- readRDS("perform-metrics_clean.rds")
+scaa_results <- readRDS("perform-metrics_scaa.rds")
+noretro_results <- readRDS("perform-metrics_noretro.rds")
+mse_sim_setup <- readRDS("mse_sim_setup.rds")
 dupes <- duplicated(mse_sim_setup[,-(1:2)])
 not_dupes <- mse_sim_setup$rowid[!dupes]
 
@@ -311,22 +315,22 @@ catch_mean_by_scenario_scaa <- rbind(catch_mean_by_scenario_scaa,
 
 ### save mean_by_scenario results for easier modeling and ranking
 saveRDS(ssb_mean_by_scenario, 
-        file = "demonstrations/chris/demo_plots/ssb_mean_by_scenario.rds")
+        file = "ssb_mean_by_scenario.rds")
 
 saveRDS(f_mean_by_scenario,
-        file = "demonstrations/chris/demo_plots/f_mean_by_scenario.rds")
+        file = "f_mean_by_scenario.rds")
 
 saveRDS(catch_mean_by_scenario, 
-        file = "demonstrations/chris/demo_plots/catch_mean_by_scenario.rds")
+        file = "catch_mean_by_scenario.rds")
 
 saveRDS(ssb_mean_by_scenario_scaa, 
-        file = "demonstrations/chris/demo_plots/ssb_mean_by_scenario_scaa.rds")
+        file = "ssb_mean_by_scenario_scaa.rds")
 
 saveRDS(f_mean_by_scenario_scaa,
-        file = "demonstrations/chris/demo_plots/f_mean_by_scenario_scaa.rds")
+        file = "f_mean_by_scenario_scaa.rds")
 
 saveRDS(catch_mean_by_scenario_scaa, 
-        file = "demonstrations/chris/demo_plots/catch_mean_by_scenario_scaa.rds")
+        file = "catch_mean_by_scenario_scaa.rds")
 
 ### make subsets of results for easier plotting
 ssb_probs <- ssb_mean_by_scenario %>%
@@ -921,4 +925,1163 @@ dev.off()
 
 
 
+
+
+# Some analysis that Liz added (distribution of data with and without transformation; ANOVA for important factors by IBM; Bagplots; Heatmaps)
+## ANOVA for avg_ssb_ssbmsy, avg_f_fmsy, and avg_catch_msy BY IBM
+
+
+#make anova table
+make.aov.table <- function(dataset, time.as.factor, out.table.name)  {
+  
+  method <- unique(dataset$IBMlab)  
+  
+  if (time.as.factor==T) test.factors <- "retro_type + time.avg + Fhist   + Fhist*catch.mult + Fhist*time.avg + retro_type*Fhist + retro_type*catch.mult +retro_type*time.avg+ catch.mult*time.avg + n_selblocks + catch.mult"
+  if (time.as.factor==F) test.factors <- "retro_type + Fhist + n_selblocks + catch.mult +  retro_type*Fhist + retro_type*catch.mult + Fhist*catch.mult"
+  
+  n.factors <- length(strsplit(test.factors, split="+", fixed=T) [[1]])
+  
+  ss.table <- matrix(nrow=n.factors, ncol=length(method))
+  sig.table <- matrix(nrow=n.factors, ncol=length(method))
+  
+  
+  for (i in 1:length(method)) {
+    
+    
+    tmp <- dataset[dataset$IBMlab==method[i],] 
+  
+  if (time.as.factor==T)    tmp.aov <- aov(value ~ (retro_type + Fhist + n_selblocks + catch.mult + time.avg + Fhist*time.avg+ retro_type*Fhist + retro_type*catch.mult +retro_type*time.avg+  catch.mult*time.avg +   Fhist*catch.mult) , data = tmp)
+  
+  if (time.as.factor==F)    tmp.aov <- aov(value ~ (retro_type + Fhist + n_selblocks + catch.mult +  retro_type*Fhist + retro_type*catch.mult + Fhist*catch.mult) , data = tmp)
+  
+  tmp.sum <- summary(tmp.aov)[[1]]
+  
+  ss.tot <- sum(tmp.sum[,2])
+  frac.ss <- tmp.sum[1:n.factors,2]/ss.tot
+  ss.table[,i] <- frac.ss
+  
+  tmp.sig <- tmp.sum[1:n.factors,5]
+  tmp.code <- rep(NA, n.factors)
+  tmp.code[(which(tmp.sig<0.1))] <- 0.05
+  tmp.code[(which(tmp.sig<0.05))] <- 0.01
+  tmp.code[(which(tmp.sig<0.01))] <- 0.001
+  tmp.code[(which(tmp.sig<0.001))] <- 0
+  
+  
+  sig.table[,i] <- tmp.code
+  
+  
+}#end i loop over method
+
+rownames(ss.table) <- rownames(tmp.sum)[1:n.factors]
+colnames(ss.table) <- method
+s.table <- rbind(ss.table, "SS.frac.explained"=apply(ss.table, 2, sum) )
+s.table <- round(s.table,3)
+write.csv(s.table, file=paste0(out.table.name,".ANOVA.csv"))
+rownames(sig.table  ) <- rownames(tmp.sum)[1:n.factors]
+colnames(sig.table ) <- method
+write.csv(sig.table, file=paste0("Signif.",out.table.name,".ANOVA.csv"))
+
+}  # end function make.aov.table
+
+
+# function to examine distribution of (transformed) data and check normality
+plot.aov.dist <- function(dataset, time.as.factor, fig.label, out.label)  {
+
+  method <- unique(dataset$IBMlab)  
+  p.list <- list()
+  pln.list <- list()
+  psqrt.list <- list()
+  pasinsqrt.list <- list()
+  
+  q.list <- list()
+  qln.list <- list()
+  qsqrt.list <- list()
+  qasinsqrt.list <- list()
+  
+  pdf(file=paste0(out.label, ".pdf"), onefile=T)
+  par(mfrow=c(2,2))
+  
+  for (i in 1:length(method)) {
+    
+    
+    tmp <- dataset[dataset$IBMlab==method[i],] 
+    p.list[[i]] <- hist(tmp$value, main=method[i], xlab=fig.label)
+    pln.list[[i]] <- hist(log(tmp$value), main=method[i], xlab=paste0("LN_",fig.label))
+    psqrt.list[[i]] <- hist(sqrt(tmp$value), main=method[i], xlab=paste0("SQRT_",fig.label))
+    plot(x=1, y=1, type='n', bty='n', axes=F, xlab="", ylab="")
+    #pasinsqrt.list[[i]] <- hist(asin(sqrt(tmp$value)), main=method[i], xlab=paste0("ARCSIN_SQRT",fig.label))
+    
+    # if time as factor ==F then run this code chunk
+    if (time.as.factor==F)  {
+    tmp.aov <- aov(value ~ (retro_type + Fhist + n_selblocks + catch.mult + retro_type*Fhist + retro_type*catch.mult + Fhist*catch.mult) , data = tmp)
+    q.list[i] <- qqPlot(tmp.aov$residuals, id = FALSE, main="NO Transform" )
+
+    tmp.aov <- aov(log(value) ~ (retro_type + Fhist + n_selblocks + catch.mult + retro_type*Fhist + retro_type*catch.mult + Fhist*catch.mult) , data = tmp)
+    qln.list[i] <- qqPlot((tmp.aov$residuals), id = FALSE , main= "LN Transform")
+    
+    tmp.aov <- aov(sqrt(value) ~ (retro_type + Fhist + n_selblocks + catch.mult + retro_type*Fhist + retro_type*catch.mult + Fhist*catch.mult) , data = tmp)
+    qsqrt.list[i] <- qqPlot((tmp.aov$residuals), id = FALSE, main="SQRT Transform" )
+    
+    plot(x=1, y=1, type='n', bty='n', axes=F, xlab="", ylab="")
+    # tmp.aov <- aov(asin(sqrt(value)) ~ (retro_type + Fhist + n_selblocks + catch.mult + retro_type*Fhist + retro_type*catch.mult + Fhist*catch.mult) , data = tmp)
+    # qasinsqrt.list[i] <- qqPlot((tmp.aov$residuals), id = FALSE, main="ARCSIN-SQRT Transform" )
+    
+    } # end test for time.as.factor==F
+    
+   
+    # if time as factor ==T then run this code chunk
+    if (time.as.factor==T)  {
+      tmp.aov <- aov(value ~ (retro_type + Fhist + n_selblocks + catch.mult + time.avg + Fhist*time.avg+ retro_type*Fhist + retro_type*catch.mult +retro_type*time.avg+   Fhist*catch.mult), data = tmp)
+      q.list[i] <- qqPlot(tmp.aov$residuals, id = FALSE )
+      
+      tmp.aov <- aov(log(value) ~ (retro_type + Fhist + n_selblocks + catch.mult + time.avg + Fhist*time.avg+ retro_type*Fhist + retro_type*catch.mult +retro_type*time.avg+   Fhist*catch.mult) , data = tmp)
+      qln.list[i] <- qqPlot((tmp.aov$residuals), id = FALSE )
+      
+      tmp.aov <- aov(sqrt(value) ~ (retro_type + Fhist + n_selblocks + catch.mult + time.avg + Fhist*time.avg+ retro_type*Fhist + retro_type*catch.mult +retro_type*time.avg+   Fhist*catch.mult) , data = tmp)
+      qsqrt.list[i] <- qqPlot((tmp.aov$residuals), id = FALSE )
+      
+      plot(x=1, y=1, type='n', bty='n', axes=F, xlab="", ylab="")
+      
+      # tmp.aov <- aov((value) ~ (retro_type + Fhist + n_selblocks + catch.mult + time.avg + Fhist*time.avg+ retro_type*Fhist + retro_type*catch.mult +retro_type*time.avg+   Fhist*catch.mult) , data = tmp)
+      # qasinsqrt.list[i] <- qqPlot(asin(sqrt(tmp.aov$residuals)), id = FALSE )
+      
+    } # end test for time.as.factor==F 
+    
+    
+  }#end i loop over method
+  
+  #save PDF of distributions
+  
+  # pdf(file=paste0(out.label, ".pdf"), onefile=T)
+  # par(mfrow=c(2,2))
+  # plot(q.list)
+  dev.off()
+  
+} # end plot.aov.dist
+
+
+ssb_sims.time <- ssb_sims %>% select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult) %>%
+  mutate(time.avg = ifelse(substr(ssb_sims$metric,1,1)=="l", "L", "S"))
+ssb_sims.short <- ssb_sims %>% select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult) %>%
+  filter(substr(ssb_sims$metric,1,1)=="s")
+ssb_sims.long <- ssb_sims %>% select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult) %>%
+  filter(substr(ssb_sims$metric,1,1)=="l")
+
+  
+
+f_sims.time <- f_sims %>% select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult) %>%
+  mutate(time.avg = ifelse(substr(f_sims$metric,1,1)=="l", "L", "S"))
+f_sims.short <- f_sims %>% select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult) %>%
+  filter(substr(f_sims$metric,1,1)=="s")
+f_sims.long <- f_sims %>% select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult) %>%
+  filter(substr(f_sims$metric,1,1)=="l")
+
+
+catch_sims.time <- catch_sims %>% select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult) %>%
+  mutate(time.avg = ifelse(substr(catch_sims$metric,1,1)=="l", "L", "S"))
+catch_sims.short <- catch_sims %>% select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult) %>%
+  filter(substr(catch_sims$metric,1,1)=="s")
+catch_sims.long <- catch_sims %>% select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult) %>%
+  filter(substr(ssb_sims$metric,1,1)=="l")
+
+
+
+plot.aov.dist(dataset=ssb_sims, time.as.factor=F, fig.label="AVG_SSBG_SSBMSY", out.label="Dist_AVG_SSB_SSBMSY")
+plot.aov.dist(dataset=f_sims, time.as.factor=F, fig.label="AVG_F_FMSY", out.label="Dist_AVG_F_FMSY")
+plot.aov.dist(dataset=catch_sims, time.as.factor=F, fig.label="AVG_CATCH_MSY", out.label="Dist_AVG_CATCH_MSY")
+
+make.aov.table(dataset=ssb_sims.time, time.as.factor=T, out.table.name="SSB.frac.explained")
+#make.aov.table(dataset=ssb_sims.short, time.as.factor=F, out.table.name="SSB.short.frac.explained")
+#make.aov.table(dataset=ssb_sims.long, time.as.factor=F, out.table.name="SSB.long.frac.explained")
+
+make.aov.table(dataset=f_sims.time, time.as.factor=T, out.table.name="F.frac.explained")
+make.aov.table(dataset=catch_sims.time, time.as.factor=T, out.table.name="Catch.frac.explained")
+
+
+
+## Bagplots ====
+make.bagplot <- function(dataset, max.axis="all", plot.outliers, out.label, save.type, save.resolution)  {
+  
+  method <- unique(dataset$IBMlab) 
+  bx.max <- rep(NA, length(method)) #vector of x-axis max
+  by.max <- rep(NA, length(method)) #vector of x-axis max
+  
+  xmax.all <- max(dataset$l_avg_ssb_ssbmsy, dataset$s_avg_ssb_ssbmsy)
+  ymax.all <- max(dataset$l_avg_catch_msy, dataset$s_avg_catch_msy)
+  
+  b1.short <- list()
+  b1.long <- list()
+  
+
+  
+  for (i in 1:length(method))  {
+
+    tmp <- dataset[dataset$IBMlab==method[i],] 
+    
+
+    b1.short[[i]] <- compute.bagplot(tmp$s_avg_ssb_ssbmsy, tmp$s_avg_catch_msy)
+    b1.long[[i]] <-  compute.bagplot(tmp$l_avg_ssb_ssbmsy, tmp$l_avg_catch_msy)
+    bx.max[i] <- 1.1*max(b1.short[[i]]$hull.loop[,1])
+    by.max[i] <- 1.1*max(b1.short[[i]]$hull.loop[,2])
+
+  } # end i-loop over method
+  
+  graphics.off()
+  if (save.type=="png") png(file=paste0(out.label,".png"), height=14, width=12, units="in",
+                     res=save.resolution, type="cairo"  )
+  
+  if (save.type=="pdf") pdf(file=paste0(out.label,".pdf"), height=14, width=12, onefile=T)
+ 
+  par(mfrow=c(4,4), mar=c(0,0,0,0), oma=c(5,5,1,1)) 
+  
+  #plot1 ==========================================================
+  plot(rep(0,2), rep(0,2), type='n', xaxs='r',yaxs='i',axes=F, xlab="", ylab="",  xlim=c(0,xmax.all), ylim=c(0, ymax.all) )  
+  axis(side=1, at= seq(1,xmax.all), labels=rep("", length(seq(1,xmax.all))) , cex.axis=1.1)
+  axis(side=2, at=seq(1,ymax.all), labels=seq(1,ymax.all), cex.axis=1.1)
+  box()
+  
+  #short term bagplot ===
+  polygon(c(b1.short[[1]]$hull.loop[,1], b1.short[[1]]$hull.loop[1,1]), c(b1.short[[1]]$hull.loop[,2], b1.short[[1]]$hull.loop[1,2]),  col='#66666633', border='#666666cc' )
+  polygon(c(b1.short[[1]]$hull.bag[,1], b1.short[[1]]$hull.bag[1,1]), c(b1.short[[1]]$hull.bag[,2], b1.short[[1]]$hull.bag[1,2]),  col='#66666677', border='#666666cc' )
+  points(b1.short[[1]]$center[1], b1.short[[1]]$center[2], pch=16, col='black' )
+
+  # long term bagplot ====
+  polygon(c(b1.long[[1]]$hull.loop[,1], b1.long[[1]]$hull.loop[1,1]), c(b1.long[[1]]$hull.loop[,2], b1.long[[1]]$hull.loop[1,2]),  col='#0055AA33', border='#666666cc' )
+  polygon(c(b1.long[[1]]$hull.bag[,1], b1.long[[1]]$hull.bag[1,1]), c(b1.long[[1]]$hull.bag[,2], b1.long[[1]]$hull.bag[1,2]),  col='#0055AA77' , border='#0055AAcc' )
+  points(b1.long[[1]]$center[1], b1.long[[1]]$center[2], pch=16, col='blue' )
+  
+  
+  
+  # outliers ========
+  if (plot.outliers==T){
+    points(b1.short[[1]]$pxy.outlier[,1], b1.short[[1]]$pxy.outlier[,2], pch=1, col='#44444444')
+    points(b1.long[[1]]$pxy.outlier[,1], b1.long[[1]]$pxy.outlier[,2], pch=1, col='#0055dd77')
+  }
+
+  #add kobe plot lines
+  abline(v=1, col='red', lty=2)
+  abline(h=1, col='red', lty=2)
+  abline(v=0.5, col='orange', lty=4)
+
+  title(main=method[1], line=-1, cex=0.9)
+  legend(x=8, y=6.5, legend=c("Short-IQR", "Short-95%", "Long-IQR", "Long-95%"), cex=1.1, pch=rep(15,4), col=c('#66666677','#66666633', '#0055AA77',  '#0055AA33'))
+
+
+    #plots 2-4 =================================================
+   for (i in 2:4) {
+     plot(rep(0,2), rep(0,2), type='n', xaxs='r',yaxs='i',axes=F, xlab="", ylab="",  xlim=c(0,xmax.all), ylim=c(0, ymax.all) )  
+     axis(side=1, at= seq(1,xmax.all), labels=rep("", length(seq(1,xmax.all))) , cex.axis=1.1)
+     axis(side=2, at=seq(1,ymax.all), labels=rep("", length(seq(1,ymax.all))), cex.axis=1.1)
+     box()
+     
+     #short term bagplot ===
+     polygon(c(b1.short[[i]]$hull.loop[,1], b1.short[[i]]$hull.loop[1,1]), c(b1.short[[i]]$hull.loop[,2], b1.short[[i]]$hull.loop[1,2]),  col='#66666633', border='#666666cc' )
+     polygon(c(b1.short[[i]]$hull.bag[,1], b1.short[[i]]$hull.bag[1,1]), c(b1.short[[i]]$hull.bag[,2], b1.short[[i]]$hull.bag[1,2]),  col='#66666677', border='#666666cc' )
+     points(b1.short[[i]]$center[1], b1.short[[i]]$center[2], pch=16, col='black' )
+     
+     # long term bagplot ====
+     polygon(c(b1.long[[i]]$hull.loop[,1], b1.long[[i]]$hull.loop[1,1]), c(b1.long[[i]]$hull.loop[,2], b1.long[[i]]$hull.loop[1,2]),  col='#0055AA33', border='#666666cc' )
+     polygon(c(b1.long[[i]]$hull.bag[,1], b1.long[[i]]$hull.bag[1,1]), c(b1.long[[i]]$hull.bag[,2], b1.long[[i]]$hull.bag[1,2]),  col='#0055AA77' , border='#0055AAcc' )
+     points(b1.long[[i]]$center[1], b1.long[[i]]$center[2], pch=16, col='blue' )
+     
+     
+     # outliers ========
+     if (plot.outliers==T){
+       points(b1.short[[i]]$pxy.outlier[,1], b1.short[[i]]$pxy.outlier[,2], pch=1, col='#44444444')
+       points(b1.long[[i]]$pxy.outlier[,1], b1.long[[i]]$pxy.outlier[,2], pch=1, col='#0055dd77')
+     }
+     
+     #add kobe plot lines
+     abline(v=1, col='red', lty=2)
+     abline(h=1, col='red', lty=2)
+     abline(v=0.5, col='orange', lty=4)
+     
+     title(main=method[i], line=-1, cex=0.9)
+
+     
+   }#end plots 2-4
+  
+  
+ 
+  #plot 5 ==========================================================
+  plot(rep(0,2), rep(0,2), type='n', xaxs='r',yaxs='i',axes=F, xlab="", ylab="",  xlim=c(0,xmax.all), ylim=c(0, ymax.all) )  
+  axis(side=1, at= seq(1,xmax.all), labels=rep("", length(seq(1,xmax.all))) , cex.axis=1.1)
+  axis(side=2, at=seq(1,ymax.all), labels=seq(1,ymax.all), cex.axis=1.1)
+  box()
+  
+  #short term bagplot ===
+  polygon(c(b1.short[[5]]$hull.loop[,1], b1.short[[5]]$hull.loop[1,1]), c(b1.short[[5]]$hull.loop[,2], b1.short[[5]]$hull.loop[1,2]),  col='#66666633', border='#666666cc' )
+  polygon(c(b1.short[[5]]$hull.bag[,1], b1.short[[5]]$hull.bag[1,1]), c(b1.short[[5]]$hull.bag[,2], b1.short[[5]]$hull.bag[1,2]),  col='#66666677', border='#666666cc' )
+  points(b1.short[[5]]$center[1], b1.short[[5]]$center[2], pch=16, col='black' )
+  
+  # long term bagplot ====
+  polygon(c(b1.long[[5]]$hull.loop[,1], b1.long[[5]]$hull.loop[1,1]), c(b1.long[[5]]$hull.loop[,2], b1.long[[5]]$hull.loop[1,2]),  col='#0055AA33', border='#666666cc' )
+  polygon(c(b1.long[[5]]$hull.bag[,1], b1.long[[5]]$hull.bag[1,1]), c(b1.long[[5]]$hull.bag[,2], b1.long[[5]]$hull.bag[1,2]),  col='#0055AA77' , border='#0055AAcc' )
+  points(b1.long[[5]]$center[1], b1.long[[5]]$center[2], pch=16, col='blue' )
+  
+  
+  # outliers ========
+  if (plot.outliers==T){
+    points(b1.short[[5]]$pxy.outlier[,1], b1.short[[5]]$pxy.outlier[,2], pch=1, col='#44444444')
+    points(b1.long[[5]]$pxy.outlier[,1], b1.long[[5]]$pxy.outlier[,2], pch=1, col='#0055dd77')
+  }
+  
+  #add kobe plot lines
+  abline(v=1, col='red', lty=2)
+  abline(h=1, col='red', lty=2)
+  abline(v=0.5, col='orange', lty=4)
+  
+  title(main=method[5], line=-2, cex=0.9)
+
+
+  
+  #plots 6-8 =================================================
+  for (i in 6:8) {
+    plot(rep(0,2), rep(0,2), type='n', xaxs='r',yaxs='i',axes=F, xlab="", ylab="",  xlim=c(0,xmax.all), ylim=c(0, ymax.all) )  
+    axis(side=1, at= seq(1,xmax.all), labels=rep("", length(seq(1,xmax.all))) , cex.axis=1.1)
+    axis(side=2, at=seq(1,ymax.all), labels=rep("", length(seq(1,ymax.all))), cex.axis=1.1)
+    box()
+    
+    #short term bagplot ===
+    polygon(c(b1.short[[i]]$hull.loop[,1], b1.short[[i]]$hull.loop[1,1]), c(b1.short[[i]]$hull.loop[,2], b1.short[[i]]$hull.loop[1,2]),  col='#66666633', border='#666666cc' )
+    polygon(c(b1.short[[i]]$hull.bag[,1], b1.short[[i]]$hull.bag[1,1]), c(b1.short[[i]]$hull.bag[,2], b1.short[[i]]$hull.bag[1,2]),  col='#66666677', border='#666666cc' )
+    points(b1.short[[i]]$center[1], b1.short[[i]]$center[2], pch=16, col='black' )
+    
+    # long term bagplot ====
+    polygon(c(b1.long[[i]]$hull.loop[,1], b1.long[[i]]$hull.loop[1,1]), c(b1.long[[i]]$hull.loop[,2], b1.long[[i]]$hull.loop[1,2]),  col='#0055AA33', border='#666666cc' )
+    polygon(c(b1.long[[i]]$hull.bag[,1], b1.long[[i]]$hull.bag[1,1]), c(b1.long[[i]]$hull.bag[,2], b1.long[[i]]$hull.bag[1,2]),  col='#0055AA77' , border='#0055AAcc' )
+    points(b1.long[[i]]$center[1], b1.long[[i]]$center[2], pch=16, col='blue' )
+    
+    
+    
+    # outliers ========
+    if (plot.outliers==T){
+      points(b1.short[[i]]$pxy.outlier[,1], b1.short[[i]]$pxy.outlier[,2], pch=1, col='#44444444')
+      points(b1.long[[i]]$pxy.outlier[,1], b1.long[[i]]$pxy.outlier[,2], pch=1, col='#0055dd77')
+    }
+    
+    #add kobe plot lines
+    abline(v=1, col='red', lty=2)
+    abline(h=1, col='red', lty=2)
+    abline(v=0.5, col='orange', lty=4)
+    
+    title(main=method[i], line=-2, cex=0.9)
+    
+    
+  }#end plots 6-8
+  
+  
+  
+  
+  
+  #plot 9 ==========================================================
+  plot(rep(0,2), rep(0,2), type='n', xaxs='r',yaxs='i',axes=F, xlab="", ylab="",  xlim=c(0,xmax.all), ylim=c(0, ymax.all) )  
+  axis(side=1, at= seq(1,xmax.all), labels=rep("", length(seq(1,xmax.all))) , cex.axis=1.1)
+  axis(side=2, at=seq(1,ymax.all), labels=seq(1,ymax.all), cex.axis=1.1)
+  box()
+  
+  #short term bagplot ===
+  polygon(c(b1.short[[9]]$hull.loop[,1], b1.short[[9]]$hull.loop[1,1]), c(b1.short[[9]]$hull.loop[,2], b1.short[[9]]$hull.loop[1,2]),  col='#66666633', border='#666666cc' )
+  polygon(c(b1.short[[9]]$hull.bag[,1], b1.short[[9]]$hull.bag[1,1]), c(b1.short[[9]]$hull.bag[,2], b1.short[[9]]$hull.bag[1,2]),  col='#66666677', border='#666666cc' )
+  points(b1.short[[9]]$center[1], b1.short[[9]]$center[2], pch=16, col='black' )
+  
+  # long term bagplot ====
+  polygon(c(b1.long[[9]]$hull.loop[,1], b1.long[[9]]$hull.loop[1,1]), c(b1.long[[9]]$hull.loop[,2], b1.long[[9]]$hull.loop[1,2]),  col='#0055AA33', border='#666666cc' )
+  polygon(c(b1.long[[9]]$hull.bag[,1], b1.long[[9]]$hull.bag[1,1]), c(b1.long[[9]]$hull.bag[,2], b1.long[[9]]$hull.bag[1,2]),  col='#0055AA77' , border='#0055AAcc' )
+  points(b1.long[[9]]$center[1], b1.long[[9]]$center[2], pch=16, col='blue' )
+  
+  
+  # outliers ========
+  if (plot.outliers==T){
+    points(b1.short[[9]]$pxy.outlier[,1], b1.short[[9]]$pxy.outlier[,2], pch=1, col='#44444444')
+    points(b1.long[[9]]$pxy.outlier[,1], b1.long[[9]]$pxy.outlier[,2], pch=1, col='#0055dd77')
+  }
+  
+  #add kobe plot lines
+  abline(v=1, col='red', lty=2)
+  abline(h=1, col='red', lty=2)
+  abline(v=0.5, col='orange', lty=4)
+  
+  title(main=method[9], line=-2, cex=0.9)
+  
+  
+  
+  #plots 10-12 =================================================
+  for (i in 10:12) {
+    plot(rep(0,2), rep(0,2), type='n', xaxs='r',yaxs='i',axes=F, xlab="", ylab="",  xlim=c(0,xmax.all), ylim=c(0, ymax.all) )  
+    axis(side=1, at= seq(1,xmax.all), labels=seq(1,xmax.all) , cex.axis=1.1)
+    axis(side=2, at=seq(1,ymax.all), labels=rep("", length(seq(1,ymax.all))), cex.axis=1.1)
+    box()
+    
+    #short term bagplot ===
+    polygon(c(b1.short[[i]]$hull.loop[,1], b1.short[[i]]$hull.loop[1,1]), c(b1.short[[i]]$hull.loop[,2], b1.short[[i]]$hull.loop[1,2]),  col='#66666633', border='#666666cc' )
+    polygon(c(b1.short[[i]]$hull.bag[,1], b1.short[[i]]$hull.bag[1,1]), c(b1.short[[i]]$hull.bag[,2], b1.short[[i]]$hull.bag[1,2]),  col='#66666677', border='#666666cc' )
+    points(b1.short[[i]]$center[1], b1.short[[i]]$center[2], pch=16, col='black' )
+    
+    # long term bagplot ====
+    polygon(c(b1.long[[i]]$hull.loop[,1], b1.long[[i]]$hull.loop[1,1]), c(b1.long[[i]]$hull.loop[,2], b1.long[[i]]$hull.loop[1,2]),  col='#0055AA33', border='#666666cc' )
+    polygon(c(b1.long[[i]]$hull.bag[,1], b1.long[[i]]$hull.bag[1,1]), c(b1.long[[i]]$hull.bag[,2], b1.long[[i]]$hull.bag[1,2]),  col='#0055AA77' , border='#0055AAcc' )
+    points(b1.long[[i]]$center[1], b1.long[[i]]$center[2], pch=16, col='blue' )
+    
+    # outliers ========
+    if (plot.outliers==T){
+      points(b1.short[[i]]$pxy.outlier[,1], b1.short[[i]]$pxy.outlier[,2], pch=1, col='#44444444')
+      points(b1.long[[i]]$pxy.outlier[,1], b1.long[[i]]$pxy.outlier[,2], pch=1, col='#0055dd77')
+    }
+    
+    #add kobe plot lines
+    abline(v=1, col='red', lty=2)
+    abline(h=1, col='red', lty=2)
+    abline(v=0.5, col='orange', lty=4)
+    
+    title(main=method[i], line=-2, cex=0.9)
+    if (i==11) mtext("Avg_SSB_SSBmsy", side=1,line=3,outer=F, cex=1.1)
+    
+  }#end plots 10-12
+ 
+  
+  
+
+  #plot 13 ==========================================================
+  plot(rep(0,2), rep(0,2), type='n', xaxs='r',yaxs='i',axes=F, xlab="", ylab="",  xlim=c(0,xmax.all), ylim=c(0, ymax.all) )  
+  axis(side=1, at= seq(1,xmax.all), labels=seq(1,xmax.all) , cex.axis=1.1)
+  axis(side=2, at=seq(1,ymax.all), labels=seq(1,ymax.all), cex.axis=1.1)
+  box()
+  
+  #short term bagplot ===
+  polygon(c(b1.short[[13]]$hull.loop[,1], b1.short[[13]]$hull.loop[1,1]), c(b1.short[[13]]$hull.loop[,2], b1.short[[13]]$hull.loop[1,2]),  col='#66666633', border='#666666cc' )
+  polygon(c(b1.short[[13]]$hull.bag[,1], b1.short[[13]]$hull.bag[1,1]), c(b1.short[[13]]$hull.bag[,2], b1.short[[13]]$hull.bag[1,2]),  col='#66666677', border='#666666cc' )
+  points(b1.short[[13]]$center[1], b1.short[[13]]$center[2], pch=16, col='black' )
+  
+  # long term bagplot ====
+  polygon(c(b1.long[[13]]$hull.loop[,1], b1.long[[13]]$hull.loop[1,1]), c(b1.long[[13]]$hull.loop[,2], b1.long[[13]]$hull.loop[1,2]),  col='#0055AA33', border='#666666cc' )
+  polygon(c(b1.long[[13]]$hull.bag[,1], b1.long[[13]]$hull.bag[1,1]), c(b1.long[[13]]$hull.bag[,2], b1.long[[13]]$hull.bag[1,2]),  col='#0055AA77' , border='#0055AAcc' )
+  points(b1.long[[13]]$center[1], b1.long[[13]]$center[2], pch=16, col='blue' )
+  
+  # outliers ========
+  if (plot.outliers==T){
+  points(b1.short[[13]]$pxy.outlier[,1], b1.short[[13]]$pxy.outlier[,2], pch=1, col='#44444444')
+  points(b1.long[[13]]$pxy.outlier[,1], b1.long[[13]]$pxy.outlier[,2], pch=1, col='#0055dd77')
+  }
+  
+  #add kobe plot lines
+  abline(v=1, col='red', lty=2)
+  abline(h=1, col='red', lty=2)
+  abline(v=0.5, col='orange', lty=4)
+  
+  title(main=method[13], line=-2, cex=0.9)  
+  
+  mtext("Avg_SSB_SSBmsy", side=1,line=3,outer=F, cex=1.1)
+  mtext("Avg_Catch_MSY", side=2,line=3,outer=T, cex=1.1)
+  
+  
+  dev.off()
+  
+} # end function make.bagplot
+
+
+
+make.bagplot(dataset=sims, max.axis="all", plot.outliers=T, out.label="Bagplots_smallsize.IBM", save.type="pdf", save.resolution=200)
+
+
+
+#==== HEATMAP STUFF ====
+
+ssb_mean_by_scenario <- ssb_mean_by_scenario %>%
+  filter(grepl("_n_ge_bmsy", metric)) %>%
+  mutate(term = ifelse(substr(metric, 1, 1) == "l", "long", "short")) %>%
+  mutate(metric = paste0("ssb_", metric)) %>%
+  mutate(metrictype = "ssb")
+
+f_mean_by_scenario <- f_mean_by_scenario %>%
+  filter(grepl("n_less_fmsy", metric)) %>%
+  mutate(term = ifelse(substr(metric, 1, 1) == "l", "long", "short")) %>%
+  mutate(metric = paste0("f_", metric)) %>%
+  mutate(metrictype = "f")
+
+
+catch_mean_by_scenario <- catch_mean_by_scenario %>%
+  filter(grepl("avg_catch", metric)) %>%
+  mutate(term = ifelse(substr(metric, 1, 1) == "l", "long", "short")) %>%
+  mutate(metric = paste0("catch_", metric)) %>%
+  mutate(metrictype = "catch")
+
+
+alldata <- rbind(ssb_mean_by_scenario, f_mean_by_scenario, catch_mean_by_scenario)
+
+all_IBM <- alldata %>%
+  group_by(metrictype, IBMlab) %>%
+  summarise(meanval = mean(value))
+all_IBM
+all <- cbind(SSB = all_IBM$meanval[all_IBM$metrictype=="ssb"], Catch = all_IBM$meanval[all_IBM$metrictype=="catch"], F= all_IBM$meanval[all_IBM$metrictype=="f"])
+rownames(all) <- unique(all_IBM$IBMlab)
+
+
+# heatmap specs
+
+# choose colors from colorbrewer here:
+#    https://colorbrewer2.org/#type=sequential&scheme=YlOrBr&n=9
+
+#heat.cols <- c('#ffffd4','#fee391','#fec44f','#fe9929','#ec7014','#cc4c02','#8c2d04')  # 7 colors
+heat.cols <- c('#ffffe5','#fff7bc','#fee391','#fec44f','#fe9929','#ec7014','#cc4c02','#993404','#662506')  # 9 colors
+
+heat.all <-heatmap(all, scale="column", Colv=NA, margins=c(8,10), main = "IBM")
+heat2.all <-heatmap.2(all, scale="column", keysize = 1, margins=c(7,7), col=heat.cols, main = "IBM")   #, keysize = 1, col=("heat.colors"), main = "IBM")  #margins=c(7,7),
+
+
+all_IBM_term <- alldata %>%
+  group_by(metrictype, IBMlab, term) %>%
+  summarise(meanval = mean(value))
+all_IBM_term
+all.term <- cbind(SSB = all_IBM_term$meanval[all_IBM_term$metrictype=="ssb"], Catch = all_IBM_term$meanval[all_IBM_term$metrictype=="catch"], F= all_IBM_term$meanval[all_IBM_term$metrictype=="f"])
+rownames(all.term) <- unique(paste0(all_IBM_term$IBMlab, "-", all_IBM_term$term))
+heat.all.term <- heatmap(all.term, scale="column", Colv=NA, margins=c(8,10), main = "IBM by Time Horizon")
+heat2.all.term <- heatmap.2(all.term, scale="column",  margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM by Time Horizon")
+
+
+all_IBM_retro <- alldata %>%
+  group_by(metrictype, IBMlab, retro_type) %>%
+  summarise(meanval = mean(value))
+all_IBM_retro
+all.retro <- cbind(SSB = all_IBM_retro$meanval[all_IBM_retro$metrictype=="ssb"], Catch = all_IBM_retro$meanval[all_IBM_retro$metrictype=="catch"], F= all_IBM_retro$meanval[all_IBM_retro$metrictype=="f"])
+rownames(all.retro) <- unique(paste0(all_IBM_retro$IBMlab, "-", all_IBM_retro$retro_type))
+heat.all.retro <- heatmap(all.retro, scale="column", Colv=NA, margins=c(8,10), main = "IBM by Retro Source")
+heat2.all.retro <- heatmap.2(all.retro, scale="column",  margins=c(7,10), keysize = 1, col=heat.cols , main = "IBM by Retro Source")
+
+
+
+all_IBM_cmult <- alldata %>%
+  group_by(metrictype, IBMlab, catch.mult) %>%
+  summarise(meanval = mean(value))
+all_IBM_cmult
+all.cmult <- cbind(SSB = all_IBM_cmult$meanval[all_IBM_cmult$metrictype=="ssb"], Catch = all_IBM_cmult$meanval[all_IBM_cmult$metrictype=="catch"], F= all_IBM_cmult$meanval[all_IBM_cmult$metrictype=="f"])
+rownames(all.cmult) <- unique(paste0(all_IBM_cmult$IBMlab, "-", all_IBM_cmult$catch.mult))
+heat.all.cmult <- heatmap(all.cmult, scale="column", Colv=NA, margins=c(8,10), main = "IBM by Catch Multiplier")
+heat2.all.cmult <- heatmap.2(all.cmult, scale="column",  margins=c(7,10), keysize = 1, col=heat.cols , main = "IBM by Catch Multiplier")
+
+
+
+all_IBM_term_retro <- alldata %>%
+  group_by(metrictype, IBMlab, term, retro_type) %>%
+  summarise(meanval = mean(value))
+all_IBM_term_retro
+all.term.retro <- cbind(SSB = all_IBM_term_retro$meanval[all_IBM_term_retro$metrictype=="ssb"], Catch = all_IBM_term_retro$meanval[all_IBM_term_retro$metrictype=="catch"], F= all_IBM_term_retro$meanval[all_IBM_term_retro$metrictype=="f"])
+rownames(all.term.retro) <- unique(paste0(all_IBM_term_retro$IBMlab, "-", all_IBM_term_retro$retro_type, "-", all_IBM_term_retro$term))
+heat.all.term.retro <- heatmap(all.term.retro, scale="column",  margins=c(8,10), main = "IBM by Retro Source and Time Horizon")
+heat2.all.term.retro <- heatmap.2(all.term.retro, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Source and Time Horizon")
+
+
+# --- make pdf files ====
+
+pdf(file = "heatmaps.pdf", onefile = T) 
+heat.all <-heatmap(all, scale="column", Colv=NA, margins=c(8,10), main = "IBM")
+heat.all.cmult <- heatmap(all.cmult, scale="column", Colv=NA, margins=c(8,10), main = "IBM by Catch Multiplier")
+heat.all.retro <- heatmap(all.retro, scale="column", Colv=NA, margins=c(8,10), main = "IBM by Retro Source")
+heat.all.term <- heatmap(all.term, scale="column", Colv=NA, margins=c(8,10), main = "IBM by Time Horizon")
+heat.all.term.retro <- heatmap(all.term.retro, scale="column", Colv=NA, margins=c(8,10), main = "IBM by Retro Source and Time Horizon")
+
+dev.off()
+
+pdf(file = "heatmaps_ohhh_fancier.pdf")
+heat2.all <-heatmap.2(all, scale="column", margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM")
+heat2.all.retro <- heatmap.2(all.retro, scale="column",  margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM by Retro Source")
+heat2.all.term <- heatmap.2(all.term, scale="column",  margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM by Time Horizon")
+heat2.all.cmult <- heatmap.2(all.cmult, scale="column", margins=c(7,10), keysize = 1, col=heat.cols , main = "IBM by Catch Multiplier")
+heat2.all.term.retro <- heatmap.2(all.term.retro, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Source and Time Horizon")
+dev.off()
+
+
+# --- make png files ====
+#   png specs 
+png.res <- 500
+png.h <- 10
+png.w <- 8
+
+png(file="heatmap.ibm.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM")
+dev.off()
+
+
+png(file="heatmap.ibm.retro.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all.retro, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Source")
+dev.off()
+
+
+png(file="heatmap.ibm.time.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all.term, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Time Horizon")
+dev.off()
+
+
+png(file="heatmap.ibm.cmult.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all.cmult, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Catch Multiplier")
+dev.off()
+
+
+png(file="heatmap.ibm.retro.time.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all.term.retro, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Source and Time Horizon")
+dev.off()
+
+
+# --- write csv files for table of MEAN heatmap results ====
+
+nrows <- dim(t(all))[1]
+write.csv(t(heat2.all$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.csv")
+
+nrows <- dim(t(all.retro))[1]
+write.csv(t(heat2.all.retro$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.retro.csv")
+
+nrows <- dim(t(all.term))[1]
+write.csv(t(heat2.all.term$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.term.csv")
+
+nrows <- dim(t(all.cmult))[1]
+write.csv(t(heat2.all.cmult$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.cmult.csv")
+
+nrows <- dim(t(heat2.all.term.retro$carpet))[1]
+write.csv(t(heat2.all.term.retro$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.term.retro.csv")
+
+
+
+#-- REPEAT for MEDIAN results
+### compute mean for all metrics for each scenario
+ssb_median_by_scenario <- ssb_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined, by = "iscen")
+
+f_median_by_scenario <- f_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined, by = "iscen")
+
+catch_median_by_scenario <- catch_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined, by = "iscen")
+
+
+
+
+ssb_median_by_scenario <- ssb_median_by_scenario %>%
+  filter(grepl("_n_ge_bmsy", metric)) %>%
+  mutate(term = ifelse(substr(metric, 1, 1) == "l", "long", "short")) %>%
+  mutate(metric = paste0("ssb_", metric)) %>%
+  mutate(metrictype = "ssb")
+
+f_median_by_scenario <- f_median_by_scenario %>%
+  filter(grepl("n_less_fmsy", metric)) %>%
+  mutate(term = ifelse(substr(metric, 1, 1) == "l", "long", "short")) %>%
+  mutate(metric = paste0("f_", metric)) %>%
+  mutate(metrictype = "f")
+
+
+catch_median_by_scenario <- catch_median_by_scenario %>%
+  filter(grepl("avg_catch", metric)) %>%
+  mutate(term = ifelse(substr(metric, 1, 1) == "l", "long", "short")) %>%
+  mutate(metric = paste0("catch_", metric)) %>%
+  mutate(metrictype = "catch")
+
+
+alldata.med <- rbind(ssb_median_by_scenario, f_median_by_scenario, catch_median_by_scenario)
+
+all_IBM.med <- alldata %>%
+  group_by(metrictype, IBMlab) %>%
+  summarise(medianval = median(value))
+all_IBM.med
+all.med <- cbind(SSB = all_IBM.med$medianval[all_IBM.med$metrictype=="ssb"], Catch = all_IBM.med$medianval[all_IBM.med$metrictype=="catch"], F= all_IBM.med$medianval[all_IBM.med$metrictype=="f"])
+rownames(all.med) <- unique(all_IBM.med$IBMlab)
+
+
+all_IBM_term.med <- alldata.med %>%
+  group_by(metrictype, IBMlab, term) %>%
+  summarise(medianval = median(value))
+all_IBM_term.med
+all.term.med <- cbind(SSB = all_IBM_term.med$medianval[all_IBM_term.med$metrictype=="ssb"], Catch = all_IBM_term.med$medianval[all_IBM_term.med$metrictype=="catch"], F= all_IBM_term.med$medianval[all_IBM_term.med$metrictype=="f"])
+rownames(all.term.med) <- unique(paste0(all_IBM_term.med$IBMlab, "-", all_IBM_term.med$term))
+
+
+all_IBM_retro.med <- alldata.med %>%
+  group_by(metrictype, IBMlab, retro_type) %>%
+  summarise(medianval = median(value))
+all_IBM_retro.med
+all.retro.med <- cbind(SSB = all_IBM_retro.med$medianval[all_IBM_retro.med$metrictype=="ssb"], Catch = all_IBM_retro.med$medianval[all_IBM_retro.med$metrictype=="catch"], F= all_IBM_retro.med$medianval[all_IBM_retro.med$metrictype=="f"])
+rownames(all.retro.med) <- unique(paste0(all_IBM_retro.med$IBMlab, "-", all_IBM_retro.med$retro_type))
+
+
+
+all_IBM_cmult.med <- alldata.med %>%
+  group_by(metrictype, IBMlab, catch.mult) %>%
+  summarise(medianval = median(value))
+all_IBM_cmult.med
+all.cmult.med <- cbind(SSB = all_IBM_cmult.med$medianval[all_IBM_cmult.med$metrictype=="ssb"], Catch = all_IBM_cmult.med$medianval[all_IBM_cmult.med$metrictype=="catch"], F= all_IBM_cmult.med$medianval[all_IBM_cmult.med$metrictype=="f"])
+rownames(all.cmult.med) <- unique(paste0(all_IBM_cmult.med$IBMlab, "-", all_IBM_cmult.med$catch.mult))
+
+
+
+all_IBM_term_retro.med <- alldata.med %>%
+  group_by(metrictype, IBMlab, term, retro_type) %>%
+  summarise(medianval = median(value))
+all_IBM_term_retro.med
+all.term.retro.med <- cbind(SSB = all_IBM_term_retro.med$medianval[all_IBM_term_retro.med$metrictype=="ssb"], Catch = all_IBM_term_retro.med$medianval[all_IBM_term_retro.med$metrictype=="catch"], F= all_IBM_term_retro.med$medianval[all_IBM_term_retro.med$metrictype=="f"])
+rownames(all.term.retro.med) <- unique(paste0(all_IBM_term_retro.med$IBMlab, "-", all_IBM_term_retro.med$retro_type, "-", all_IBM_term_retro.med$term))
+
+
+# --- make pdf files ====
+
+pdf(file = "heatmaps_median_ohhh_fancier.pdf")
+heat2.all.med <-heatmap.2(all.med, scale="column", margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM")
+heat2.all.retro.med <- heatmap.2(all.retro.med, scale="column",  margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM by Retro Source")
+heat2.all.term.med <- heatmap.2(all.term.med, scale="column",  margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM by Time Horizon")
+heat2.all.cmult.med <- heatmap.2(all.cmult.med, scale="column", margins=c(7,10), keysize = 1, col=heat.cols , main = "IBM by Catch Multiplier")
+heat2.all.term.retro.med <- heatmap.2(all.term.retro.med, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Source and Time Horizon")
+dev.off()
+
+
+# --- make png files ====
+#   png specs 
+png.res <- 500
+png.h <- 10
+png.w <- 8
+
+png(file="heatmap.ibm_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all.med, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM")
+dev.off()
+
+
+png(file="heatmap.ibm.retro_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all.retro.med, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Source")
+dev.off()
+
+
+png(file="heatmap.ibm.time_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all.term.med, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Time Horizon")
+dev.off()
+
+
+png(file="heatmap.ibm.cmult_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all.cmult.med, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Catch Multiplier")
+dev.off()
+
+
+png(file="heatmap.ibm.retro.time_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all.term.retro.med, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Source and Time Horizon")
+dev.off()
+
+
+# --- write csv files for table of MEAN heatmap results ====
+
+nrows <- dim(t(all.med))[1]
+write.csv(t(heat2.all.med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm_median.csv")
+
+nrows <- dim(t(all.retro.med))[1]
+write.csv(t(heat2.all.retro.med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.retro_median.csv")
+
+nrows <- dim(t(all.term.med))[1]
+write.csv(t(heat2.all.term.med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.term_median.csv")
+
+nrows <- dim(t(all.cmult.med))[1]
+write.csv(t(heat2.all.cmult.med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.cmult_median.csv")
+
+nrows <- dim(t(heat2.all.term.retro.med$carpet))[1]
+write.csv(t(heat2.all.term.retro.med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.term.retro_median.csv")
+
+
+
+# --- ONE MORE TIME, Take mean of the medians_by_scenario
+
+
+# hist(ssb_median_by_scenario$value)
+# hist(ssb_mean_by_scenario$value)
+# hist(f_median_by_scenario$value)
+# hist(f_mean_by_scenario$value)
+# hist(catch_median_by_scenario$value)
+# hist(catch_mean_by_scenario$value)
+# 
+# summary(ssb_median_by_scenario$value)
+# summary(ssb_mean_by_scenario$value)
+# summary(f_median_by_scenario$value)
+# summary(f_mean_by_scenario$value)
+# summary(catch_median_by_scenario$value)
+# summary(catch_mean_by_scenario$value)
+# 
+# 
+# mean(ssb_median_by_scenario$value)
+# median(ssb_mean_by_scenario$value)
+# mean(f_median_by_scenario$value)
+# median(f_mean_by_scenario$value)
+# mean(catch_median_by_scenario$value)
+# median(catch_mean_by_scenario$value)
+
+
+# ssb_sims.time
+# test.sims <- rbind(ssb_sims.time, f_sims.time, catch_sims.time)
+# 
+# test.sims <- cbind(SSB=median(ssb_sims.time$value), F=median(f_sims.time$value), Catch=median(catch_sims.time$value) )
+# 
+# hist(ssb_sims.time$value)
+# summary(ssb_sims.time$value)
+
+# 1. by IBM
+ssb_mean_by_ibm <- ssb_sims.time %>%
+  group_by(IBMlab) %>%
+  summarise(meanval=mean(value)) 
+
+ssb_median_by_ibm <- ssb_sims.time %>%
+  group_by(IBMlab) %>%
+  summarise(medianval=median(value)) 
+
+f_mean_by_ibm <- f_sims.time %>%
+  group_by(IBMlab) %>%
+  summarise(meanval=mean(value)) 
+f_median_by_ibm <- f_sims.time %>%
+  group_by(IBMlab) %>%
+  summarise(medianval=median(value)) 
+
+catch_mean_by_ibm <- catch_sims.time %>%
+  group_by(IBMlab) %>%
+  summarise(meanval=mean(value))
+catch_median_by_ibm <- catch_sims.time %>%
+  group_by(IBMlab) %>%
+  summarise(medianval=median(value))
+
+all_mean <- cbind(SSB=ssb_mean_by_ibm$meanval, F=f_mean_by_ibm$meanval, Catch=catch_mean_by_ibm$meanval)
+
+all_median_by_ibm <- cbind(SSB=ssb_median_by_ibm$medianval, F=f_median_by_ibm$medianval, Catch=catch_median_by_ibm$medianval)
+rownames(all_median_by_ibm) <- ssb_median_by_ibm$IBMlab
+
+
+# 2. by IBM*retro type
+ssb_mean_by_ibm_retro <- ssb_sims.time %>%
+  group_by(IBMlab, retro_type) %>%
+  summarise(meanval=mean(value)) 
+
+ssb_median_by_ibm_retro <- ssb_sims.time %>%
+  group_by(IBMlab, retro_type) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_retro <- f_sims.time %>%
+  group_by(IBMlab, retro_type) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_retro <- catch_sims.time %>%
+  group_by(IBMlab, retro_type) %>%
+  summarise(medianval=median(value)) 
+
+all_median_by_ibm_retro <- cbind(SSB=ssb_median_by_ibm_retro$medianval, F=f_median_by_ibm_retro$medianval, Catch=catch_median_by_ibm_retro$medianval)
+rownames(all_median_by_ibm_retro) <- paste(ssb_median_by_ibm_retro$IBMlab, ssb_median_by_ibm_retro$retro_type, sep= "-")
+
+
+# 3. by IBM* time
+ssb_mean_by_ibm_time <- ssb_sims.time %>%
+  group_by(IBMlab, time.avg) %>%
+  summarise(meanval=mean(value)) 
+
+ssb_median_by_ibm_time <- ssb_sims.time %>%
+  group_by(IBMlab, time.avg) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_time <- f_sims.time %>%
+  group_by(IBMlab, time.avg) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_time <- catch_sims.time %>%
+  group_by(IBMlab, time.avg) %>%
+  summarise(medianval=median(value)) 
+
+all_median_by_ibm_time <- cbind(SSB=ssb_median_by_ibm_time$medianval, F=f_median_by_ibm_time$medianval, Catch=catch_median_by_ibm_time$medianval)
+rownames(all_median_by_ibm_time) <- paste(ssb_median_by_ibm_time$IBMlab, ssb_median_by_ibm_time$time.avg, sep= "-")
+
+
+# 4. by IBM* catch multiplier
+ssb_mean_by_ibm_catch.mult <- ssb_sims.time %>%
+  group_by(IBMlab, catch.mult) %>%
+  summarise(meanval=mean(value)) 
+
+ssb_median_by_ibm_catch.mult <- ssb_sims.time %>%
+  group_by(IBMlab, catch.mult) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_catch.mult <- f_sims.time %>%
+  group_by(IBMlab, catch.mult) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_catch.mult <- catch_sims.time %>%
+  group_by(IBMlab, catch.mult) %>%
+  summarise(medianval=median(value)) 
+
+
+all_median_by_ibm_cmult <- cbind(SSB=ssb_median_by_ibm_catch.mult$medianval, F=f_median_by_ibm_catch.mult$medianval, Catch=catch_median_by_ibm_catch.mult$medianval)
+rownames(all_median_by_ibm_cmult) <- paste(ssb_median_by_ibm_catch.mult$IBMlab, ssb_median_by_ibm_catch.mult$catch.mult, sep= "-")
+
+
+# 5. by IBM* Fhistory
+ssb_mean_by_ibm_Fhist <- ssb_sims.time %>%
+  group_by(IBMlab, Fhist) %>%
+  summarise(meanval=mean(value)) 
+
+ssb_median_by_ibm_Fhist <- ssb_sims.time %>%
+  group_by(IBMlab, Fhist) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_Fhist <- f_sims.time %>%
+  group_by(IBMlab, Fhist) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_Fhist <- catch_sims.time %>%
+  group_by(IBMlab, Fhist) %>%
+  summarise(medianval=median(value)) 
+
+
+all_median_by_ibm_Fhist <- cbind(SSB=ssb_median_by_ibm_Fhist$medianval, F=f_median_by_ibm_Fhist$medianval, Catch=catch_median_by_ibm_Fhist$medianval)
+rownames(all_median_by_ibm_Fhist) <- paste(ssb_median_by_ibm_Fhist$IBMlab, ssb_median_by_ibm_Fhist$Fhist, sep= "-")
+
+
+# 6. by IBM* Cmult * time
+ssb_mean_by_ibm_cmult_time <- ssb_sims.time %>%
+  group_by(IBMlab, catch.mult, time.avg) %>%
+  summarise(meanval=mean(value)) 
+
+ssb_median_by_ibm_cmult_time <- ssb_sims.time %>%
+  group_by(IBMlab, catch.mult, time.avg) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_cmult_time <- f_sims.time %>%
+  group_by(IBMlab, catch.mult, time.avg) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_cmult_time <- catch_sims.time %>%
+  group_by(IBMlab, catch.mult, time.avg) %>%
+  summarise(medianval=median(value)) 
+
+
+all_median_by_ibm_Cmult_time <- cbind(SSB=ssb_median_by_ibm_cmult_time$medianval, F=f_median_by_ibm_cmult_time$medianval, Catch=catch_median_by_ibm_cmult_time$medianval)
+rownames(all_median_by_ibm_Cmult_time) <- paste(ssb_median_by_ibm_cmult_time$IBMlab, ssb_median_by_ibm_cmult_time$time.avg, ssb_median_by_ibm_cmult_time$catch.mult, sep= "-")
+
+
+
+# 7. by IBM* Fhist * time
+ssb_mean_by_ibm_Fhist_time <- ssb_sims.time %>%
+  group_by(IBMlab, Fhist, time.avg) %>%
+  summarise(meanval=mean(value)) 
+
+ssb_median_by_ibm_Fhist_time <- ssb_sims.time %>%
+  group_by(IBMlab, Fhist, time.avg) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_Fhist_time <- f_sims.time %>%
+  group_by(IBMlab, Fhist, time.avg) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_Fhist_time <- catch_sims.time %>%
+  group_by(IBMlab, Fhist, time.avg) %>%
+  summarise(medianval=median(value)) 
+
+all_median_by_ibm_Fhist_time <- cbind(SSB=ssb_median_by_ibm_Fhist_time$medianval, F=f_median_by_ibm_Fhist_time$medianval, Catch=catch_median_by_ibm_Fhist_time$medianval)
+rownames(all_median_by_ibm_Fhist_time) <- paste(ssb_median_by_ibm_Fhist_time$IBMlab, ssb_median_by_ibm_Fhist_time$Fhist, ssb_median_by_ibm_Fhist_time$time.avg, sep= "-")
+
+
+# 8. by IBM* retro * Fhist
+ssb_mean_by_ibm_retro_Fhist <- ssb_sims.time %>%
+  group_by(IBMlab, retro_type, Fhist) %>%
+  summarise(meanval=mean(value)) 
+
+ssb_median_by_ibm_retro_Fhist <- ssb_sims.time %>%
+  group_by(IBMlab, retro_type, Fhist) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_retro_Fhist <- f_sims.time %>%
+  group_by(IBMlab, retro_type, Fhist) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_retro_Fhist <- catch_sims.time %>%
+  group_by(IBMlab, retro_type, Fhist) %>%
+  summarise(medianval=median(value)) 
+
+
+all_median_by_ibm_retro_Fhist <- cbind(SSB=ssb_median_by_ibm_retro_Fhist$medianval, F=f_median_by_ibm_retro_Fhist$medianval, Catch=catch_median_by_ibm_retro_Fhist$medianval)
+rownames(all_median_by_ibm_retro_Fhist) <- paste(ssb_median_by_ibm_retro_Fhist$IBMlab, ssb_median_by_ibm_retro_Fhist$retro_type, ssb_median_by_ibm_retro_Fhist$Fhist, sep= "-")
+
+
+# 9. by IBM* retro * time
+ssb_mean_by_ibm_retro_time <- ssb_sims.time %>%
+  group_by(IBMlab, retro_type, time.avg) %>%
+  summarise(meanval=mean(value)) 
+
+ssb_median_by_ibm_retro_time <- ssb_sims.time %>%
+  group_by(IBMlab, retro_type, time.avg) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_retro_time <- f_sims.time %>%
+  group_by(IBMlab, retro_type, time.avg) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_retro_time <- catch_sims.time %>%
+  group_by(IBMlab, retro_type, time.avg) %>%
+  summarise(medianval=median(value))
+
+all_median_by_ibm_retro_time <- cbind(SSB=ssb_median_by_ibm_retro_time$medianval, F=f_median_by_ibm_retro_time$medianval, Catch=catch_median_by_ibm_retro_time$medianval)
+rownames(all_median_by_ibm_retro_time) <- paste(ssb_median_by_ibm_retro_time$IBMlab, ssb_median_by_ibm_retro_time$retro_type, ssb_median_by_ibm_retro_time$time.avg, sep= "-")
+
+
+# 10. Fhist: catch.mult 
+ssb_median_by_ibm_Fhist_Cmult <- ssb_sims.time %>%
+  group_by(IBMlab, Fhist, catch.mult) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_Fhist_Cmult <- f_sims.time %>%
+  group_by(IBMlab, Fhist, catch.mult) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_Fhist_Cmult <- catch_sims.time %>%
+  group_by(IBMlab, Fhist, catch.mult) %>%
+  summarise(medianval=median(value)) 
+
+
+all_median_by_ibm_Fhist_Cmult <- cbind(SSB=ssb_median_by_ibm_Fhist_Cmult$medianval, F=f_median_by_ibm_Fhist_Cmult$medianval, Catch=catch_median_by_ibm_Fhist_Cmult$medianval)
+rownames(all_median_by_ibm_Fhist_Cmult) <- paste(ssb_median_by_ibm_Fhist_Cmult$IBMlab, ssb_median_by_ibm_Fhist_Cmult$Fhist, ssb_median_by_ibm_Fhist_Cmult$catch.mult, sep= "-")
+
+
+
+
+# --- make pdf files ====
+
+pdf(file = "heatmaps_median_ohhh_fancier.pdf")
+#  by IBM
+heat2.all_med <-heatmap.2(all_median_by_ibm, scale="column", margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM")
+
+# 1 factor by IBM
+heat2.all.retro_med <- heatmap.2(all_median_by_ibm_retro, scale="column",  margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM by Retro Source")
+heat2.all.time_med <- heatmap.2(all_median_by_ibm_time, scale="column",  margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM by Time Horizon")
+heat2.all.cmult_med <- heatmap.2(all_median_by_ibm_cmult, scale="column", margins=c(7,10), keysize = 1, col=heat.cols , main = "IBM by Catch Multiplier")
+heat2.all.Fhist_med <- heatmap.2(all_median_by_ibm_Fhist, scale="column", margins=c(7,10), keysize = 1, col=heat.cols , main = "IBM by F history")
+
+# 2 factors by IBM
+heat2.all.time.cmult.time_med <- heatmap.2(all_median_by_ibm_Cmult_time, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Catch Mult and Time Horizon")
+heat2.all.fhist.time_med <- heatmap.2(all_median_by_ibm_Fhist_time, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by F History and Time Horizon")
+heat2.all.retro.fhist_med <- heatmap.2(all_median_by_ibm_retro_Fhist, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Type and F History")
+heat2.all.retro.time_med <- heatmap.2(all_median_by_ibm_retro_time, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Type and Time Horizon")
+heat2.all.Fhist.cmult_med <- heatmap.2(all_median_by_ibm_Fhist_Cmult, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by F History and Catch Multiplier")
+
+dev.off()
+
+
+# --- make png files ====
+#   png specs 
+png.res <- 500
+png.h <- 10
+png.w <- 8
+
+# 1
+png(file="heatmap.ibm_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all_median_by_ibm, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM")
+dev.off()
+
+# 2
+png(file="heatmap.ibm.retro_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all_median_by_ibm_retro, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Source")
+dev.off()
+
+# 3
+png(file="heatmap.ibm.time_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all_median_by_ibm_time, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Time Horizon")
+dev.off()
+
+# 4
+png(file="heatmap.ibm.cmult_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all_median_by_ibm_cmult, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Catch Multiplier")
+dev.off()
+
+# 5
+png(file="heatmap.ibm.Fhist_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all_median_by_ibm_Fhist, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by F history")
+dev.off()
+
+# 6
+png(file="heatmap.ibm.cmult.time_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all_median_by_ibm_Cmult_time, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Catch Mult and Time Horizon")
+dev.off()
+
+
+# 7
+png(file="heatmap.ibm.fhist.time_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all_median_by_ibm_Fhist_time, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by F history and Time Horizon")
+dev.off()
+
+
+# 8
+png(file="heatmap.ibm.retro.fhist_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all_median_by_ibm_retro_Fhist, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Type and F history")
+dev.off()
+
+
+# 9
+png(file="heatmap.ibm.retro.time_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all_median_by_ibm_retro_time, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Type and Time Horizon")
+dev.off()
+
+
+# 10
+png(file="heatmap.ibm.fhist.cmult_median.png", height=png.h, width=png.w, units="in",
+    res=png.res, type="cairo"  )
+heatmap.2(all_median_by_ibm_Fhist_Cmult, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by F history and Catch Mult")
+dev.off()
+
+
+# --- write csv files for table of MEAN heatmap results ====
+
+#1 
+nrows <- dim(t(all_median_by_ibm))[2]
+write.csv(t(heat2.all_med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm_median.csv")  #this gives table of standardized values
+write.csv(all_median_by_ibm[rev(heat2.all_med$rowInd),heat2.all_med$colInd], file="table.heatmap.ibm_median_normalized.csv") #this gives table of values
+
+
+# 2
+nrows <- dim(t(all_median_by_ibm_retro))[2]
+write.csv(t(heat2.all.retro_med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.retro_median_normalized.csv")
+write.csv(all_median_by_ibm_retro[rev(heat2.all.retro_med$rowInd),heat2.all.retro_med$colInd], file="table.heatmap.ibm.retro_median.csv")
+
+# 3
+nrows <- dim(t(all_median_by_ibm_time))[2]
+write.csv(t(heat2.all.time_med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.time_median_normalized.csv")
+write.csv(all_median_by_ibm_time[rev(heat2.all.time_med$rowInd),heat2.all.time_med$colInd], file="table.heatmap.ibm.time_median.csv")
+
+# 4
+nrows <- dim(t(all_median_by_ibm_cmult))[2]
+write.csv(t(heat2.all.cmult_med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.cmult_median_normalized.csv")
+write.csv( all_median_by_ibm_cmult[rev(heat2.all.cmult_med$rowInd),heat2.all.cmult_med$colInd], file="table.heatmap.ibm.cmult_median.csv")
+
+# 5
+nrows <- dim(t(all_median_by_ibm_Fhist))[2]
+write.csv(t(heat2.all.Fhist_med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.Fhist_median_normalized.csv")
+write.csv(all_median_by_ibm_Fhist[rev(heat2.all.Fhist_med$rowInd),heat2.all.Fhist_med$colInd] , file="table.heatmap.ibm.Fhist_median.csv")
+
+# 6
+nrows <- dim(t(all_median_by_ibm_Cmult_time))[2]
+write.csv(t(heat2.all.time.cmult.time_med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.cmul.time_median_normalized.csv")
+write.csv(all_median_by_ibm_Cmult_time[rev(heat2.all.time.cmult.time_med$rowInd),heat2.all.time.cmult.time_med$colInd] , file="table.heatmap.ibm.cmul.time_median.csv")
+
+# 7
+nrows <- dim(t(all_median_by_ibm_Fhist_time))[2]
+write.csv(t(heat2.all.fhist.time_med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.fhist.time_median_normalized.csv")
+write.csv( all_median_by_ibm_Fhist_time[rev(heat2.all.fhist.time_med$rowInd),heat2.all.fhist.time_med$colInd], file="table.heatmap.ibm.fhist.time_median.csv")
+
+# 8
+nrows <- dim(t(all_median_by_ibm_retro_Fhist))[2]
+write.csv(t(heat2.all.retro.fhist_med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.retro.fhist_median_normalized.csv")
+write.csv(all_median_by_ibm_retro_Fhist[rev(heat2.all.retro.fhist_med$rowInd),heat2.all.retro.fhist_med$colInd] , file="table.heatmap.ibm.retro.fhist_median.csv")
+
+# 9
+nrows <- dim(t(all_median_by_ibm_retro_time))[2]
+write.csv(t(heat2.all.retro.time_med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.retro.time_median_normalized.csv")
+write.csv(all_median_by_ibm_retro_time[rev(heat2.all.retro.time_med$rowInd),heat2.all.retro.time_med$colInd] , file="table.heatmap.ibm.retro.time_median.csv")
+
+# 10
+nrows <- dim(t(all_median_by_ibm_Fhist_Cmult))[2]
+write.csv(t(heat2.all.Fhist.cmult_med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm.fhist.cmult_median_normalized.csv")
+write.csv(all_median_by_ibm_Fhist_Cmult[rev(heat2.all.Fhist.cmult_med$rowInd),heat2.all.Fhist.cmult_med$colInd]  , file="table.heatmap.ibm.fhist.cmult_median.csv")
+
+
+
+##--- End of Heatmap Stuff (Medians) ====
 

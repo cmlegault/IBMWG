@@ -22,13 +22,12 @@ for (i in 1:nres){
                     retro_type = dat1$retro_type[i],
                     Fhist = Fhistlab[dat1$Fhist[i]],
                     n_selblocks = dat1$n_selblocks[i],
-                    period = c(1, 50),
-                    ssbmsy = c(exp(dat1$base[[i]]$log_SSB_MSY[1]),
-                               exp(dat1$base[[i]]$log_SSB_MSY[50])),
-                    fmsy = c(exp(dat1$base[[i]]$log_FMSY[1]),
-                             exp(dat1$base[[i]]$log_FMSY[50])),
-                    msy = c(exp(dat1$base[[i]]$log_MSY[1]),
-                            exp(dat1$base[[i]]$log_MSY[50])))
+                    ssbmsy1 = exp(dat1$base[[i]]$log_SSB_MSY[1]),
+                    ssbmsy50 = exp(dat1$base[[i]]$log_SSB_MSY[50]),
+                    fmsy1 = exp(dat1$base[[i]]$log_FMSY[1]),
+                    fmsy50 = exp(dat1$base[[i]]$log_FMSY[50]),
+                    msy1 = exp(dat1$base[[i]]$log_MSY[1]),
+                    msy50 = exp(dat1$base[[i]]$log_MSY[50]))
   if (i == 1){
     refpts <- thisdat
   }else{
@@ -77,9 +76,10 @@ myssb_sum <- myssb %>%
   summarise(y = list(quibble(ssb, c(0.05, 0.25, 0.5, 0.75, 0.95)))) %>% 
   unnest(y) %>% 
   I() %>%
-  inner_join(filter(refpts, period == 1), by = "iscen") %>%
-  mutate(refpt = ssbmsy)
-
+  inner_join(refpts, by = "iscen") %>%
+  mutate(refpt1 = ssbmsy1,
+         refpt50 = ssbmsy50)
+  
 myssb_sum_wide <- myssb_sum %>%
   mutate(q = paste0("q", q)) %>%
   pivot_wider(names_from = q, values_from = x) 
@@ -89,8 +89,9 @@ myf_sum <- myf %>%
   summarise(y = list(quibble(f, c(0.05, 0.25, 0.5, 0.75, 0.95)))) %>% 
   unnest(y) %>% 
   I() %>%
-  inner_join(filter(refpts, period == 1), by = "iscen") %>%
-  mutate(refpt = fmsy)
+  inner_join(refpts, by = "iscen") %>%
+  mutate(refpt1 = fmsy1,
+         refpt50 = fmsy50)
 
 myf_sum_wide <- myf_sum %>%
   mutate(q = paste0("q", q)) %>%
@@ -101,8 +102,9 @@ mycatch_sum <- mycatch %>%
   summarise(y = list(quibble(catch, c(0.05, 0.25, 0.5, 0.75, 0.95)))) %>% 
   unnest(y) %>% 
   I() %>%
-  inner_join(filter(refpts, period == 1), by = "iscen") %>%
-  mutate(refpt = msy)
+  inner_join(refpts, by = "iscen") %>%
+  mutate(refpt1 = msy1,
+         refpt50 = msy50)
 
 mycatch_sum_wide <- mycatch_sum %>%
   mutate(q = paste0("q", q)) %>%
@@ -111,7 +113,7 @@ mycatch_sum_wide <- mycatch_sum %>%
 
 descdf <- data.frame(x=rep(1, 5),
                      y=seq(5, 1, -1),
-                     z=c("MSY reference point (blue line) from 1970 conditions",
+                     z=c("MSY reference point 1970 (blue line) or 2019 (red line) conditions",
                          "Fhist: F = Fmsy in second period, O = Overfishing throughout",
                          "Selbocks: 1, 2",
                          "Retro source: Catch, M",
@@ -128,26 +130,39 @@ make_base_plots <- function(mytibble, myylab, myylab2){
     geom_ribbon(aes(ymin = q0.05, ymax=q0.95), fill="grey25") +
     geom_ribbon(aes(ymin = q0.25, ymax=q0.75), fill="grey90") +
     geom_line(aes(y=q0.5), size=1.1) +
-    geom_line(aes(y = refpt), color = "blue") +
+    geom_line(aes(y = refpt1), color = "blue") +
+    geom_line(aes(y = refpt50), color = "red", linetype = "dashed") +
     facet_grid(retro_type~Fhist+n_selblocks) +
     labs(x="Year", y=myylab) +
     expand_limits(y=0) +
     scale_x_continuous(guide = guide_axis(check.overlap = TRUE)) +
     theme_bw()
   
-  myrelplot <- ggplot(mytibble, aes(x=year)) +
-    geom_ribbon(aes(ymin = q0.05/refpt, ymax=q0.95/refpt), fill="grey25") +
-    geom_ribbon(aes(ymin = q0.25/refpt, ymax=q0.75/refpt), fill="grey90") +
-    geom_line(aes(y=q0.5/refpt), size=1.1) +
+  myrelplot1 <- ggplot(mytibble, aes(x=year)) +
+    geom_ribbon(aes(ymin = q0.05/refpt1, ymax=q0.95/refpt1), fill="grey25") +
+    geom_ribbon(aes(ymin = q0.25/refpt1, ymax=q0.75/refpt1), fill="grey90") +
+    geom_line(aes(y=q0.5/refpt1), size=1.1) +
     geom_hline(yintercept = 1.0, color = "blue") +
     facet_grid(retro_type~Fhist+n_selblocks) +
-    labs(x="Year", y=myylab2) +
+    labs(x="Year", y=paste0(myylab2, "1970")) +
+    expand_limits(y=0) +
+    scale_x_continuous(guide = guide_axis(check.overlap = TRUE)) +
+    theme_bw()
+  
+  myrelplot50 <- ggplot(mytibble, aes(x=year)) +
+    geom_ribbon(aes(ymin = q0.05/refpt50, ymax=q0.95/refpt50), fill="grey25") +
+    geom_ribbon(aes(ymin = q0.25/refpt50, ymax=q0.75/refpt50), fill="grey90") +
+    geom_line(aes(y=q0.5/refpt50), size=1.1) +
+    geom_hline(yintercept = 1.0, color = "red", linetype = "dashed") +
+    facet_grid(retro_type~Fhist+n_selblocks) +
+    labs(x="Year", y=paste0(myylab2, "2019")) +
     expand_limits(y=0) +
     scale_x_continuous(guide = guide_axis(check.overlap = TRUE)) +
     theme_bw()
   
   myplots <- list(myplot = myplot,
-                  myrelplot = myrelplot)
+                  myrelplot1 = myrelplot1,
+                  myrelplot50 = myrelplot50)
   return(myplots)
 }
 
@@ -164,8 +179,12 @@ ssb_plots$myplot
 f_plots$myplot
 catch_plots$myplot
 
-ssb_plots$myrelplot
-f_plots$myrelplot
-catch_plots$myrelplot
+ssb_plots$myrelplot1
+f_plots$myrelplot1
+catch_plots$myrelplot1
+
+ssb_plots$myrelplot50
+f_plots$myrelplot50
+catch_plots$myrelplot50
 
 dev.off()
