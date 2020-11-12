@@ -2032,8 +2032,8 @@ dev.off()
 
 #1 
 nrows <- dim(t(all_median_by_ibm))[2]
-write.csv(t(heat2.all_med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm_median.csv")  #this gives table of standardized values
-write.csv(all_median_by_ibm[rev(heat2.all_med$rowInd),heat2.all_med$colInd], file="table.heatmap.ibm_median_normalized.csv") #this gives table of values
+write.csv(t(heat2.all_med$carpet)[rev(seq(1,nrows)),], file="table.heatmap.ibm_median_normalized.csv")  #this gives table of standardized values
+write.csv(all_median_by_ibm[rev(heat2.all_med$rowInd),heat2.all_med$colInd], file="table.heatmap.ibm_median.csv") #this gives table of values
 
 
 # 2
