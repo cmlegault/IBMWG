@@ -27,7 +27,8 @@ for (i in 1:nres){
                     fmsy1 = exp(dat1$base[[i]]$log_FMSY[1]),
                     fmsy50 = exp(dat1$base[[i]]$log_FMSY[50]),
                     msy1 = exp(dat1$base[[i]]$log_MSY[1]),
-                    msy50 = exp(dat1$base[[i]]$log_MSY[50]))
+                    msy50 = exp(dat1$base[[i]]$log_MSY[50]),
+                    F50 = dat1$base[[i]]$F[50])
   if (i == 1){
     refpts <- thisdat
   }else{
