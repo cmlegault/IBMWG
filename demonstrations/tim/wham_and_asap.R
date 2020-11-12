@@ -6,7 +6,8 @@ library(wham)
 
 source("code/wham_mse_functions.R")
 source("code/wham_retro_functions.R")
-source("code/base_input.R")
+source("demonstrations/tim/base_input.R") #make it possible to exclude projections
+#source("code/base_input.R")
 
 #Retro type definitions
 #size of retro: ~0.5
@@ -17,7 +18,7 @@ source("code/base_input.R")
 wham_like_asap = function(nsim = 1){
 
   #input = get_base_input()
-  new_in = get_base_input()
+  new_in = get_base_input(nprojyrs = 0)
   na = new_in$data$n_ages
   nf = new_in$data$n_fleets
   ni = new_in$data$n_indices
@@ -44,7 +45,8 @@ wham_like_asap = function(nsim = 1){
       c(1.2, 1/5.5))) #survey 2 (see factorial pruning)
 
   #set up initial numbers at age according to equilibrium assumptions as determined by IBMWG
-  input = new_in$input$basic_info
+  if("input" %in% names(new_in)) input = new_in$input$basic_info
+  else input = new_in$basic_info
   h = input$mean_rec_pars[1]
   R0 = input$mean_rec_pars[2]
   sel = 1/(1+exp(-sel.list$initial_pars[[1]][2]*(1:na - sel.list$initial_pars[[1]][1])))
@@ -74,6 +76,8 @@ wham_like_asap = function(nsim = 1){
   #scaa_input$use_steepness = 0
   scaa_input$par$mean_rec_pars = scaa_input$par$mean_rec_pars[2]
   scaa_input$data$recruit_model = 2
+  scaa_input$random = NULL
+  scaa_input$map$log_NAA_sigma = factor(rep(NA, length(scaa_input$par$log_NAA_sigma)))
   #scaa_input$mean_rec_pars = scaa_input$mean_rec_pars[2]
   #scaa_input = prepare_wham_om_input(scaa_input, recruit_model = 2, selectivity=sel.list)
   #scaa_input$data$Fbar_ages = 10
@@ -88,10 +92,16 @@ wham_like_asap = function(nsim = 1){
     tinput$data$Fbar_ages = 10
     tinput$data$use_steepness = 0
     tinput$data$recruit_model = 2
-    tfit = fit_wham(tinput, do.osa = FALSE, do.sdrep = FALSE, MakeADFun.silent = TRUE)
+    tinput$random = NULL
+    tinput$map$mean_rec_pars = factor(rep(NA, length(scaa_input$par$mean_rec_pars)))
+    tinput$map$log_NAA_sigma = factor(rep(NA, length(scaa_input$par$log_NAA_sigma)))
+    tinput$map$trans_NAA_rho = factor(rep(NA, length(scaa_input$par$trans_NAA_rho)))
+    tfit = fit_wham(tinput, do.osa = FALSE, do.sdrep = FALSE, MakeADFun.silent = TRUE, do.retro = FALSE)
     simres[[i]] = tfit$rep
   }
-  return(list(simsets, simres))
+  return(list(simsets, simres, tfit))
 }
-
 x = wham_like_asap()
+
+saveRDS(x, "demonstrations/tim/wham_res.RDS")
+
