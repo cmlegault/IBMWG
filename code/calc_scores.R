@@ -209,7 +209,7 @@ xmsy_b_plot_scaa <- plot_scores(all_scores_scaa, mymetrics, mytitle)
 print(xmsy_b_plot_scaa)
 
 mymetrics <- c("catch_a_iav_catch", "catch_s_avg_catch_msy")
-mytitle <- "Catch interannual variability (all years) and short term C/MSY"
+mytitle <- "Catch iav (all years) and short term C/MSY"
 c_only_plot <- plot_scores(all_scores_scaa, mymetrics, mytitle)
 print(c_only_plot)
 
