@@ -811,12 +811,12 @@ ssb_box_ns_IBM_scaa
 ssb_box_ns_Scen_scaa
 ssb_box_ratios_IBM_scaa 
 ssb_box_ratios_Scen_scaa
-ssb_probs_plot 
-colorize_confetti(ssb_probs_plot)
-ssb_ns_plot 
-colorize_confetti(ssb_ns_plot)
-ssb_ratios_plot 
-colorize_confetti(ssb_ratios_plot)
+# ssb_probs_plot 
+# colorize_confetti(ssb_probs_plot)
+# ssb_ns_plot 
+# colorize_confetti(ssb_ns_plot)
+# ssb_ratios_plot 
+# colorize_confetti(ssb_ratios_plot)
 
 f_box_probs_IBM 
 f_box_probs_Scen
@@ -830,12 +830,12 @@ f_box_ns_IBM_scaa
 f_box_ns_Scen_scaa
 f_box_ratios_IBM_scaa 
 f_box_ratios_Scen_scaa
-f_probs_plot 
-colorize_confetti(f_probs_plot)
-f_ns_plot 
-colorize_confetti(f_ns_plot)
-f_ratios_plot 
-colorize_confetti(f_ratios_plot)
+# f_probs_plot 
+# colorize_confetti(f_probs_plot)
+# f_ns_plot 
+# colorize_confetti(f_ns_plot)
+# f_ratios_plot 
+# colorize_confetti(f_ratios_plot)
 
 catch_box_means_IBM
 catch_box_means_Scen
@@ -849,12 +849,12 @@ catch_box_ratios_IBM_scaa
 catch_box_ratios_Scen_scaa
 catch_box_other_IBM_scaa 
 catch_box_other_Scen_scaa
-catch_means_plot 
-colorize_confetti(catch_means_plot)
-catch_ratios_plot 
-colorize_confetti(catch_ratios_plot)
-catch_other_plot 
-colorize_confetti(catch_other_plot)
+# catch_means_plot 
+# colorize_confetti(catch_means_plot)
+# catch_ratios_plot 
+# colorize_confetti(catch_ratios_plot)
+# catch_other_plot 
+# colorize_confetti(catch_other_plot)
 
 td1_l_plot
 td1_s_plot
@@ -871,31 +871,15 @@ td3_s_plot
 td3_l_scaa_plot
 td3_s_scaa_plot
 
-for (i in 1:length(td4_l_IBM_plot)){
-  print(td4_l_IBM_plot[[i]])
-}
-for (i in 1:length(td4_s_IBM_plot)){
-  print(td4_s_IBM_plot[[i]])
-}
-for (i in 1:length(td4_l_Scen_plot)){
-  print(td4_l_Scen_plot[[i]])
-}
-for (i in 1:length(td4_s_Scen_plot)){
-  print(td4_s_Scen_plot[[i]])
-}
+walk(td4_l_IBM_plot, print)
+walk(td4_s_IBM_plot, print)
+walk(td4_l_Scen_plot, print)
+walk(td4_s_Scen_plot, print)
 
-for (i in 1:length(td4_l_IBM_scaa_plot)){
-  print(td4_l_IBM_scaa_plot[[i]])
-}
-for (i in 1:length(td4_s_IBM_scaa_plot)){
-  print(td4_s_IBM_scaa_plot[[i]])
-}
-for (i in 1:length(td4_l_Scen_scaa_plot)){
-  print(td4_l_Scen_scaa_plot[[i]])
-}
-for (i in 1:length(td4_s_Scen_scaa_plot)){
-  print(td4_s_Scen_scaa_plot[[i]])
-}
+walk(td4_l_IBM_scaa_plot, print)
+walk(td4_s_IBM_scaa_plot, print)
+walk(td4_l_Scen_scaa_plot, print)
+walk(td4_s_Scen_scaa_plot, print)
 
 dev.off()
 
