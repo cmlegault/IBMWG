@@ -94,6 +94,7 @@ nsimtab <- rbind(countIBM, countIBM_scaa, countIBM_noretro) %>%
   select(IBMlab, Scenlab, nsim) %>%
   pivot_wider(names_from = Scenlab, values_from = nsim)
 nsimtab
+write.csv(nsimtab, file = "tables_figs/nsimtab.csv", row.names = FALSE)
 
 nsim_plot <- ggplot(rbind(countIBM, countIBM_scaa, countIBM_noretro), 
                     aes(x=Scenlab, y=nsim)) +
