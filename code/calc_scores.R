@@ -68,7 +68,7 @@ all_abb_table <- all_scores %>%
   select(IBMlab, metric, bb) %>%
   pivot_wider(names_from = "IBMlab", values_from = "bb") 
 
-#write.csv(all_abb_table, file = "tables_figs/all_abb.csv")
+write.csv(all_abb_table, file = "tables_figs/all_abb.csv")
 
 all_scores_table <- all_scores %>%
   select(IBMlab, metric, score) %>%
@@ -102,7 +102,7 @@ all_abb_table_scaa <- all_scores_scaa %>%
   select(IBMlab, metric, bb) %>%
   pivot_wider(names_from = "IBMlab", values_from = "bb") 
 
-#write.csv(all_abb_table_scaa, file = "tables_figs/all_abb_scaa.csv")
+write.csv(all_abb_table_scaa, file = "tables_figs/all_abb_scaa.csv")
 
 all_scores_table_scaa <- all_scores_scaa %>%
   select(IBMlab, metric, score) %>%
