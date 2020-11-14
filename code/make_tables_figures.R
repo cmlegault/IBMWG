@@ -795,6 +795,44 @@ for (i in 1:length(myibmlabs_scaa)){
     facet_wrap(~Scenlab)
 }
 
+# compare metrics plot
+compare_all_plot <- function(mytibble, myxlab, mytitle){
+  mysum <- mytibble %>%
+    group_by(IBMlab) %>%
+    summarize(meanval = mean(value)) %>%
+    inner_join(mytibble, by = "IBMlab")
+  myplot <- ggplot(mysum, aes(x=value, y=reorder(IBMlab, meanval), color=factor(catch.mult))) +
+    geom_point() +
+    facet_grid(retro_type~Fhistlab[Fhist]+n_selblocks) +
+    labs(x=myxlab, y="", color="Catch Mult", title=mytitle) +
+    theme_bw()
+  return(myplot)
+}
+
+ssb_ssbmsy_l <- compare_all_plot(filter(ssb_mean_by_scenario, 
+                                        metric == "l_avg_ssb_ssbmsy"), 
+                                 "SSB/SSBmsy", "Long Term")
+
+f_fmsy_l <- compare_all_plot(filter(f_mean_by_scenario, 
+                                    metric == "l_avg_f_fmsy"), 
+                             "F/Fmsy", "Long Term")
+
+catch_msy_l <- compare_all_plot(filter(catch_mean_by_scenario, 
+                                    metric == "l_avg_catch_msy"), 
+                             "Catch/MSY", "Long Term")
+
+ssb_ssbmsy_s <- compare_all_plot(filter(ssb_mean_by_scenario, 
+                                        metric == "s_avg_ssb_ssbmsy"), 
+                                 "SSB/SSBmsy", "Short Term")
+
+f_fmsy_s <- compare_all_plot(filter(f_mean_by_scenario, 
+                                    metric == "s_avg_f_fmsy"), 
+                             "F/Fmsy", "Short Term")
+
+catch_msy_s <- compare_all_plot(filter(catch_mean_by_scenario, 
+                                       metric == "s_avg_catch_msy"), 
+                                "Catch/MSY", "Short Term")
+
 ### put plots into pdf
 pdf(file = "tables_figs/tables_figures.pdf")
 nsim_plot
@@ -881,6 +919,13 @@ walk(td4_l_IBM_scaa_plot, print)
 walk(td4_s_IBM_scaa_plot, print)
 walk(td4_l_Scen_scaa_plot, print)
 walk(td4_s_Scen_scaa_plot, print)
+
+ssb_ssbmsy_l
+f_fmsy_l 
+catch_msy_l
+ssb_ssbmsy_s
+f_fmsy_s 
+catch_msy_s 
 
 dev.off()
 
