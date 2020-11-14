@@ -796,11 +796,15 @@ for (i in 1:length(myibmlabs_scaa)){
 }
 
 # compare metrics plot
-compare_all_plot <- function(mytibble, myxlab, mytitle){
+# bb controls whether largest mean value at top (TRUE) or smallest (FALSE)
+compare_all_plot <- function(mytibble, myxlab, mytitle, bb){
   mysum <- mytibble %>%
     group_by(IBMlab) %>%
     summarize(meanval = mean(value)) %>%
     inner_join(mytibble, by = "IBMlab")
+  if (bb == FALSE){ 
+    mysum$meanval = -1.0 * mysum$meanval
+  }
   myplot <- ggplot(mysum, aes(x=value, y=reorder(IBMlab, meanval), color=factor(catch.mult))) +
     geom_point() +
     facet_grid(retro_type~Fhistlab[Fhist]+n_selblocks) +
@@ -811,27 +815,27 @@ compare_all_plot <- function(mytibble, myxlab, mytitle){
 
 ssb_ssbmsy_l <- compare_all_plot(filter(ssb_mean_by_scenario, 
                                         metric == "l_avg_ssb_ssbmsy"), 
-                                 "SSB/SSBmsy", "Long Term")
+                                 "SSB/SSBmsy", "Long Term", TRUE)
 
 f_fmsy_l <- compare_all_plot(filter(f_mean_by_scenario, 
                                     metric == "l_avg_f_fmsy"), 
-                             "F/Fmsy", "Long Term")
+                             "F/Fmsy", "Long Term", FALSE)
 
 catch_msy_l <- compare_all_plot(filter(catch_mean_by_scenario, 
                                     metric == "l_avg_catch_msy"), 
-                             "Catch/MSY", "Long Term")
+                             "Catch/MSY", "Long Term", TRUE)
 
 ssb_ssbmsy_s <- compare_all_plot(filter(ssb_mean_by_scenario, 
                                         metric == "s_avg_ssb_ssbmsy"), 
-                                 "SSB/SSBmsy", "Short Term")
+                                 "SSB/SSBmsy", "Short Term", TRUE)
 
 f_fmsy_s <- compare_all_plot(filter(f_mean_by_scenario, 
                                     metric == "s_avg_f_fmsy"), 
-                             "F/Fmsy", "Short Term")
+                             "F/Fmsy", "Short Term", FALSE)
 
 catch_msy_s <- compare_all_plot(filter(catch_mean_by_scenario, 
                                        metric == "s_avg_catch_msy"), 
-                                "Catch/MSY", "Short Term")
+                                "Catch/MSY", "Short Term", TRUE)
 
 ### put plots into pdf
 pdf(file = "tables_figs/tables_figures.pdf")
