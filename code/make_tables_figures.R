@@ -837,6 +837,56 @@ catch_msy_s <- compare_all_plot(filter(catch_mean_by_scenario,
                                        metric == "s_avg_catch_msy"), 
                                 "Catch/MSY", "Short Term", TRUE)
 
+# probabilty and nyears overfished overfishing 
+prob_overfished <- filter(ssb_mean_by_scenario,
+                     metric %in% c("l_is_less_05_bmsy", 
+                                   "s_is_less_05_bmsy")) %>%
+  mutate(period = ifelse(substr(metric, 1, 1) == "l", "Long Term", "Short Term")) %>%
+  group_by(IBMlab, period) %>%
+  summarise(meanval = mean(value)) %>%
+  mutate(sdc = "Overfished")
+
+prob_overfishing <- filter(f_mean_by_scenario,
+                           metric %in% c("l_is_gr_fmsy", "s_is_gr_fmsy")) %>%
+  mutate(period = ifelse(substr(metric, 1, 1) == "l", "Long Term", "Short Term")) %>%
+  group_by(IBMlab, period) %>%
+  summarise(meanval = mean(value)) %>%
+  mutate(sdc = "Overfishing")
+
+prob_status <- rbind(prob_overfished, prob_overfishing)
+
+prob_status_plot <- ggplot(prob_status, aes(x=meanval, y=IBMlab)) +
+  geom_point() +
+  facet_grid(sdc~period) +
+  expand_limits(x=c(0, 1)) +
+  labs(x="Probability", y="") +
+  theme_bw()
+
+nyrs_overfished <- filter(ssb_mean_by_scenario,
+                          metric %in% c("l_n_less_05_bmsy", 
+                                        "s_n_less_05_bmsy")) %>%
+  mutate(period = ifelse(substr(metric, 1, 1) == "l", "Long Term", "Short Term")) %>%
+  group_by(IBMlab, period) %>%
+  summarise(meanval = mean(value)) %>%
+  mutate(sdc = "Overfished")
+
+nyrs_overfishing <- filter(f_mean_by_scenario,
+                           metric %in% c("l_n_gr_fmsy", "s_n_gr_fmsy")) %>%
+  mutate(period = ifelse(substr(metric, 1, 1) == "l", "Long Term", "Short Term")) %>%
+  group_by(IBMlab, period) %>%
+  summarise(meanval = mean(value)) %>%
+  mutate(sdc = "Overfishing")
+
+nyrs_status <- rbind(nyrs_overfished, nyrs_overfishing)
+
+nyrs_status_plot <- ggplot(nyrs_status, aes(x=meanval, y=IBMlab)) +
+  geom_point() +
+  facet_grid(sdc~period, scales = "free_x") +
+  expand_limits(x=c(0, 1)) +
+  labs(x="Number of Years", y="") +
+  theme_bw()
+
+
 ### put plots into pdf
 pdf(file = "tables_figs/tables_figures.pdf")
 nsim_plot
@@ -930,6 +980,9 @@ catch_msy_l
 ssb_ssbmsy_s
 f_fmsy_s 
 catch_msy_s 
+
+prob_status_plot
+nyrs_status_plot
 
 dev.off()
 
