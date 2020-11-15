@@ -11,6 +11,12 @@ f_mean_by_scenario <- readRDS(file = "tables_figs/f_mean_by_scenario.rds")
 
 catch_mean_by_scenario <- readRDS(file = "tables_figs/catch_mean_by_scenario.rds")
 
+ssb_mean_by_scenario_noretro <- readRDS(file = "tables_figs/ssb_mean_by_scenario_noretro.rds")
+
+f_mean_by_scenario_noretro <- readRDS(file = "tables_figs/f_mean_by_scenario_noretro.rds")
+
+catch_mean_by_scenario_noretro <- readRDS(file = "tables_figs/catch_mean_by_scenario_noretro.rds")
+
 ssb_mean_by_scenario_scaa <- readRDS(file = "tables_figs/ssb_mean_by_scenario_scaa.rds")
 
 f_mean_by_scenario_scaa <- readRDS(file = "tables_figs/f_mean_by_scenario_scaa.rds")
@@ -82,6 +88,40 @@ all_resids_table <- all_scores %>%
 
 #write.csv(all_resids_table, file="tables_figs/all_resids.csv")
 
+# create noretro scores
+ssb_abb_noretro <- apply_bb(ssb_mean_by_scenario_noretro, ssb_bigger_better) %>%
+  mutate(metric = paste0("ssb_", metric))
+
+f_abb_noretro <- apply_bb(f_mean_by_scenario_noretro, f_bigger_better) %>%
+  mutate(metric = paste0("f_", metric))
+
+catch_abb_noretro <- apply_bb(catch_mean_by_scenario_noretro, catch_bigger_better) %>%
+  mutate(metric = paste0("catch_", metric))
+
+all_abb_noretro <- rbind(ssb_abb_noretro, f_abb_noretro, catch_abb_noretro) %>%
+  arrange(metric)
+
+all_scores_noretro <- calc_scores(all_abb_noretro) 
+
+# save noretro output tables
+all_abb_table_noretro <- all_scores_noretro %>%
+  select(IBMlab, metric, bb) %>%
+  pivot_wider(names_from = "IBMlab", values_from = "bb") 
+
+write.csv(all_abb_table_noretro, file = "tables_figs/all_abb_noretro.csv")
+
+all_scores_table_noretro <- all_scores_noretro %>%
+  select(IBMlab, metric, score) %>%
+  pivot_wider(names_from = "IBMlab", values_from = "score") 
+
+#write.csv(all_scores_table_noretro, file="tables_figs/all_scores_noretro.csv")
+
+all_resids_table_noretro <- all_scores_noretro %>%
+  select(IBMlab, metric, resid) %>%
+  pivot_wider(names_from = "IBMlab", values_from = "resid")
+
+#write.csv(all_resids_table_noretro, file="tables_figs/all_resids_noretro.csv")
+
 # create scaa scores
 ssb_abb_scaa <- apply_bb(ssb_mean_by_scenario_scaa, ssb_bigger_better) %>%
   mutate(metric = paste0("ssb_", metric))
@@ -132,108 +172,100 @@ filter_scores <- function(mytibble, mymetrics){
   return(myfiltered)
 }
 
-plot_scores <- function(mytibble, mymetrics, mytitle){
-  myf <- filter_scores(mytibble, mymetrics)
-  myplot <- ggplot(myf, aes(x=reorder(IBMlab, value), y=value)) +
+# assumes list of 3 tibbles input: base, noretro, scaa
+plot_scores <- function(mytib, mymetrics, mytitle){
+  mytitleext <- c("", "(No retro scenarios)", "(SCAA scenarios)")
+  myplot <- list()
+  for (i in 1:3){
+  myf <- filter_scores(mytib[[i]], mymetrics)
+  myplot[[i]] <- ggplot(myf, aes(x=reorder(IBMlab, value), y=value)) +
     geom_bar(stat = "identity") +
     coord_flip() +
     facet_wrap(~source, scales = "free_x") +
-    labs(x="", y="Score (bigger is better)", title=mytitle) +
+    labs(x="", y="Score (bigger is better)", title=paste(mytitle, mytitleext[i])) +
     theme_bw()
+  }
+  return(myplot)
 }
+
+all_scores_list <- list(all_scores, all_scores_noretro, all_scores_scaa)
 
 # define plots
 mymetrics <- c("ssb_l_avg_ssb_ssbmsy", "f_l_avg_f_fmsy", "catch_l_avg_catch_msy")
 mytitle <- "X/Xmsy Long Term"
-xmsy_l_plot <- plot_scores(all_scores, mymetrics, mytitle)
-print(xmsy_l_plot)
+xmsy_l_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 mymetrics <- c("ssb_l_avg_ssb_ssbmsy")
 mytitle <- "SSB/SSBmsy Long Term"
-ssbmsy_l_plot <- plot_scores(all_scores, mymetrics, mytitle)
-print(ssbmsy_l_plot)
+ssbmsy_l_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 mymetrics <- c("f_l_avg_f_fmsy")
 mytitle <- "F/Fmsy Long Term"
-fmsy_l_plot <- plot_scores(all_scores, mymetrics, mytitle)
-print(fmsy_l_plot)
+fmsy_l_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 mymetrics <- c("catch_l_avg_catch_msy")
 mytitle <- "Catch/MSY Long Term"
-catchmsy_l_plot <- plot_scores(all_scores, mymetrics, mytitle)
-print(catchmsy_l_plot)
+catchmsy_l_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 mymetrics <- c("ssb_s_avg_ssb_ssbmsy", "f_s_avg_f_fmsy", "catch_s_avg_catch_msy")
 mytitle <- "X/Xmsy Short Term"
-xmsy_s_plot <- plot_scores(all_scores, mymetrics, mytitle)
-print(xmsy_s_plot)
+xmsy_s_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 mymetrics <- c("ssb_s_avg_ssb_ssbmsy")
 mytitle <- "SSB/SSBmsy Short Term"
-ssbmsy_s_plot <- plot_scores(all_scores, mymetrics, mytitle)
-print(ssbmsy_s_plot)
+ssbmsy_s_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 mymetrics <- c("f_s_avg_f_fmsy")
 mytitle <- "F/Fmsy Short Term"
-fmsy_s_plot <- plot_scores(all_scores, mymetrics, mytitle)
-print(fmsy_s_plot)
+fmsy_s_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 mymetrics <- c("catch_s_avg_catch_msy")
 mytitle <- "Catch/MSY Short Term"
-catchmsy_s_plot <- plot_scores(all_scores, mymetrics, mytitle)
-print(catchmsy_s_plot)
+catchmsy_s_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 mymetrics <- c("ssb_l_avg_ssb_ssbmsy", "f_l_avg_f_fmsy", "catch_l_avg_catch_msy", "ssb_s_avg_ssb_ssbmsy", "f_s_avg_f_fmsy", "catch_s_avg_catch_msy")
 mytitle <- "X/Xmsy Both Long and Short Term"
-xmsy_b_plot <- plot_scores(all_scores, mymetrics, mytitle)
-print(xmsy_b_plot)
+xmsy_b_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 mymetrics <- c("ssb_l_avg_ssb_ssbmsy", "ssb_s_avg_ssb_ssbmsy")
 mytitle <- "SSB/SSBmsy Both Long and Short Term"
-ssbmsy_b_plot <- plot_scores(all_scores, mymetrics, mytitle)
-print(ssbmsy_b_plot)
+ssbmsy_b_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 mymetrics <- c("f_l_avg_f_fmsy", "f_s_avg_f_fmsy")
 mytitle <- "F/Fmsy Both Long and Short Term"
-fmsy_b_plot <- plot_scores(all_scores, mymetrics, mytitle)
-print(fmsy_b_plot)
+fmsy_b_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 mymetrics <- c("catch_l_avg_catch_msy", "catch_s_avg_catch_msy")
 mytitle <- "Catch/MSY Both Long and Short Term"
-catchmsy_b_plot <- plot_scores(all_scores, mymetrics, mytitle)
-print(catchmsy_b_plot)
-
-mymetrics <- c("ssb_l_avg_ssb_ssbmsy", "f_l_avg_f_fmsy", "catch_l_avg_catch_msy", "ssb_s_avg_ssb_ssbmsy", "f_s_avg_f_fmsy", "catch_s_avg_catch_msy")
-mytitle <- "X/Xmsy Both Long and Short Term (SCAA Scenarios)"
-xmsy_b_plot_scaa <- plot_scores(all_scores_scaa, mymetrics, mytitle)
-print(xmsy_b_plot_scaa)
+catchmsy_b_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 mymetrics <- c("catch_a_iav_catch", "catch_s_avg_catch_msy")
 mytitle <- "Catch iav (all years) and short term C/MSY"
-c_only_plot <- plot_scores(all_scores_scaa, mymetrics, mytitle)
-print(c_only_plot)
+c_only_plot <- plot_scores(all_scores_list, mymetrics, mytitle)
 
 ### put plots into pdf
 pdf(file = "tables_figs/scores.pdf")
 
-xmsy_l_plot
-ssbmsy_l_plot
-fmsy_l_plot
-catchmsy_l_plot
+for (i in 1:3){
 
-xmsy_s_plot
-ssbmsy_s_plot
-fmsy_s_plot
-catchmsy_s_plot
+  print(xmsy_l_plot[[i]])
+  print(ssbmsy_l_plot[[i]])
+  print(fmsy_l_plot[[i]])
+  print(catchmsy_l_plot[[i]])
 
-xmsy_b_plot
-ssbmsy_b_plot
-fmsy_b_plot
-catchmsy_b_plot
+  print(xmsy_s_plot[[i]])
+  print(ssbmsy_s_plot[[i]])
+  print(fmsy_s_plot[[i]])
+  print(catchmsy_s_plot[[i]])
 
-xmsy_b_plot_scaa
+  print(xmsy_b_plot[[i]])
+  print(ssbmsy_b_plot[[i]])
+  print(fmsy_b_plot[[i]])
+  print(catchmsy_b_plot[[i]])
 
-c_only_plot
+  print(c_only_plot[[i]])
+
+}
 
 dev.off()
 
