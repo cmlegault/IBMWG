@@ -14,6 +14,8 @@ library(tidyverse)
 
 all_scores <- read.csv(file = "all_scores.csv")
 all_resids <- read.csv(file = "all_resids.csv")
+noretro_scores <- read.csv(file = "all_scores_noretro.csv")
+noretro_resids <- read.csv(file = "all_resids_noretro.csv")
 scaa_scores <- read.csv(file = "all_scores_scaa.csv")
 scaa_resids <- read.csv(file = "all_resids_scaa.csv")
 
@@ -25,6 +27,14 @@ all_resids_long <- all_resids %>%
     pivot_longer(cols = -c(1, 2), names_to = "IBM", values_to = "value") %>%
     mutate(source = "Resid",
            scenset = "base")
+noretro_scores_long <- noretro_scores %>%
+    pivot_longer(cols = -c(1, 2), names_to = "IBM", values_to = "value") %>%
+    mutate(source = "Rank",
+           scenset = "noretro")
+noretro_resids_long <- noretro_resids %>%
+    pivot_longer(cols = -c(1, 2), names_to = "IBM", values_to = "value") %>%
+    mutate(source = "Resid",
+           scenset = "noretro")
 scaa_scores_long <- scaa_scores %>%
     pivot_longer(cols = -c(1, 2), names_to = "IBM", values_to = "value") %>%
     mutate(source = "Rank",
@@ -34,10 +44,11 @@ scaa_resids_long <- scaa_resids %>%
     mutate(source = "Resid",
            scenset = "scaa")
 
-all_values <- rbind(all_scores_long, all_resids_long, 
+all_values <- rbind(all_scores_long, all_resids_long,
+                    noretro_scores_long, noretro_resids_long,
                     scaa_scores_long, scaa_resids_long)
 
-all_metrics <- all_scores$metric
+all_metrics <- unique(all_scores$metric)
 
 
 # Define UI for application that draws a histogram
@@ -55,7 +66,7 @@ ui <- fluidPage(
                         multiple = TRUE),
             radioButtons("myset",
                          "Set:",
-                         choices = c("base", "scaa"),
+                         choices = c("base", "noretro", "scaa"),
                          selected = "base"),
             radioButtons("showres",
                          "Plot:",
@@ -106,6 +117,9 @@ server <- function(input, output) {
         }
 
         myscores <- all_scores
+        if (input$myset == "noretro"){
+            myscores <- noretro_scores
+        }
         if (input$myset == "scaa"){
             myscores <- scaa_scores
         }
@@ -119,6 +133,9 @@ server <- function(input, output) {
         }
         
         myscores <- all_resids
+        if (input$myset == "noretro"){
+            myscores <- noretro_scores
+        }
         if (input$myset == "scaa"){
             myscores <- scaa_resids
         }
