@@ -108,3 +108,9 @@ pdf(file = "demonstrations/tim/branch_sims/branch_sims2.pdf")
 walk(mult_ts_plot, print)
 dev.off()
 
+# save png files to allow animation
+for (i in 1:length(mult_ts_plot)){
+  png(filename = paste0(file.path(mydir, paste0("mult_ts_plot", i, ".png"))))
+  print(mult_ts_plot[i])
+  dev.off()
+}
