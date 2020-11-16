@@ -1068,25 +1068,25 @@ nyrs_status_plot <- make_status_plot(list(mystatus[[2]],
 ### put plots into pdfs
 
 pdf(file = "tables_figs/confetti_plots.pdf")
-ssb_probs_plot
+print(ssb_probs_plot)
 colorize_confetti(ssb_probs_plot)
-ssb_ns_plot
+print(ssb_ns_plot)
 colorize_confetti(ssb_ns_plot)
-ssb_ratios_plot
+print(ssb_ratios_plot)
 colorize_confetti(ssb_ratios_plot)
 
-f_probs_plot
+print(f_probs_plot)
 colorize_confetti(f_probs_plot)
-f_ns_plot
+print(f_ns_plot)
 colorize_confetti(f_ns_plot)
-f_ratios_plot
+print(f_ratios_plot)
 colorize_confetti(f_ratios_plot)
 
-catch_means_plot
+print(catch_means_plot)
 colorize_confetti(catch_means_plot)
-catch_ratios_plot
+print(catch_ratios_plot)
 colorize_confetti(catch_ratios_plot)
-catch_other_plot
+print(catch_other_plot)
 colorize_confetti(catch_other_plot)
 
 dev.off()
