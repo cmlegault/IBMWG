@@ -189,3 +189,7 @@ f_plots$myrelplot50
 catch_plots$myrelplot50
 
 dev.off()
+
+# save pngs
+ggsave(f_plots$myplot, filename = "demonstrations/chris/base_sims/F.png")
+ggsave(ssb_plots$myrelplot50, filename = "demonstrations/chris/base_sims/ssbrel50.png")
