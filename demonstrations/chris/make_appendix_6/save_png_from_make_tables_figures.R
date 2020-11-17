@@ -1,4 +1,5 @@
-# save_png_files.R
+# save_png_from _make_tables_figures.R
+
 # source make_tables_figures.R first
 # now save all the figures as png files in mydir
 
@@ -27,6 +28,8 @@ my_png_list <- function(v1){
 
 # single plots
 my_png(nsim_plot, 0)
+
+# base, noretro, scaa plots
 
 for (i in 1:3){
 
@@ -88,6 +91,34 @@ for (i in 1:3){
   
   my_png(prob_status_plot, i)
   my_png(nyrs_status_plot, i)
-  
-  
 }
+
+# redo confetti plots to save as png
+my_png_confetti <- function(v1){
+  v1str <- deparse(substitute(v1))
+  v2 <- list()
+  v2[[1]] <- v1
+  v2[[2]] <- v1 + geom_point(aes(color = retro_type))
+  v2[[3]] <- v1 + geom_point(aes(color = IBMlab))
+  v2[[4]] <- v1 + geom_point(aes(color = factor(Fhist)))
+  v2[[5]] <- v1 + geom_point(aes(color = factor(n_selblocks)))
+  v2[[6]] <- v1 + geom_point(aes(color = factor(catch.mult)))
+  nplots <- length(v2)
+  for (j in 1:nplots){
+    ggsave(file = file.path(mydir, paste0(v1str, "_", j, "_confetti", ".png")),
+           v2[[j]], 
+           width = 6.5, height = 6.5, units = "in")
+  }
+}
+
+my_png_confetti(ssb_probs_plot)
+my_png_confetti(ssb_ns_plot)
+my_png_confetti(ssb_ratios_plot)
+
+my_png_confetti(f_probs_plot)
+my_png_confetti(f_ns_plot)
+my_png_confetti(f_ratios_plot)
+
+my_png_confetti(catch_means_plot)
+my_png_confetti(catch_ratios_plot)
+my_png_confetti(catch_other_plot)
