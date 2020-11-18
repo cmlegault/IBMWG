@@ -36,8 +36,9 @@ get_td4_bagdata <- function(mytib){
         this.bag <- tibble(IBM=myibmlabs[j],Scen=myscenlabs[i],bagpart="bag",period=myperiod,x=bag$hull.bag[,1], y=bag$hull.bag[,2])
         this.loop <- tibble(IBM=myibmlabs[j],Scen=myscenlabs[i],bagpart="loop",period=myperiod,x=bag$hull.loop[,1], y=bag$hull.loop[,2])
         this.outlier <- tibble(IBM=myibmlabs[j],Scen=myscenlabs[i],bagpart="outlier",period=myperiod,x=bag$pxy.outlier[,1], y=bag$pxy.outlier[,2])
+        this.median <- tibble(IBM=myibmlabs[j],Scen=myscenlabs[i],bagpart="median",period=myperiod,x=median(bag$xy[,1]), y=median(bag$xy[,2]))
         
-        mybag <- rbind(mybag, this.bag, this.loop, this.outlier)
+        mybag <- rbind(mybag, this.bag, this.loop, this.outlier, this.median)
         
       }
     }
@@ -45,33 +46,44 @@ get_td4_bagdata <- function(mytib){
   return(mybag)
 }
 
+# compute bagplot data
 bag_td4_base <- get_td4_bagdata(sims)  
 # no retro bombed - don't know why
 bag_td4_noretro <- get_td4_bagdata(sims_noretro)
 bag_td4_scaa <- get_td4_bagdata(sims_scaa)
 
+# plotting function
 get_bagplots <- function(myt){
   loop.col <- c("#66666633", '#0055AA33')
   bag.col <- c("#66666677", '#0055AA77')
   outlier.col <- c("#44444444", '#0055dd77')
+  median.col <- c("black", "blue")
   myplot <- ggplot(myt, aes(x=x, y=y)) +
+    geom_hline(aes(yintercept = 1), color = "red", linetype =  2) +
+    geom_vline(aes(xintercept = 1), color = "red", linetype = 2) +
+    geom_vline(aes(xintercept = 0.5), color= "red", linetype = 4) +
     geom_polygon(data = filter(myt, bagpart == "loop", period == "Long"), 
                  aes(x=x, y=y), fill = loop.col[1]) +
     geom_polygon(data = filter(myt, bagpart == "bag", period == "Long"), 
                  aes(x=x, y=y), fill = bag.col[1]) +
     geom_point(data = filter(myt, bagpart == "outlier", period == "Long"), 
-               aes(x=x, y=y), color = outlier.col[1]) +
+               aes(x=x, y=y), color = outlier.col[1], shape = 1) +
+    geom_point(data = filter(myt, bagpart == "median", period == "Long"),
+               aes(x=x, y=y), color = median.col[1]) +
     geom_polygon(data = filter(myt, bagpart == "loop", period == "Short"), 
                  aes(x=x, y=y), fill = loop.col[2]) +
     geom_polygon(data = filter(myt, bagpart == "bag", period == "Short"), 
                  aes(x=x, y=y), fill = bag.col[2]) +
     geom_point(data = filter(myt, bagpart == "outlier", period == "Short"), 
-               aes(x=x, y=y), color = outlier.col[2]) +
+               aes(x=x, y=y), color = outlier.col[2], shape = 1) +
+    geom_point(data = filter(myt, bagpart == "median", period == "Short"),
+               aes(x=x, y=y), color = median.col[2]) +
     labs(x="SSB/SSBmsy", y="Catch/MSY") +
     theme_minimal()
   return(myplot)  
 }
 
+# organizing function
 make_bagplots <- function(mytib, mysmax, mycmax, mytitleext){
   myscen <- sort(unique(mytib$Scen))
   nscen <- length(myscen)
@@ -99,7 +111,7 @@ make_bagplots <- function(mytib, mysmax, mycmax, mytitleext){
   return(res)
 }
 
-
+# get limits so scales are the same as flip through scenarios and IBMs
 mysmax <- max(mysmax_l, mysmax_s)
 mycmax <- max(mycmax_l, mycmax_s)
 mysmax_noretro <- max(mysmax_l_noretro, mysmax_s_noretro)
