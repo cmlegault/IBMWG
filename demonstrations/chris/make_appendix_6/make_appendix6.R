@@ -516,6 +516,36 @@ for (i in 1:2){
 }
 
 
+#### now switch over to Liz's ANOVA and Heatmap results
+mydir <- "tables_figs/anova_tables_figs"
+xx <- tibble(files = list.files(mydir)) %>% 
+  filter(grepl(".png", files)) %>%
+  head(13) %>%
+  mutate(model = substr(files, 25, nchar(files) - 4))
+mymod <- xx$model
+mytype <- c("hist", "qq")
+mymet1 <- c("SSB_SSBmsy", "F_Fmsy", "Catch_MSY")
+mymet2 <- c("SSB/SSBmsy", "F/Fmsy", "Catch/MSY")
+mytext <- c(" histograms for all simulation iterations by IBM for untransformed data (top left), natural logarithm transformed data (top right), and square root transformed data (bottom left)", " qq plots of the normalized residuals from the linear model fit for the ANOVAs")
+
+for (i in 1:3){ # SSB, F, Catch
+  for (j in 1:length(mymod)){ # models
+    for (k in 1:2){ # hist, qq
+      ifig <- ifig + 1
+      myfile <- file.path(mydir, paste0("Dist_AVG_",mymet1[i],"_",mytype[k],"_",mymod[j],".png"))
+      mycaption <- paste0("Figure A6.", ifig, ". ", mymet2[i], mytext[k])
+      my_doc <- my_doc %>%
+        officer::body_add_img(src=myfile, width = 6.5, height = 6.5, style = "centered") %>%
+        officer::body_add_par(mycaption, style = "Normal") %>%
+        officer::body_add_par("", style = "Normal") %>% # blank line
+        officer::body_add_break(pos = "after") # page break
+    }
+  }
+}
+
+
+
+
 
 ### finally
 # make the docx file
