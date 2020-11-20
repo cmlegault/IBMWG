@@ -25,6 +25,34 @@ my_doc <- my_doc %>%
 
 
 
+## scores for base scenarios
+score.txt <- "Two sets of scores, Rank and Resid, for the base analyses for the"
+period <- c("in the long term.", "in the short term.", "in both the long and short term.")
+metrics <- c("3 metrics of SSB, F, and Catch relative to their MSY reference points (denoted X/Xmsy)", "SSB relative to SSBmsy", "F relative to Fmsy", "catch relative to MSY")
+mlab <- c("x", "ssb", "f", "catch")
+plab <- c("l", "s", "b")
+for (i in 1:3){
+  for (j in 1:4){
+    ifig <- ifig + 1
+    myfile <- file.path(mydir, paste0(mlab[j],"msy_",plab[i],"_plot_1.png"))
+    mycaption <- paste0("Figure A6.", ifig, ". ", score.txt, " ", metrics[j], " ", period[i])
+    
+    my_doc <- my_doc %>%
+      officer::body_add_img(src=myfile, width = 6.5, height = 6.5, style = "centered") %>%
+      officer::body_add_par(mycaption, style = "Normal") %>%
+      officer::body_add_par("", style = "Normal") %>% # blank line
+      officer::body_add_break(pos = "after") # page break
+  }
+}
+ifig <- ifig + 1
+myfile <- file.path(mydir, "c_only_plot_1.png")
+mycaption <- paste0("Figure A6.", ifig, ". Two sets of scores, Rank and Resid, for the base analyses for the 2 metrics of interannual variability in catch over the entire feedback period and the short term mean Catch/MSY.")
+
+my_doc <- my_doc %>%
+  officer::body_add_img(src=myfile, width = 6.5, height = 6.5, style = "centered") %>%
+  officer::body_add_par(mycaption, style = "Normal") %>%
+  officer::body_add_par("", style = "Normal") %>% # blank line
+  officer::body_add_break(pos = "after") # page break
 
 
 # make the docx file
