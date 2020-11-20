@@ -71,7 +71,31 @@ for (i in 1:29){
     officer::body_add_break(pos = "after") # page break
 }
 
-
+### boxplots
+mlab <- c("SSB", "F", "catch")
+mlablower <- c("ssb", "f", "catch")
+tlab <- c("IBM", "scenario")
+tlabshort <- c("IBM", "Scen")
+for (i in 1:3){ # SSB, F, catch
+  for (j in 1:3){ # set, e.g., probs, ns, ratios 
+    if (i != 3){
+      slab <- c("probs", "ns", "ratios")
+    }else{
+      slab <- c("means", "ratios", "other")
+    }
+    for (k in 1:2){ # IBM, Scen
+      mymain <- paste0("Boxplot of the mean values for the ", mlab[i], " metrics in the base analyses by ", tlab[k], ".")
+      ifig <- ifig + 1
+      myfile <- file.path(mydir, paste0(mlablower[i],"_box_",slab[j],"_",tlabshort[k],"_1.png"))
+      mycaption <- paste0("Figure A6.", ifig, ". ", mymain) 
+      my_doc <- my_doc %>%
+        officer::body_add_img(src=myfile, width = 6.5, height = 6.5, style = "centered") %>%
+        officer::body_add_par(mycaption, style = "Normal") %>%
+        officer::body_add_par("", style = "Normal") %>% # blank line
+        officer::body_add_break(pos = "after") # page break
+    }
+  }
+}
 
 
 
