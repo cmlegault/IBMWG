@@ -137,11 +137,47 @@ for (i in 1:2){ # IBM and Scen
         officer::body_add_par(mycaption, style = "Normal") %>%
         officer::body_add_par("", style = "Normal") %>% # blank line
         officer::body_add_break(pos = "after") # page break
-      
     }
   }
 }
 
+### 8 panel relative MSY plots
+
+met <- c("ssb_ssbmsy", "f_fmsy", "catch_msy")
+metshort <- c("SSB", "F", "catch")
+plab <- c("long", "short")
+plabshort <- c("l", "s")
+basetext1 <- "Mean values of "
+basetext2 <- " relative to its maximum sustainable yield reference point by IBM in the "
+basetext3 <- " term with color denoting the catch advice multiplier for the 8 combinations of F history (F = Fmsy in second half of base period, O = overfishing throughout), number of fishery selectivity blocks (1 or 2), and retrospective source (catch or natural mortality, M). The IBMs are sorted by the mean across the 16 scenarios and arranged so that higher values are at the top."
+for (i in 1:2){ # long and short term
+  for (j in 1:3){ # SSB, F, catch
+    ifig <- ifig + 1
+    myfile <- file.path(mydir, paste0(met[j], "_", plabshort[i], "_1.png"))
+    mycaption <- paste0("Figure A6.", ifig, ". ", basetext1, metshort[j], basetext2, plab[i], basetext3)
+    my_doc <- my_doc %>%
+      officer::body_add_img(src=myfile, width = 6.5, height = 6.5, style = "centered") %>%
+      officer::body_add_par(mycaption, style = "Normal") %>%
+      officer::body_add_par("", style = "Normal") %>% # blank line
+      officer::body_add_break(pos = "after") # page break
+  }
+}
+
+### status plots
+met <- c("Probability", "Number of years")
+metshort <- c("prob", "nyrs")
+basetext <- " stock is overfished or undergoing overfishing in the short or long term for each IBM averaged across all base scenarios."
+
+for (i in 1:2){
+  ifig <- ifig + 1
+  myfile <- file.path(mydir, paste0(metshort[i], "_status_plot_1.png"))
+  mycaption <- paste0("Figure A6.", ifig, ". ", met[i], basetext)
+  my_doc <- my_doc %>%
+    officer::body_add_img(src=myfile, width = 6.5, height = 6.5, style = "centered") %>%
+    officer::body_add_par(mycaption, style = "Normal") %>%
+    officer::body_add_par("", style = "Normal") %>% # blank line
+    officer::body_add_break(pos = "after") # page break
+}
 
 
 
