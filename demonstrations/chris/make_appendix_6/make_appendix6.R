@@ -178,6 +178,30 @@ for (i in 1:2){
     officer::body_add_break(pos = "after") # page break
 }
 
+#### confetti plots (base analyses only)
+mlab <- c("SSB", "F", "catch")
+mlablower <- c("ssb", "f", "catch")
+for (i in 1:3){ # SSB, F, catch
+  for (j in 1:3){ # set, e.g., probs, ns, ratios 
+    if (i != 3){
+      slab <- c("probs", "ns", "ratios")
+    }else{
+      slab <- c("means", "ratios", "other")
+    }
+    for (k in 1:6){ # confetti by factor
+      mymain <- paste0("Confetti plot of the mean values for some of the ", mlab[i], " metrics in the base analyses by the combinations of IBM and scenario (denoted scenario in these plots). If colored, the colors denote differnt levels of one factor.")
+      ifig <- ifig + 1
+      myfile <- file.path(mydir, paste0(mlablower[i],"_",slab[j],"_plot_",k,"_confetti.png"))
+      mycaption <- paste0("Figure A6.", ifig, ". ", mymain) 
+      my_doc <- my_doc %>%
+        officer::body_add_img(src=myfile, width = 6.5, height = 6.5, style = "centered") %>%
+        officer::body_add_par(mycaption, style = "Normal") %>%
+        officer::body_add_par("", style = "Normal") %>% # blank line
+        officer::body_add_break(pos = "after") # page break
+    }
+  }
+}
+
 ### No retro scenarios section
 ## scores for base scenarios
 score.txt <- "Two sets of scores, Rank and Resid, for the no retro analyses for the"
@@ -490,6 +514,8 @@ for (i in 1:2){
     officer::body_add_par("", style = "Normal") %>% # blank line
     officer::body_add_break(pos = "after") # page break
 }
+
+
 
 ### finally
 # make the docx file
