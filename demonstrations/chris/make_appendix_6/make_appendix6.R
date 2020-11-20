@@ -543,8 +543,27 @@ for (i in 1:3){ # SSB, F, Catch
   }
 }
 
+# and now heatmaps from Liz
+mydir <- "tables_figs/heatmap_tables_figs"
+mytext <- c("IBM, time horizon (short- or long-term summary, ‘S’ or ‘L’), and catch advice multiplier (1 or 0.75)", "IBM, catch advice multiplier (1 or 0.75), and fishing history (1=overfishing then F=FMSY, 2=always overfishing)", "IBM, fishing history (1=overfishing then F=FMSY, 2=always overfishing), and time horizon (short- or long-term summary, ‘S’ or ‘L’)", "IBM, source of retrospective pattern (C=Catch, M=Natural mortality), and fishing history (1=overfishing then F=FMSY, 2=always overfishing)", "IBM, source of retrospective pattern (C=Catch, M=Natural mortality), and time horizon (short- or long-term summary, ‘S’ or ‘L’)")
+myfiles <- c("heatmap.ibm.cmult.time_median.png",
+             "heatmap.ibm.fhist.cmult_median.png",
+             "heatmap.ibm.fhist.time_median.png",
+             "heatmap.ibm.retro.fhist_median.png",
+             "heatmap.ibm.retro.time_median.png")
+basetext1 <- "Heatmap of median values for SSB/SSBmsy, F/Fmsy, and catch/MSY by "
+basetext2 <- ". The cells are colored according to where they fall in the normalized distribution of all values summarized in the heatmap, and location in that distribution is provided by the key at the top left.  A cyan histogram in the key indicates distribution of the data. The cyan lines within the heatmap indicate position of that cell relative to the mean. Values for each cell in the heatmap can be found in the associated table (rows in the same order as the heatmap)."
 
-
+for (i in 1:5){
+  ifig <-  ifig + 1
+  myfile <- file.path(mydir, myfiles[i])
+  mycaption <- paste0("Figure A6.", ifig, ". ", basetext1, mytext[i], basetext2)
+  my_doc <- my_doc %>%
+    officer::body_add_img(src=myfile, width = 6.5, height = 6.5, style = "centered") %>%
+    officer::body_add_par(mycaption, style = "Normal") %>%
+    officer::body_add_par("", style = "Normal") %>% # blank line
+    officer::body_add_break(pos = "after") # page break
+}
 
 
 ### finally
