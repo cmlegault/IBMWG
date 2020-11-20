@@ -5,7 +5,7 @@ library(tidyverse)
 library(officer)
 
 mydir <- "C:/Users/chris.legault/Desktop/myIBMWG/figs_for_report"
-od <- "demonstrations/chris/make_appendix_6"
+od <- mydir # in case want to save docx file somewhere else
 
 ifig <- 0 # counter for figures
 
