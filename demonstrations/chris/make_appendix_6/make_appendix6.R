@@ -23,8 +23,6 @@ my_doc <- my_doc %>%
   officer::body_add_par("", style = "Normal") %>% # blank line
   officer::body_add_break(pos = "after") # page break
 
-
-
 ## scores for base scenarios
 score.txt <- "Two sets of scores, Rank and Resid, for the base analyses for the"
 period <- c("in the long term.", "in the short term.", "in both the long and short term.")
@@ -53,6 +51,30 @@ my_doc <- my_doc %>%
   officer::body_add_par(mycaption, style = "Normal") %>%
   officer::body_add_par("", style = "Normal") %>% # blank line
   officer::body_add_break(pos = "after") # page break
+
+## bagplots (using same caption for IBM and Scen plots)
+bagIBMtext <- "Bagplots (a bivariate generalization of the boxplot) for long term (black) and short term (blue) SSB/SSBmsy and catch/MSY for each IBM in the scenario defined in the top left. The solid dot is the median, the dark shading is the 2D equivalent of the inner quartile range, the light shading encompasses an area three times the bag, and the unfilled dots are outliers."
+bagScentext <- "Bagplots (a bivariate generalization of the boxplot) for long term (black) and short term (blue) SSB/SSBmsy and catch/MSY for each scenario using the IBM defined in the top left. The solid dot is the median, the dark shading is the 2D equivalent of the inner quartile range, the light shading encompasses an area three times the bag, and the unfilled dots are outliers."
+for (i in 1:29){
+  ifig <- ifig + 1
+  myfile <- file.path(mydir, paste0("bagplots_td4_base_", i, "_list.png"))
+  if (i <= 16){
+    mymain <- bagIBMtext   
+  }else{
+    mymain <- bagScentext
+  }
+  mycaption <- paste0("Figure A6.", ifig, ". ", mymain)
+  my_doc <- my_doc %>%
+    officer::body_add_img(src=myfile, width = 6.5, height = 6.5, style = "centered") %>%
+    officer::body_add_par(mycaption, style = "Normal") %>%
+    officer::body_add_par("", style = "Normal") %>% # blank line
+    officer::body_add_break(pos = "after") # page break
+}
+
+
+
+
+
 
 
 # make the docx file
