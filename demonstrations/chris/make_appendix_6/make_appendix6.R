@@ -97,6 +97,50 @@ for (i in 1:3){ # SSB, F, catch
   }
 }
 
+### trade off plots
+basetext1 <- "Trade off plot by IBM between "
+tdtext <- c("the probability of a rebuilt stock and the mean catch relative to MSY", "the probability the stock is overfished and the probability that overfishing is occurring", "the average SSB and catch relative to their MSY reference points")
+plab <- c(" in the long term.", " in the short term.")
+basetext2 <- " Each point represents one scenario with the color indicating the source of the retrospective pattern for that scenario."
+plabshort <- c("l", "s")
+for (i in 1:3){ # number of td plots
+  for (j in 1:2){ # long and short term
+    ifig <- ifig + 1
+    myfile <- file.path(mydir, paste0("td", i, "_", plabshort[j], "_plot_1.png"))
+    mycaption <- paste0("Figure A6.", ifig, ". ", basetext1, tdtext[i], plab[j], basetext2)
+    my_doc <- my_doc %>%
+      officer::body_add_img(src=myfile, width = 6.5, height = 6.5, style = "centered") %>%
+      officer::body_add_par(mycaption, style = "Normal") %>%
+      officer::body_add_par("", style = "Normal") %>% # blank line
+      officer::body_add_break(pos = "after") # page break
+  }  
+}
+
+
+### 1,000 point plots for trade off 4
+flab <- c("scenario", "IBM") # reversed because describing top left of fig
+flabshort <- c("IBM", "Scen")
+nplots <- c(16, 13) # number of plots by IBM and Scen
+plab <- c("long", "short")
+plabshort <- c("l", "s")
+basetext1 <- "Spawning stock biomass (SSB) relative to the SSB at maximum sustainable yield (SSBmsy) and catch relative to MSY for the "
+basetext2 <- " defined in the top left in the "
+basetext3 <- " term with each dot representing one of the 1,000 simulations." 
+for (i in 1:2){ # IBM and Scen
+  for (j in 1:2){ # long and short term
+    for (k in 1:nplots[i]){
+      ifig <- ifig + 1
+      myfile <- file.path(mydir, paste0("td4_", plabshort[j], "_", flabshort[i],"_plot_", k, "_list.png"))
+      mycaption <- paste0("Figure A6.", ifig, ". ", basetext1, flab[i], basetext2, plab[j], basetext3)
+      my_doc <- my_doc %>%
+        officer::body_add_img(src=myfile, width = 6.5, height = 6.5, style = "centered") %>%
+        officer::body_add_par(mycaption, style = "Normal") %>%
+        officer::body_add_par("", style = "Normal") %>% # blank line
+        officer::body_add_break(pos = "after") # page break
+      
+    }
+  }
+}
 
 
 
