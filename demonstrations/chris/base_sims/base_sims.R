@@ -191,5 +191,7 @@ catch_plots$myrelplot50
 dev.off()
 
 # save pngs
-ggsave(f_plots$myplot, filename = "demonstrations/chris/base_sims/F.png")
-ggsave(ssb_plots$myrelplot50, filename = "demonstrations/chris/base_sims/ssbrel50.png")
+ggsave(filename = "demonstrations/chris/base_sims/f_plots1.png", f_plots$myplot, width = 6.5, height = 6.5, units = "in")
+ggsave(filename = "demonstrations/chris/base_sims/ssb_plots_rel50.png", ssb_plots$myrelplot50, width = 6.5, height = 6.5, units = "in")
+ggsave(filename = "demonstrations/chris/base_sims/f_plots_rel50.png", f_plots$myrelplot50, width = 6.5, height = 6.5, units = "in")
+ggsave(filename = "demonstrations/chris/base_sims/catch_plots_rel50.png", catch_plots$myrelplot50, width = 6.5, height = 6.5, units = "in")

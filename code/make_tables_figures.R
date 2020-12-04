@@ -798,13 +798,6 @@ mysmax_s_scaa <- max(sims_scaa$s_avg_ssb_ssbmsy, na.rm = TRUE)
 myfmax_s_scaa <- max(sims_scaa$s_avg_f_fmsy, na.rm = TRUE)
 mycmax_s_scaa <- max(sims_scaa$s_avg_catch_msy, na.rm = TRUE)
 
-mysmax_l_3 <- c(mysmax_l, mysmax_l_noretro, mysmax_l_scaa)
-myfmax_l_3 <- c(myfmax_l, myfmax_l_noretro, myfmax_l_scaa)
-mycmax_l_3 <- c(mycmax_l, mycmax_l_noretro, mycmax_l_scaa)
-mysmax_s_3 <- c(mysmax_s, mysmax_s_noretro, mysmax_s_scaa)
-myfmax_s_3 <- c(myfmax_s, myfmax_s_noretro, myfmax_s_scaa)
-mycmax_s_3 <- c(mycmax_s, mycmax_s_noretro, mycmax_s_scaa)
-
 td4_l_IBM_plot <- list()
 for (i in 1:nscenlabs){
   tmpdf <- filter(sims, Scenlab == myscenlabs[i]) %>%
