@@ -352,9 +352,12 @@ for (i in 1:nstocks){
   }
 }
 essdf
-ggplot(essdf, aes(x=value, y=stock, color=gear)) +
+essplot <- ggplot(essdf, aes(x=value, y=stock, color=gear)) +
   geom_point() +
+  labs(x="Mean Survey ESS", y="", title="Includes all surveys") +
+  expand_limits(x=0) +
   theme_bw()
+ggsave(filename = "ess.png", essplot)
 
 essdf %>%
   group_by(sgroup, gear) %>%
