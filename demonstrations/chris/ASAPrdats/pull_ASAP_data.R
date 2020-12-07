@@ -361,3 +361,48 @@ essdf %>%
   summarize(ess = mean(value))
 # based on roundfish and flatfish, 
 # fishery ess = 50, survey ess = 25 seems reasonable
+
+
+# get survey CVs (don't worry about NEFSC vs others for now)
+cvdf <- data.frame(stock = character(),
+                    sgroup = character(),
+                    variable = character(),
+                    indmonth = integer(),
+                    value = integer())
+for (i in 1:nstocks){
+  if (!(stocks[i] %in% vpastocks)){
+    asap <- dget(fnames[i])
+    cvlist <- asap$index.cv
+    indmonth <- asap$control.parms$index.month
+    myflag <- asap$control.parms$index.age.comp.flag
+    for (j in 1:length(cvlist)){
+      if (myflag[j] == 1){
+        myval <- mean(cvlist[[j]])
+        if(myval >10) myval <- NA
+        thisdf <- data.frame(stock = stocks[i],
+                             sgroup = sgroup[i],
+                             variable = "cv",
+                             indmonth = indmonth[j],
+                             value = myval)
+        cvdf <- rbind(cvdf, thisdf)
+      }
+    }
+  }
+}
+cvdf
+cvdfsum <- cvdf %>%
+  mutate(season = case_when(
+    indmonth <= 6.5 ~ "First Half",
+    TRUE ~ "Second Half")) %>%
+    group_by(stock, season) %>%
+  summarise(meanval = mean(value, na.rm = TRUE))
+cvdfsum
+surveycvplot <- ggplot(cvdfsum, aes(x=meanval, y=stock, color=season)) +
+  geom_point() +
+  facet_wrap(~season) +
+  geom_vline(xintercept = c(0.3, 0.4), linetype="dashed") +
+  expand_limits(x = 0) +
+  labs(x="Mean Survey CV", y="", title="Includes all surveys") +
+  theme_bw() + 
+  theme(legend.position = "none")
+ggsave(filename = "surveycv.png", surveycvplot)
