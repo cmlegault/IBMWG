@@ -7,6 +7,7 @@ library(ggplot2)
 library(dplyr)
 library(gridExtra)
 library(grid)
+library(tidyr)
 
 fnames <- list.files(pattern = ".RDAT")
 stocks <- substr(fnames, 1, (nchar(fnames) - 5))
@@ -398,14 +399,14 @@ cvdfsum <- cvdf %>%
     indmonth <= 6.5 ~ "First Half",
     TRUE ~ "Second Half")) %>%
     group_by(stock, season) %>%
-  summarise(meanval = mean(value, na.rm = TRUE))
+  summarise(meanval = mean(value, na.rm = TRUE), minval = min(value, na.rm = TRUE)) %>%
+  pivot_longer(cols = c(3, 4), names_to = "metric", values_to = "value")
 cvdfsum
-surveycvplot <- ggplot(cvdfsum, aes(x=meanval, y=stock, color=season)) +
+surveycvplot <- ggplot(cvdfsum, aes(x=value, y=stock, color=metric)) +
   geom_point() +
   facet_wrap(~season) +
   geom_vline(xintercept = c(0.3, 0.4), linetype="dashed") +
   expand_limits(x = 0) +
-  labs(x="Mean Survey CV", y="", title="Includes all surveys") +
-  theme_bw() + 
-  theme(legend.position = "none")
+  labs(x="Survey CV", y="", title="Includes all surveys") +
+  theme_bw() 
 ggsave(filename = "surveycv.png", surveycvplot)
