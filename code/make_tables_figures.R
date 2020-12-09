@@ -1058,6 +1058,60 @@ nyrs_status_plot <- make_status_plot(list(mystatus[[2]],
                                           mystatus_scaa[[2]]), 
                                      "Number of Years", "free_x")
 
+
+# compute number of sims in each quadrant and odds ratio
+# A | B
+# C | D
+# r = AD / BC
+
+quad_sims <- sims %>%
+  mutate(s_quad = case_when(
+    (s_avg_f_fmsy > 1 & s_avg_ssb_ssbmsy < 1) ~ "A",
+    (s_avg_f_fmsy > 1 & s_avg_ssb_ssbmsy >= 1) ~ "B",
+    (s_avg_f_fmsy <= 1 & s_avg_ssb_ssbmsy < 1) ~ "C",
+    (s_avg_f_fmsy <= 1 & s_avg_ssb_ssbmsy >= 1) ~ "D",
+    TRUE ~ "error"),
+    l_quad = case_when(
+      (l_avg_f_fmsy > 1 & l_avg_ssb_ssbmsy < 1) ~ "A",
+      (l_avg_f_fmsy > 1 & l_avg_ssb_ssbmsy >= 1) ~ "B",
+      (l_avg_f_fmsy <= 1 & l_avg_ssb_ssbmsy < 1) ~ "C",
+      (l_avg_f_fmsy <= 1 & l_avg_ssb_ssbmsy >= 1) ~ "D",
+      TRUE ~ "error"))
+unique(quad_sims$s_quad)
+unique(quad_sims$l_quad)
+
+quad_res_s <- quad_sims %>%
+  group_by(IBMlab, Scenlab, s_quad) %>%
+  summarise(n = n())
+
+quad_res_l <- quad_sims %>%
+  group_by(IBMlab, Scenlab, l_quad) %>%
+  summarise(n = n())
+
+odds_ratio_s <- quad_res_s %>%
+  pivot_wider(names_from = "s_quad", values_from = "n", values_fill = 0) %>%
+  mutate(r = A * D / (B * C))
+
+odds_ratio_l <- quad_res_l %>%
+  pivot_wider(names_from = "l_quad", values_from = "n", values_fill = 0) %>%
+  mutate(r = A * D / (B * C))
+
+odds_s_plot <- ggplot(odds_ratio_s, aes(x = r, y = Scenlab)) +
+  geom_point() +
+  facet_wrap(~IBMlab, nrow = 3) +
+  labs(x="Odds Ratio", y="", title = "Short Term") +
+  xlim(0, 200) +
+  theme_bw()
+ggsave(filename = "tables_figs/odd_ratio_s.png", width = 6.5, height = 6.5, units = "in", odds_s_plot)
+
+odds_l_plot <- ggplot(odds_ratio_l, aes(x = r, y = Scenlab)) +
+  geom_point() +
+  facet_wrap(~IBMlab, nrow = 3) +
+  labs(x="Odds Ratio", y="", title = "Long Term") +
+  xlim(0, 200) +
+  theme_bw()
+ggsave(filename = "tables_figs/odd_ratio_l.png", width = 6.5, height = 6.5, units = "in", odds_l_plot)
+
 ### put plots into pdfs
 
 pdf(file = "tables_figs/confetti_plots.pdf")
