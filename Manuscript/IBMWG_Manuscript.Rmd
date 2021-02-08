@@ -1,0 +1,215 @@
+---
+title: "Data Rich but Model Resistant: An Evaluation of Data-Limited Methods to Manage Fisheries with Failed Age-based Stock Assessments"
+author: Christopher M. Legault, Richard Bell, Elizabeth Brooks, Jamie Cournane, Jonathan J. Deroba, Gavin Fay, Andy Jones, Joe Langan, Timothy Miller, Brandon Muffley, John Wiedenmann
+csl: canadian-journal-of-fisheries-and-aquatic-sciences.csl
+output: html_document
+bibliography: NULL
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if(!require(kableExtra)) {  
+  install.packages("kableExtra")
+  require(kableExtra)}
+```
+
+## Introduction
+In the U.S., integrated fisheries stock assessment models that are most frequently age-structured are used when possible to estimate annual stock abundance (biomass), fishing mortality rates, and management reference points (Maunder and Punt 2013).   These models must undergo peer review, where an independent panel of experts determines whether or not results from the model are suitable as the basis for determining stock status and for setting catch advice.  There are a number of model diagnostics that are used to evaluate uncertainty and stability of assessment model results, but one that is commonly used and carries substantial weight during review is the retrospective pattern.  A retrospective pattern is a systematic inconsistency among a series of sequential assessment estimates of population size (or other related assessment variables), based on increasing time periods of data used in the model fitting (Mohn 1999).  These inconsistencies in assessment estimates are indicative of one or more mismatches between model assumptions and patterns in the data used to fit the model.  Large or persistent retrospective patterns indicate an instability in model results, and may therefore be the basis for a peer review panel to determine that model results are not suitable for management purposes (Punt et al. 2020).  
+
+Many stock assessments in the Northeast U.S. have a history of strong retrospective patterns, whereby estimates of biomass are revised downward and estimates of fishing mortality rate are revised upward as new data are added to the model.  NOAA Fisheries, the New England Fishery Management Council, the Mid-Atlantic Fishery Management Council, and the Atlantic States Marine Fisheries Commission manage these stocks and retrospective issues remain a challenge for managers when setting catch advice and tracking stock status.  This problem has been particularly acute for, but not limited to, stocks in the New England groundfish complex (NEFSC 2002a, 2005, 2008, 2015a, 2015b, 2017, 2019; Deroba et al. 2010), managed under NOAA Fisheries and the New England Council’s Northeast Multispecies (Groundfish) fishery management plan.
+    
+The magnitude of the retrospective pattern is typically measured with a statistic known as Mohn’s rho (Mohn 1999).  Mohn's rho can be used to adjust terminal year estimates of biomass in anticipation that the retrospective pattern will persist, and so some accounting for the pattern will provide a more accurate estimate.  Stock assessments where the so-called rho-adjusted value is outside the 90% confidence interval of the terminal year estimate of spawning stock biomass or fishing mortality rate are classified as strong retrospective patterns.  In these cases, the rho-adjusted values are used for status determination and to modify the starting population for projections used to provide catch advice (Brooks and Legault 2016). 
+
+There is no formal criteria in the region for rejecting an assessment based on Mohn’s rho, but large, positive values of rho (especially those persisting)  have played an important role in the rejection of recent age-based assessments, including Atlantic mackerel (Scomber scombrus), Georges Bank Atlantic cod (Gadus morhua), Georges Bank yellowtail flounder (Limanda ferruginea), and witch flounder (Glyptocephalus cynoglossus; Deroba et al. 2010; Legault et al. 2014; NEFSC 2015a, 2015b).  In each of these cases, and another where the assessment rejection was not based on the retrospective pattern (black sea bass, Centropristis striatus; NEFSC 2012), the Councils have relied on a variety data-limited approaches for setting catch advice for these stocks (McNamee et al. 2015; NEFSC 2015a, 2015b;  Wiedenmann 2015).  These approaches have all been ad-hoc, and a recent analysis suggested that some of the data-limited approaches may not be suitable for stocks in the Northeast U.S. with a history of high exploitation rates (Wiedenmann et al. 2019).   In addition, large, positive retrospective patterns persist for a number of other stocks in the region (NEFSC 2019), raising concerns that additional stocks may rely on data-limited approaches in the future.  Therefore, there is an immediate need to identify suitable data-limited approaches for setting catch advice and for stocks with age-based assessments that did not pass review.
+
+We developed a management strategy evaluation (MSE) simulation model (e.g., Punt et al. 2016) to evaluate the suitability of alternative data-limited methods for setting target catches when age-based stock assessments fail.
+
+## Methods
+Proposed format: 
+Brief overview paragraph
+Description of the simulation model
+Methods Used
+Scenarios explored
+Summarizing performance (measures, linear model, scoring)
+
+<font size="5">*Simulation Model*</font>
+
+MSE models are used to evaluate the tradeoffs associated with different management options in the face of uncertainty, and consist of a series of linked submodels (Figure 0.1).  The foundation of MSE is the operating model that controls the population and fishery dynamics in the system.  The operating model is run for an initial period of time (called the Base period here) that controls the historical population dynamics and fishing pressure, and allows for sufficient data to be generated in the observation model to be used in the different assessment / management options being explored in the MSE.  After the Base period, a given management approach is applied to set the target catch for the stock, which is then removed from the population.  This process is repeated at a fixed interval over a number of years in what is called the Feedback period (Figure 0.2).  In many MSEs, catch advice is based on a stock assessment model that estimates current abundance and management reference points.  In data-limited cases, or when an assessment model is rejected, the model output is not used, and catch advice is based on the available data required by a given data-limited approach.  Details of the operating model are provided in response to ToR 1, and the data-limited methods explored are provided in response to ToR 2 below.  Because the Northeast U.S. has a long time series of data from a fishery-independent survey, the IBMWG focused on methods that can utilize this index of abundance, and we broadly refer to these approaches as index-based methods, or IBMs.
+
+<font size="5">*Methods Explored*</font>
+
+A large number of data-limited methods exist for setting catch advice, and they vary widely in complexity, data inputs, and assumptions required (e.g., Carruthers and Hordyk, 2018).  The northeast U.S. is a data rich region with a range of information available including the Northeast Fisheries Science Center (NEFSC) spring and fall coastwide bottom trawl surveys as well as historical catch data.   As a result, the Index Based Methods Working Group (IBMWG) focused on a subset of data-limited methods known as index-based methods (IBMs) that utilize time series of fishery catch and CPUE from a survey or fishery, and omitted methods that require only catch data, snap shots of survey data or length data  (e.g., constant catch methods or length-based methods). The IBMWG also omitted methods that required complete catch histories (from the inception of fishing), assumed an underlying surplus production population dynamics, or required assumptions about relative depletion.  Complete catch histories are not available for stocks in the region, and surplus production Example methods that meet these criteria for omission include Depletion-Corrected Average Catch (DCAC; MacCall 2009), Depletion Based Stock Reduction Analysis (DB-SRA; Dick and MacCall 2011), and the Simple Method for Estimating MSY (SMSY; Martell and Froese 2012).  The IBMWG also omitted methods that assume an underlying surplus production model where changes in productivity are driven solely by changes in biomass (e.g., Martell and Froese 2012).  Changes in recruitment (Miller et al. 2017; Xu et al. 2018; Tableau et al. 2019) or natural mortality (Pershing et al. 2015) for many stocks in the region violates this assumption, and surplus production fits to survey and catch data result in very different estimates of biomass over time compared to age-based assessments for many stocks in the region (Wiedenmann et al. 2019). 
+
+Given the long time-series of trawl survey data, the group focused largely on survey IBMs.   The relatively short timeline for the IBMWG restricted the total number of methods that could be evaluated to those that have been used or would be considered plausible for the Northeast Shelf.  A list of  methods currently used in the region is provided in Table 2.1, with thirteen IBMs selected by the IBMWG for evaluation.   The IBMWG deliberately did not include every approach to limit the overall number of methods explored, but also to allow for exploration of additional options not currently used but that have been explored or applied elsewhere.  Although catch-curve analyses are not currently applied in the region, they were included here since age information is available for most of the stocks, and because Wiedenmann et al. (2019) showed they performed well in a retrospective application to groundfish stocks.  We did not include length based methods to reduce the overall number of methods explored, and due to the availability of age based information. We also included two additional IBMs (Islope and Itarget) not currently used in the region, as these have been tested in other applications and shown promise (Geromont and Butterworth 2015a, 2015b, Carruthers et al. 2015, Wiedenmann et al. 2019).  An ensemble of models was also considered based on recent findings that improved performance can result from combining the results from multiple models (Anderson et al. 2017, Rosenberg et al. 2017, Spence et al. 2018, Stewart and Hicks 2018). The full range of methods included in this analysis are detailed below with equations provided in Table 2.2.  Each method was examined for their ability to produce sustainable catch advice with data that would lead to large retrospective patterns.
+
+Each of the methods produces a single target catch value that was fixed over a two year interval.  If the methods are being applied in year $y$, then target catches are set for years $y+1$ and $y+2$ (denoted $C_{targ, y+1:y+2}$).  In practice, the timing of setting target catches in the region generally occurs in late summer or early fall in between the spring and fall surveys, and before complete catch data are available.  Therefore, in year $y$ complete catch data are available through year $y-1$, and survey data are available for the spring survey through year $y$ and for the fall survey through year $y-1$.  In practice, the data-limited methods that have been applied have used an average of the spring and fall index and we followed that approach here.  If a method for setting catches uses an average of spring and fall, the average index in year $y$ included the spring data in year $y$ and the fall data in year $y-1$:
+
+$\bar{I}_{y} = \frac{I_{fall,y-1} + I_{spr,y}}{2}$. 
+
+<font size="5">*Control Rules*</font>
+
+Most IBMs do not have the ability to estimate a biomass reference point (e.g., $B_{MSY}$), which made consideration of so called biomass-based harvest control rules that reduce $F$ or catch in response to estimated changes in relative stock status impossible.  Lack of clarity exists, however, on whether the catch advice from IBMs should be treated as an overfishing limit (OFL) or acceptable biological catch (ABC).  OFLs are equated to the catch that would result from applying $F_{MSY}$, whereas an ABC is a catch reduced from the OFL to account for scientific uncertainty.  So, each IBM was evaluated using two “harvest control rules”: 1) the catch advice from a given IBM was applied directly and assumed to serve as a proxy for the catch associated with $F_{MSY}$, thereby being equated to an OFL (catch multiplier = 1), and 2) the catch advice from a given IBM was reduced by 25% to account for unspecified scientific uncertainty, thereby being equated to an ABC (catch multiplier = 0.75).  Catches were reduced by 25% to approximate an ABC because using the catch associated with 0.75FMSY is a common default ABC control rule in the region.
+
+<font size="5">*Linear Models*</font>
+
+The simulations generated a massive amount of results.  Therefore, evaluating the performance of the IBMs using only graphical displays would be both time consuming and subjective.  So linear models were conducted to help identify the most important elements of the study design that affected the performance of the IBMs, an approach that has been used in management strategy evaluations (Punt et al., 2008; Fay et al., 2011).  The objective for the linear models was to supplement the graphical displays and help focus additional analyses.  So while some consideration was given to the validity of the linear models, a thorough evaluation of their assumptions and statistical rigor was not conducted.  
+
+A linear model was conducted independently for each of the metrics (TOR 3).  Metrics recorded as frequencies or proportions were arcsine square root transformed, while all other metrics were log transformed (Punt et al., 2008; Fay et al., 2011), $tran(metric)$ .  Explanatory variables included source of the retrospective error, $retro_{type}$, fishing history, $F_{history}$, number of selectivity blocks, $num_{selectivity blocks}$, index based method, $IBM$, multiplier on the catch advice, $catch_{mult}$, and all two-way interactions:
+
+$tran(metric)=\mu+retro_{type}+F_{history}+num_{selectivity\: blocks}+IBM+catch_{mult}+two\mbox{-}way\:interactions$
+
+where $\mu$ is the overall intercept.  Results were summarized by creating a table noting which explanatory variables were significant for each metric at the 0.05 level, Sig, or not, NS.  The proportion of times an explanatory variable was significant among metrics grouped by spawning stock biomass, fishing mortality, or catch, was reported.
+
+The explanatory variables $retro_{type}$, $catch_{mult}$, $IBM$, and the two-way interactions between $retro_{type}$ and  $IBM$, and $F_{history}$ and $IBM$ were significant for all metrics (Table 4.3).  The interaction of $retro_{type}$ and $catch_{mult}$ was also significant for the vast majority of metrics.  The interaction of $catch_{mult}$ and $IBM$ was consistently significant for long-term metrics and metrics related to catch. $F_{history}$ was significant for a majority of metrics, most consistently for short-term spawning stock biomass and catch metrics.  The interaction between $F_{history}$ and $retro_{type}$ was significant for a majority of metrics with no discernible difference between long- and short-term metrics.  The $num_{selectivity\: blocks}$ variable was significant for the majority of the spawning stock biomass metrics and all but one of the catch metrics.  The remaining explanatory variables were generally significant for less than half of metrics.  Given these results, greater emphasis was placed on understanding the effects of $retro_{type}$, $catch_{mult}$, and $IBM$ because these variables were the most consistently significant relative to the other variables.
+
+<font size="5">*Scoring*</font> 
+
+The mean value of each performance metric for all IBMs was computed across the 1,000 simulations of the 16 scenarios. Since some metrics are better when values are larger and others are better when values are smaller, these mean values cannot easily be combined. So metrics where smaller values were better were multiplied by negative 1 to create a set of values where bigger is better (Table 4.4). This mean and adjustment approach to make bigger values better was also applied to the SCAA scenarios (Table 4.5, more detail about SCAA scenarios provided below).
+
+Scores were generated from these values in two ways. The first was simply ranking them giving the largest value the number of IBMs considered, the smallest value the number 1, and integer values in between (except in the case of ties). The second was to subtract the mean and divide by the standard deviation of each metric across all the IBMs. Both approaches result in scores where bigger values are better for each metric and can be easily summed across selected metrics to determine which IBMs perform best relative to those metrics. 
+
+Two examples sets of metrics are provided here to demonstrate that the ordering of the IBMs depends strongly on the metrics selected. The first set of metrics contains the mean ratios of SSB, F, and catch to their respective MSY reference points in the long term (Figure 4.1). The second set of metrics contains the interannual variability in catch across the entire feedback period and the short term mean catch/MSY (Figure 4.2). These sets of metrics produce different orderings of the IBMs. For example, both catch curve (CC) IBMs score highly using the first set of metrics, while these IBMs score poorly using the second set of metrics. A number of additional sets of metrics are provided in Appendix 6 to demonstrate the changes in IBM ordering when different metrics are selected.
+
+To allow users to easily evaluate a large number of sets of metrics, an R Shiny app was developed (see the scorer_app folder in the GitHub repository). This R Shiny app can be copied to a local machine and run to examine the Rank and Resid scores for whatever combination of metrics is desired. The sensitivity runs, denoted noretro and scaa in the app, are also available in the R Shiny app. The app was created because specific metrics were not provided as the basis for determining performance of the IBMs. The app allows users to pick among the 50 metrics to see how the IBMs performed relative to each other.
+
+<font size="5">*Base and Sensitivity Runs*</font>
+
+There were 208 factorial combinations of IBMs and scenarios examined in the base runs, where the catch advice multiplier (1 or 0.75) was considered part of the scenario definition (Table 4.1). Most of these factorial combinations had the full 1,000 simulations produce results (Table 4.2). There were two IBMs with two scenarios that had individual simulations fail and the DLM had a much lower number of runs due to time limitations (it took significantly longer to run than all the other IBMs).
+
+
+There were two sets of sensitivity runs. The first applied an SCAA to four of the scenarios. The SCAA applied a rho-adjustment to account for the estimated retrospective pattern in each assessment of each simulation. This required considerable computing time, so only four scenarios were examined. The second sensitivity run removed all sources of retrospective pattern for two of the scenarios. All the IBMs, except DLM and SCAA due to time constraints, were applied to these scenarios. 
+
+There were a total of 230,147 successful simulations produced.
+
+## Results
+
+Which Figures do we want to include?
+Take away from peer review?
+Which performance measures do we want to focus on? (need to pick probably ≤ 6) 
+
+Are we OK with the coarse overview of results, or are more details needed?
+
+<font size="5">*Metrics to focus on:* </font>
+
+Catch status (realtive to something)
+
+variability over time in catch advice
+
+Biomass status (relative to something
+
+Risk of low population size
+
+Frequency of overfishing
+
+Magnitude of F
+
+<font size="5">*Ratios of MSY reference points*</font>
+
+The ratio of the mean SSB, F, or catch to its respective MSY reference point showed differences among the IBMs by scenarios, with some factors having larger impact than others. Figures 4.3-4.5 show the mean SSB, F, and catch ratios in the long term (i.e., final 20 years), respectively, while Figures 4.6-4.8 show the ratios in the short term (ie., first six years). All six figures have the IBMs sorted so that the best (largest SSB and catch ratios, smallest F ratios) are at the top based on the mean across all 16 scenarios. The plots show similar patterns for 1 or 2 selectivity blocks in both the short and long term. The plots also generally show similar patterns for fishing histories in the long term, but there are differences in the short term, as expected due to the different starting conditions. The catch multiplier often had the expected effect of reducing catch in the short term, but could sometimes result in higher average catch in the long term due to the larger SSB and lower F. The retrospective source had a large impact on the ordering of the IBMs, with groups of IBMs having either high or low performance for either catch or M, but rarely both. One group of IBMs contains the CC-FSPR, CC-FM, DLM, PlanB, ES-Frecent, and Islope which performed well in terms of both SSB and F in both the short and long term, while the other group contains Skate, AIM, ES-Fstable, ES-FSPR, ES-M, Ensemble, and Itarget which performed well in terms of catch in both the short and long term. In the long term, the SSB ratio was above 1 for the M retrospective source for all IBMs, while the catch retrospective source depended on IBM group as to whether it was above 1 or not. The IBM group that performed well for SSB ratios was able to rebuild the stock above SSBmsy on average in the long term, while the other IBM group was not. Thus, if a stock is thought to be in poor condition, the IBMs in the group that performed well in terms of rebuilding would be preferred to the IBMs in the other group.
+
+The distribution of 16 scenarios by IBM or 13 IBMs by scenario can be used to summarize the metrics. For example, the short and long term SSB/SSBmsy distributions are shown in Figures 4.9-1.10. Similar figures for all the metrics are available in Appendix 6. These plots show the groupings of IBMs and influence of different scenarios on those groupings, but in a more concise way than the 8 panel plots. This allows all the metrics to be presented in Appendix 6.
+
+The distributions of mean values do not express the full range of results, however. When all the simulations are plotted, there is clearly a wide range for each ratio, indicating that performance for a particular series of environmental conditions, expressed through recruitment deviations, can vary widely. For example, Figure 4.11 shows the SSB/SSBmsy and catch/MSY relationship for scenario CF1A (ie., catch retrospective source, Fmsy in second half of base period, constant selectivity block, and catch multiplier equal to 1.0)  in the long term for the 1,000 simulations. Note the plots for the remaining 15 scenarios as well as the are available in Appendix 6. The same groups of IBMs as noted above display different patterns in the relationship between the SSB and catch ratios. While all IBMs have large ranges for both ratios, Skate, AIM, ES-Fstable, ES-FSPR, ES-M, Ensemble, and Itarget have nearly linear relationship while CC-FSPR, CC-FM, DLM, PlanB, ES-Frecent, and Islope have a much more diffuse relationship. This pattern by IBM group is consistent across the different scenarios. These linear or diffuse relationships have implications for the trade-offs among IBMs, with linear relationships having higher certainty of performance but lower population sizes on average. The more diffuse relationships can also result in situations where the population is quite high but the catch is low relative to MSY, meaning the F is quite low. 
+
+Examination of the simulation plots in Appendix 6 also demonstrates some of the changes in results by the factors. For example, toggling between pages 27 and 28 (A vs R catch advice multipliers) shows that reducing the catch advice has a big impact on the vertical distribution of the diffuse relationship IBMs (much lower for R than A), while the linear relationship IBMs don't change as much but do appear to move a little to the right and maybe even up. This might occur because the diffuse relationship IBMs with reduced catch multipliers are seeing a population bouncing around an average value, meaning catch advice should be about the same, but the catch advice multiplier of 0.75 keeps reducing it.
+
+Another way to explore the impact of the factors is to make so-called “confetti plots” where the mean value of a metric is shown for each IBM and scenario combination but the points are colored by the factor. For example, Figure 4.12 shows the mean value from the 1,000 simulations for six SSB metrics for the 208 combinations of IBM and scenario with the color of the point determined by the retrospective source. Here the differences are clearly seen between catch and M as the retrospective source for most of the metrics. In contrast, the same plot except the points are colored by the fishing history during the base period shows much more interspersed results (Figure 4.13). The full set of “confetti plots” by metric and factor are provided in Appendix 6.   
+
+<font size="5">*Risk issues*</font>
+
+The average SSB and F relative to their MSY reference points are indicative of the expected status of population under different combinations of IBM and scenario, but other metrics can also be used to examine risk. Specifically, the “_is_” metrics can be used to examine the probability that an event will occur at least once during the period. For example, the average value of the SSB metric l_is_less_05_bmsy from the 1,000 simulations provides the probability that the SSB falls below half SSBmsy, meaning the stock would be declared overfished, at least once during during the last 20 years of the simulation. Similarly, the average value of the F metric l_is_gr_fmsy from the 1,000 simulations provides the probability that the F falls above Fmsy, meaning the stock would be declared undergoing overfishing, at least once during the last 20 years of the simulation. The number of times that overfished or overfishing status happened can be found using the associated “_n_” metrics. This allows consideration of how often such an event happened on average. The use of the “avg” metrics of SSB and F relative to their MSY reference points then includes the magnitude of the difference as well, but not the number of years. Consideration of the metrics together allows for a more complete understanding of the performance of the IBMs across scenarios than using only a single metric. These results can be seen in the R Shiny app as well as through a number of different plots in Appendix 6. The IBMs that have the diffuse relationship between SSB/SSBmsy and catch/MSY performed better than the IBMs that have the linear relationship for these metrics.
+
+<font size="5">*Catch stability*</font>
+
+While overfished and overfishing status are regulatory issues, there are other aspects of performance that may be of interest to managers. One commonly mentioned is the stability of catch advice. This was explored in these simulations through the use of the “_iav_” metrics for catch. The interannual variability tries to distinguish between an IBM and scenario combination that has little change from one assessment to the next compared to an IBM and scenario that fluctuates wildly from one assessment to the next, even if they have the same mean value. These results can be seen in the R Shiny app as well as through a number of different plots in Appendix 6. Generally, the IBMs that have the diffuse relationship between SSB/SSBmsy and catch/MSY performed better with lower catch variability than the IBMs that have the linear relationship for this metric. The exceptions to this general rule are the two CC methods, which performed poorly according to this metric.
+
+<font size="5">*Ensemble*</font>
+
+By design, the Ensemble model generally had performance that fell in the middle of the orderings for metrics. It had an equal number of IBMs from the two groups (diffuse or linear relationships) of IBMs. This resulted in having an overall performance more similar to the IBMs with the linear relationship because the variability in the diffuse relationship IBMs could offset each other. The Ensemble did perform better than the other linear relationship IBMs in terms of catch stability, as would be expected. So there could be benefits to using an Ensemble approach if managers are interested in trying to trade off the benefits from both types of IBMs, although it generally followed the results of the linear relationship IBMs so the amount of trade off is limited in these simulation results. The performance of the Ensemble can be seen in the R Shiny app as well as through a number of different plots in Appendix 6.
+
+<font size="5">*No Retrospective*</font>
+
+The no retrospective sensitivity analysis consists of the scenarios CF1A, CO1A, MF1A, MO1A, NF1A, and NO1A for all the IBMs except DLM. The performance of IBMs did not always improve when there was no source of retrospective error. Some of this was due to the fact that the starting conditions were different from the M retrospective source due to the changing reference points for the latter scenarios. In the long term, the average SSB/SSBmsy and catch/MSY were generally closer to 1.0 than either the catch or M retrospective sources (Figure 4.14). This demonstrates a weakness with the scoring algorithm used in this study, values well above SSB or MSY reference points are scored higher than values close to the reference points. This could be taken into account by developing alternative algorithms for deriving the score, such as mean distance from the reference point with a penalty for being on the bad side of the reference point. This would require additional input from managers about their preferences, so was not pursued in this study, but could be done in future analyses.
+
+Despite the shortcomings of the scoring algorithms, there was some change in the ordering of the IBMs when only the no retrospective scenarios were considered, but generally the same groupings held as were seen in the base analyses. See Appendix 6 for some sample scores using the noretro set and the scorer app to create additional results using other sets of metrics.
+
+The performance of the IBMs when no retrospective source is present can perhaps be most clearly seen in the equivalent of Figures 4.3-4.8, where the points represent the mean values from the 1,000 simulations for each IBM and scenario (Figures 4.15-4.20). Note that due to the limited number of scenarios, there are fewer panels in these plots. The long term SSB/SSBmsy for the no retrospective source showed generally good performance among IBMs, although the Skate, AIM, and ES-Fstable methods resulted in a mean value below 0.5 for the fishing history of overfishing throughout the base period. Surprisingly, the long term F/Fmsy mean values were above 1.0 for all the IBMs in the no retrospective source scenarios. This may be due to the averaging across years and the fact that F could go well above Fmsy, but was limited at 0 in how far below Fmsy it could go. Despite the high mean values of F/Fmsy, the no retrospective source performed better than the catch retrospective source for nearly all IBMs. The M source performed better than the no retrospective source for F/Fmsy, but this is most likely due to the high Fmsy values associated with the increased M rate. The long term catch/MSY for the no retrospective source did not have any of the very low values seen for some of the IBMs in the catch retrospective source, and did generally similar to the M retrospective source despite having much higher MSY values. The three short term plots demonstrate the importance of the starting conditions as the fishing history scenarios were often quite different.    
+
+The 1,000 point plots for the no retrospective source scenarios (pages 27-62 of tables_figures_noretro.pdf in tables_figs folder) (or bag plots if we can generate them) were not that different from the associated catch and natural mortality retrospective source. The diffuse patterns tended to be less so, and the linear patterns were moved so that they more closely intersected the (1,1) point. These plots are provided in Appendix 6, along with a large number of plots similar to those from the base scenarios.
+ 
+<font size="5">*SCAA*</font>
+
+The SCAA sensitivity analysis used scenarios CF1A, CO1A, MF1A, and MO1A. Note, the no retrospective source scenarios were not included due to time limitations. The SCAA model performed better than all the IBMs when the long term SSB, F, and catch relative to their MSY reference points was used as the scoring metric (Figure 4.X1). While the superior performance of the SCAA model held for many metrics, it did not hold for them all. For example, the set of metrics containing the interannual variability during the entire feedback period and the short term catch/MSY had SCAA in the lower half of the IBMs order (Figure 4.x.2). 
+
+The performance of the SCAA model can perhaps be most clearly seen in the equivalent of Figures 4.3-4.8, where the points represent the mean values from the 1,000 simulations for each IBM and scenario (Figures 4.X3-4.X8). In the long term, the SCAA model performed near the top of the ordered list, with no IBM consistently performing better than it. In the short term, the SCAA model’s performance varied by the fishing history, with some metrics doing well for one fishing history but not the other, leading to a middling performance across these three metrics. 
+
+The SCAA model had a near linear relationship between the SSB/SSBmsy and catch/MSY points, with better performance for the M than catch retrospective source (Figure 4.X9). The full suite of 1,000 point plots for the SCAA scenarios are available in Appendix 6 (pages 27-62 in tables_figures_scaa.pdf in the tables_figs folder). The full suite of figures for the SCAA sensitivity analysis is available in Appendix 6.
+ 
+<font size="5">*Candidates for consideration*</font>
+
+Overall, none of the IBMs considered in these simulations performed better than the rho-adjusted SCAA model. So in situations where an SCAA model is rejected due to a strong retrospective pattern, there should not be an expectation that an index based method will perform better than the rejected model. These simulations were by necessity limited in scope, so it is not clear that this will always be the case, especially if the retrospective pattern is much larger than examined in this study.
+
+There were two groups of IBMs that performed similarly. In situations where the stock is felt to be in poor condition, CC-FSPR, CC-FM, DLM, PlanB, ES-Frecent, and Islope should be candidates for consideration because they had better performance rebuilding an overfished stock. In situations where the stock is felt to be in good condition, Skate, AIM, ES-Fstable, ES-FSPR, ES-M, Ensemble, and Itarget should be candidates for consideration because they had higher short term catch. 
+
+
+
+
+
+<font size="5">
+Discussion
+
+Acknowledgements
+
+References
+
+Tables
+</font>
+
+<!---markdown style table. fucking escape characters-->
+```{r schemetable, tab.cap="Coding scheme used to identify scenarios. There are four factors, each with 2 or 3 possible values, that combine to make the 4 character code. \\label{schemetable}", echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+tabl <- "
+|	Position	|	Factors | Values
+|:---	|:------ |:------
+|	1	|	retrospective source | C = catch <br> M = natural mortality <br> N = none
+|	2	|	fishing history | F = Fmsy in second half of base period <br> O = overfishing throughout base period
+|	3	|	fishery selectivity blocks | 1 = constant selectivity <br> 2 = selectivity changes in second half of base period
+| 4 | catch advice multiplier | A = applied as is from IBM <br> R = reduced (multiplied by 0.75) from IBM
+"
+cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
+```
+
+```{r methodtable, tab.cap="Index based methods used in this study showing equations and details for each method. \\label{methodtable}", echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+tabl <- "
+|	Method	|	Details
+|:---	|:------ 
+|	loess smooth	|	$C_{targ,y+1:y+2} =\\overline{C}_{3,y}(e^{\\lambda})$ <br> where $\\overline{C}_{3,y}$ is the most recent three year average <br> $\\overline{C}_{3,y} = \\frac{1}{3}\\sum_{t=1}^{t=3}C_{y-t}$ <br> and $\\lambda$ is the slope of a log linear regression of a LOESS-smoothed average index of abundance (spring and fall) with span = 0.3: <br> $\\hat{I}_y=loess(\\hat{I}_y)$ and $LN(\\widehat{I_y}) = b + \\lambda y$
+| Islope	|	$C_{targ,y+1:y+2} = 0.8\\overline{C}_{5,y}(1+0.4e^{\\lambda})$ where $\\overline{C}_{5,y}$ is the most recent five-year average catch through year $y-1$: <br> $\\overline{C}_{5,y} = \\frac{1}{5}\\sum_{t=1}^{t=5}C_{y-t}$ <br> and $\\lambda$ is the slope of a log-linear regression of the most recent five years of the averaged index.
+|	Itarget	|	$C_{targ,y+1:y+2}=\\left[0.5C_{ref}\\left(\\frac{\\overline{I}_{5,y}-I_{thresh}}{I_{target}-I_{thresh}}\\right)\\right]$ $\\overline{I}_{5,y} \\geq I_{thresh}$ <br> $C_{targ,y+1:y+2}=\\left[0.5C_{ref}\\left(\\frac{\\overline{I}_{5,y}}{I_{thresh}}\\right)^{2}\\right]$ $\\overline{I}_{5,y} <  I_{thresh}$ <br>  $C_{ref}$ is the average catch over the reference period (years 26 through 50): <br> $C_{ref} = \\frac{1}{25}\\sum_{y=26}^{y=50}C_y$ <br>  $I_{target}$ is 1.5 times the average index over the reference period: <br> $I_{target} = \\frac{1}{25}\\sum_{y=26}^{y=50}\\overline{I}_y$ <br> $I_{thresh}$ = 0.8 $I_{target}$, and is the most recent five year average of the combined spring and fall index: <br> $\\overline{I}_{5,y} = \\frac{1}{5}\\sum_{t=1}^{t=5}\\overline{I}_{y-t+1}$
+| skate | $C_{targ,y+1:y+2}= F_{rel} \\overline{I}_{3,y}$ where <br> $F_{rel} =median \\left(\\frac{\\overline{C}_{3,\\textbf{Y}}}{\\overline{I}_{3,\\textbf{Y}}} \\right)$ <br> is the median relative fishing mortality rate calculated using a 3 year moving average of the catch and average survey index across all available years ($\\textbf{Y}$): <br> $\\overline{C}_{3,y} = \\frac{1}{3} \\sum_{t=1}^{t=3} C_{y-t}$ and <br> $\\overline{I}_{3,y} = \\frac{1}{3} \\sum_{t=1}^{t=3} I_{y-t+1}$
+| An Index Method (AIM) | AIM first calculates the annual relative $F$: $F_{rel,y}=\\frac{C_y}{\\frac{1}{3}\\sum_{t=1}^{t=3}\\overline{I}_{y-t+1}}$ <br> and the annual replacement ratio: $\\Psi_y = \\frac{\\overline{I}_y}{\\frac{1}{5}\\sum_{t=1}^{t=5}\\overline{I}_{y-t}}$. <br> These values are used in a regression: $LN(\\Psi_y)= b + \\lambda LN(F_{rel,y})$ to determine $F_{rel,*}$, which is the value of $F_{rel,y}$ where the predicted $\\Psi=1$ or <br> $LN(\\Psi)=0$. $F_{rel,*}$ is called either the “stable” or “replacement” $F$, and is used to calculate the target catch: $C_{targ,y+1:y+2} = \\overline{I}_yF_{rel,*}$.
+| Dynamic Linear Model (DLM) | See above.
+| Expanded survey  biomass method 1 $F_{40\\%}$ (ES-FSPR) | $C_{targ,y+1:y+2}=B_{\\bar{I},y}\\mu_{targ}$ <br> where $B_{\\bar{I}}$ is the average of estimated fully-selected biomass from each survey: <br> $B_{\\bar{I},y}=\\frac{1}{2}\\left(\\frac{I_{spr,y}}{q_{spr}} +\\frac{I_{fall,y-1}}{q_{fall}}\\right)$ <br> and target exploitation fraction, $\\mu_{targ}$ is calculated as: <br> $\\mu_{targ}=\\frac{F_{targ}}{Z_{targ}}\\left(1-e^{-Z_{targ}}\\right)$ <br> $F_{targ}=F_{40\\%}$ and <br> $Z_{targ}=F_{targ}+M$
+| Expanded survey biomass method 2 $F=$ AIM replacement (ES-Fstable) | Same as the above expanded survey method, but with $\\mu_{targ}$ equal to the stable exploitation fraction $F_{rel,*}$ calculated using the AIM approach (see above).
+| Expanded survey biomass method 3 $F=M$ (ES-FM) | Same as the above expanded survey methods, but with the target exploitation rate set to the assumed $M$: $F_{targ}=M$.
+| Expanded survey biomass method 4 $F=$ recent average (ES-Frecent) | Same as the above expanded survey methods, but with the target exploitation fraction set to the most recent three year average exploitation fraction: <br> ${\\mu_{targ}}=\\frac{\\sum_{y-2}^{y}\\mu_y}{3}$ <br> $\\mu_{y}=\\frac{C_{y-1}}{B_{\\bar{I},y}}$
+| Catch curve Method 1 $F_{40\\%}$ (CC-FSPR) | $C_{targ,y+1:y+2}= \\frac{F_{targ}}{Z_{avg,y}}B_{cc,y}\\left(1-e^{-Z_{avg,y}}\\right)$ <br>  where $B_{cc}$ is the estimated biomass: <br> $B_{cc,y} = \\frac{C_{y-1}}{\\frac{F_{avg,y}}{Z_{avg,y}}{\\left(1-e^{-Z_{avg,y}}\\right)}}$ with <br> $Z_{avg,y} = \\frac{Z_{spring, y}+Z_{fall,y-1}}{2}$ <br> $F_{avg,y-1} = Z_{avg,y-1} - M$ and, <br> $F_{targ}=F_{40\\%}$.
+| Catch curve Method 2 $M$ (CC-FM) | Same as catch curve method 1 above, but with $F_{targ}=M$.
+| Ensemble | Median of catch advice provided by AIM, CCFSPR, ES-Frecent, ES-FSPR, Islope, Itarget, PlanB, and Skate methods.
+"
+cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
+```
+
+## Example embedding R table
+```{r cars}
+summary(cars)
+```
+
+## Example Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
