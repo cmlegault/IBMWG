@@ -49,7 +49,7 @@ get_td4_bagdata <- function(mytib){
 # compute bagplot data
 bag_td4_base <- get_td4_bagdata(sims)  
 # no retro bombed - don't know why
-bag_td4_noretro <- get_td4_bagdata(sims_noretro)
+#bag_td4_noretro <- get_td4_bagdata(sims_noretro)
 bag_td4_scaa <- get_td4_bagdata(sims_scaa)
 
 # plotting function
@@ -121,8 +121,8 @@ mycmax_scaa <- max(mycmax_l_scaa, mycmax_s_scaa)
 
 bagplots_td4_base <- make_bagplots(bag_td4_base, mysmax, mycmax, 
                                    "(Base scenarios)")
-bagplots_td4_noretro <- make_bagplots(bag_td4_noretro, mysmax_noretro, 
-                                      mycmax_noretro, "(No retro scenarios)") 
+#bagplots_td4_noretro <- make_bagplots(bag_td4_noretro, mysmax_noretro, 
+#                                      mycmax_noretro, "(No retro scenarios)") 
 bagplots_td4_scaa <- make_bagplots(bag_td4_scaa, mysmax_scaa, mycmax_scaa, 
                                    "(SCAA scenarios)")
 
