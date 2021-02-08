@@ -1,4 +1,4 @@
-"","metric","AIM","CC-FM","CC-FSPR","DLM","Ensemble","ES-FM","ES-Frecent","ES-FSPR","ES-Fstable","Islope","Itarget","PlanB","Skate"
+"","metric","AIM","CC-FM","CC-FSPR","DLM","Ensemble","ES-FM","ES-Frecent","ES-FSPR","ES-Fstable","Islope","Itarget","PBS","Skate"
 "1","catch_a_iav_catch",8,3,4,9,10,5,11,6,7,13,2,12,1
 "2","catch_l_avg_catch",11,6,7,1,10,8,3,9,12,4,13,2,5
 "3","catch_l_avg_catch_msy",11,3,5,1,8,9,4,10,12,6,13,2,7
