@@ -355,6 +355,7 @@ for (i in 1:nstocks){
 essdf
 essplot <- ggplot(essdf, aes(x=value, y=stock, color=gear)) +
   geom_point() +
+  geom_vline(xintercept = c(100, 200), linetype="dashed") +
   labs(x="Mean ESS", y="", title="Includes all fleets and surveys") +
   expand_limits(x=0) +
   theme_bw()
@@ -364,7 +365,7 @@ essdf %>%
   group_by(sgroup, gear) %>%
   summarize(ess = mean(value))
 # based on roundfish and flatfish, 
-# fishery ess = 50, survey ess = 25 seems reasonable
+# fishery ess = 50, survey ess = 25 seems reasonable, but actually used 100 and 200 which are on the high side
 
 
 # get survey CVs (don't worry about NEFSC vs others for now)
