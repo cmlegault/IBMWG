@@ -355,7 +355,7 @@ for (i in 1:nstocks){
 essdf
 essplot <- ggplot(essdf, aes(x=value, y=stock, color=gear)) +
   geom_point() +
-  labs(x="Mean Survey ESS", y="", title="Includes all surveys") +
+  labs(x="Mean ESS", y="", title="Includes all fleets and surveys") +
   expand_limits(x=0) +
   theme_bw()
 ggsave(filename = "ess.png", essplot)
