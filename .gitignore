@@ -15,3 +15,9 @@ run_script_liz2.R
 /demonstrations/tim/*.rds
 /demonstrations/tim/*.RDS
 .httr-oauth
+/Manuscript/*.aux
+/Manuscript/*.log
+/Manuscript/*.html
+/Manuscript/*.tex
+/Manuscript/*.docx
+/Manuscript/*.out
