@@ -80,13 +80,13 @@ all_scores_table <- all_scores %>%
   select(IBMlab, metric, score) %>%
   pivot_wider(names_from = "IBMlab", values_from = "score") 
 
-#write.csv(all_scores_table, file="tables_figs/all_scores.csv")
+write.csv(all_scores_table, file="demonstrations/chris/scorer_app/all_scores.csv")
 
 all_resids_table <- all_scores %>%
   select(IBMlab, metric, resid) %>%
   pivot_wider(names_from = "IBMlab", values_from = "resid")
 
-#write.csv(all_resids_table, file="tables_figs/all_resids.csv")
+write.csv(all_resids_table, file="demonstrations/chris/scorer_app/all_resids.csv")
 
 # create noretro scores
 ssb_abb_noretro <- apply_bb(ssb_mean_by_scenario_noretro, ssb_bigger_better) %>%
@@ -114,13 +114,13 @@ all_scores_table_noretro <- all_scores_noretro %>%
   select(IBMlab, metric, score) %>%
   pivot_wider(names_from = "IBMlab", values_from = "score") 
 
-#write.csv(all_scores_table_noretro, file="tables_figs/all_scores_noretro.csv")
+write.csv(all_scores_table_noretro, file="demonstrations/chris/scorer_app/all_scores_noretro.csv")
 
 all_resids_table_noretro <- all_scores_noretro %>%
   select(IBMlab, metric, resid) %>%
   pivot_wider(names_from = "IBMlab", values_from = "resid")
 
-#write.csv(all_resids_table_noretro, file="tables_figs/all_resids_noretro.csv")
+write.csv(all_resids_table_noretro, file="demonstrations/chris/scorer_app/all_resids_noretro.csv")
 
 # create scaa scores
 ssb_abb_scaa <- apply_bb(ssb_mean_by_scenario_scaa, ssb_bigger_better) %>%
@@ -148,13 +148,13 @@ all_scores_table_scaa <- all_scores_scaa %>%
   select(IBMlab, metric, score) %>%
   pivot_wider(names_from = "IBMlab", values_from = "score") 
 
-#write.csv(all_scores_table_scaa, file="tables_figs/all_scores_scaa.csv")
+write.csv(all_scores_table_scaa, file="demonstrations/chris/scorer_app/all_scores_scaa.csv")
 
 all_resids_table_scaa <- all_scores_scaa %>%
   select(IBMlab, metric, resid) %>%
   pivot_wider(names_from = "IBMlab", values_from = "resid")
 
-#write.csv(all_resids_table_scaa, file="tables_figs/all_resids_scaa.csv")
+write.csv(all_resids_table_scaa, file="demonstrations/chris/scorer_app/all_resids_scaa.csv")
 
 # compute overall scores by IBM
 get_mean_scores <- function(mytibble){
