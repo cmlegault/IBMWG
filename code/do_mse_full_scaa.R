@@ -27,9 +27,9 @@ my_future_options$packages <- c("wham",
 ### main function for conducting MSE
 do_mse_scaa <- function(nsim = 7, user = "Me", write_to_google = FALSE) {
 ### pulling out for these tests
-  nsim = 2
-  user = "Me"
-  write_to_google = FALSE
+#  nsim = 2
+#  user = "Me"
+#  write_to_google = FALSE
   
   # set up the type of future (for parallelization of sims using furrr)
 #  future::plan(future::multisession)
@@ -184,5 +184,5 @@ do_mse_scaa <- function(nsim = 7, user = "Me", write_to_google = FALSE) {
 # #nsim = 5
 # # who is doing them?
 # #user = "GF" # your initials
-# #do_mse(nsim = nsim, user = user, write_to_google = TRUE)
+# #do_mse_scaa(nsim = nsim, user = user, write_to_google = TRUE)
 # 
