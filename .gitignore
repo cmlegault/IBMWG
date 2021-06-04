@@ -12,6 +12,10 @@
 /code/run25.R
 run_script_liz.R
 run_script_liz2.R
+run_script_liz3.R
+run_script_liz4.R
+run_script_liz_full_scaa.R
+text_for_putty.txt
 /demonstrations/tim/*.rds
 /demonstrations/tim/*.RDS
 .httr-oauth
