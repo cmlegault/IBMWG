@@ -11,15 +11,15 @@ rscripts <- c("code/performance_metrics.R")
 map(rscripts, source)
 
 # User defined path where output rds files are located
-#mypath <- "/net/home4/clegault/IBMWG/output"
+mypath <- "/net/home4/clegault/IBMWG/output"
 #mypath <- "/net/home0/pdy/lbrooks/Git/output_oct14_IBMWG"
-mypath <- "/net/home0/pdy/lbrooks/Git/IBMWG/output"
+#mypath <- "/net/home0/pdy/lbrooks/Git/IBMWG/output"
 myfiles <- list.files(mypath)
 myfiles <- str_subset(myfiles, "mse-")
 myfiles
 
 # which files are read (will skip files already in database)
-newfiles <- myfiles[283:346] # can subset using brackets for testing, e.g., myfiles[1:3]
+newfiles <- myfiles[9] # can subset using brackets for testing, e.g., myfiles[1:3]
 nfiles <- length(newfiles)
 
 # defines names of files that are saved
