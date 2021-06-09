@@ -8,21 +8,11 @@ library(tidyverse)
 # get resuls and simulation set up information
 mse_results <- readRDS("results/perform-metrics_clean.rds")
 scaa_results <- readRDS("results/perform-metrics_full_scaa.rds") # note full
-noretro_results <- readRDS("results/perform-metrics_noretro.rds")
 mse_sim_setup <- readRDS("settings/mse_sim_setup.rds")
 
 # remove duplicate runs
 dupes <- duplicated(mse_sim_setup[,-(1:2)])
 not_dupes <- mse_sim_setup$rowid[!dupes]
-
-mse_results <- mse_results %>%
-  filter(rowid %in% not_dupes)
-
-scaa_results <- scaa_results %>%
-  filter(rowid %in% not_dupes)
-
-noretro_results <- noretro_results %>%
-  filter(rowid %in% not_dupes)
 
 # check number of simlations per scenario
 count_table <- mse_results %>%
@@ -57,14 +47,6 @@ names(defined)
 unique(defined$IBMlab)
 unique(defined$Scenlab)
 
-defined_noretro <- defined %>%
-  filter(IBMlab != "DLM",
-         retro_type == "Catch",
-         n_selblocks == 1,
-         catch.mult == 1) %>%
-  mutate(retro_type = "None",
-         Scenlab = paste0("N", Fhistlab[Fhist], "1A"))
-
 defined_scaa <- defined %>%
   filter(IBMlab == "Ensemble") %>%
   mutate(IBM = "SCAA",
@@ -75,26 +57,22 @@ countIBM <- defined %>%
   group_by(IBMlab, Scenlab) %>%
   summarise(nscenarios = n(), nsim = sum(n)) 
 
-countIBM_noretro <- defined_noretro %>%
-  group_by(IBMlab, Scenlab) %>%
-  summarise(nscenarios = n(), nsim = sum(n)) 
-
 countIBM_scaa <- defined_scaa %>%
   group_by(IBMlab, Scenlab) %>%
   summarise(nscenarios = n(), nsim = sum(n)) 
 
-nscentab <- rbind(countIBM, countIBM_noretro, countIBM_scaa) %>%
+nscentab <- rbind(countIBM, countIBM_scaa) %>%
   select(IBMlab, Scenlab, nscenarios) %>%
   pivot_wider(names_from = Scenlab, values_from = nscenarios)
 nscentab
 
-nsimtab <- rbind(countIBM, countIBM_noretro, countIBM_scaa) %>%
+nsimtab <- rbind(countIBM, countIBM_scaa) %>%
   select(IBMlab, Scenlab, nsim) %>%
   pivot_wider(names_from = Scenlab, values_from = nsim)
 nsimtab
-write.csv(nsimtab, file = "Manuscript/tables_figs/nsimtab.csv", row.names = FALSE)
+#write.csv(nsimtab, file = "Manuscript/tables_figs/nsimtab.csv", row.names = FALSE)
 
-nsim_plot <- ggplot(rbind(countIBM, countIBM_noretro, countIBM_scaa), 
+nsim_plot <- ggplot(rbind(countIBM, countIBM_scaa), 
                     aes(x=Scenlab, y=nsim)) +
   geom_bar(stat = "identity") +
   facet_wrap(~IBMlab) +
@@ -150,39 +128,6 @@ catch_results <- mse_results %>%
 catch_results
 unique(catch_results$metric)
 
-###pull out the ssb metrics for noretro runs
-ssb_results_noretro <- noretro_results %>% 
-  select(iscen, isim, ssb_metrics) %>% 
-  mutate(ssb_metrics = map(ssb_metrics, enframe)) %>% 
-  unnest(cols = c(ssb_metrics)) %>% 
-  mutate(value = map_dbl(value, I)) %>% 
-  rename(metric = name) %>% 
-  I()
-ssb_results_noretro
-unique(ssb_results_noretro$metric)
-
-###pull out the f metrics for noretro runs
-f_results_noretro <- noretro_results %>% 
-  select(iscen, isim, f_metrics) %>% 
-  mutate(f_metrics = map(f_metrics, enframe)) %>% 
-  unnest(cols = c(f_metrics)) %>% 
-  mutate(value = map_dbl(value, I)) %>% 
-  rename(metric = name) %>% 
-  I()
-f_results_noretro
-unique(f_results_noretro$metric)
-
-###pull out the catch metrics for noretro
-catch_results_noretro <- noretro_results %>% 
-  select(iscen, isim, catch_metrics) %>% 
-  mutate(catch_metrics = map(catch_metrics, enframe)) %>% 
-  unnest(cols = c(catch_metrics)) %>% 
-  mutate(value = map_dbl(value, I)) %>% 
-  rename(metric = name) %>% 
-  I()
-catch_results_noretro
-unique(catch_results_noretro$metric)
-
 ###pull out the ssb metrics for scaa runs
 ssb_results_scaa <- scaa_results %>% 
   select(iscen, isim, ssb_metrics) %>% 
@@ -232,21 +177,6 @@ catch_mean_by_scenario <- catch_results %>%
   summarise_all(mean) %>%
   inner_join(defined, by = "iscen")
 
-ssb_mean_by_scenario_noretro <- ssb_results_noretro %>%
-  group_by(iscen, metric) %>%
-  summarise_all(mean) %>%
-  inner_join(defined_noretro, by = "iscen")
-
-f_mean_by_scenario_noretro <- f_results_noretro %>%
-  group_by(iscen, metric) %>%
-  summarise_all(mean) %>%
-  inner_join(defined_noretro, by = "iscen")
-
-catch_mean_by_scenario_noretro <- catch_results_noretro %>%
-  group_by(iscen, metric) %>%
-  summarise_all(mean) %>%
-  inner_join(defined_noretro, by = "iscen")
-
 ssb_mean_by_scenario_scaa <- ssb_results_scaa %>%
   group_by(iscen, metric) %>%
   summarise_all(mean) %>%
@@ -262,32 +192,12 @@ catch_mean_by_scenario_scaa <- catch_results_scaa %>%
   summarise_all(mean) %>%
   inner_join(defined_scaa, by = "iscen")
 
-# get main results corresponding to scenarios done for SCAA and noretro
-noretro_scen <- unique(ssb_mean_by_scenario_noretro$Scenlab)
-
-# combine noretro and and base limited to scaa scenarios into noretro
-# remove DLM from base runs because not run for no retro
-ssb_mean_by_scenario_noretro <- rbind(ssb_mean_by_scenario_noretro,
-                                      filter(ssb_mean_by_scenario,
-                                             IBMlab != "DLM"))
-
-f_mean_by_scenario_noretro <- rbind(f_mean_by_scenario_noretro,
-                                    filter(f_mean_by_scenario,
-                                           IBMlab != "DLM"))
-
-catch_mean_by_scenario_noretro <- rbind(catch_mean_by_scenario_noretro,
-                                        filter(catch_mean_by_scenario,
-                                               IBMlab != "DLM"))
-
 # combine scaa and base scenarios
-ssb_mean_by_scenario <- rbind(ssb_mean_by_scenario,
-                              ssb_mean_by_scenario_scaa)
+ssb_mean_by_scenario <- rbind(ssb_mean_by_scenario, ssb_mean_by_scenario_scaa)
 
-f_mean_by_scenario <- rbind(f_mean_by_scenario,
-                            f_mean_by_scenario_scaa)
+f_mean_by_scenario <- rbind(f_mean_by_scenario, f_mean_by_scenario_scaa)
 
-catch_mean_by_scenario <- rbind(catch_mean_by_scenario,
-                                catch_mean_by_scenario_scaa)
+catch_mean_by_scenario <- rbind(catch_mean_by_scenario, catch_mean_by_scenario_scaa)
 
 ### save mean_by_scenario results for easier modeling and ranking
 saveRDS(ssb_mean_by_scenario, 
@@ -299,29 +209,13 @@ saveRDS(f_mean_by_scenario,
 saveRDS(catch_mean_by_scenario, 
         file = "Manuscript/tables_figs/catch_mean_by_scenario.rds")
 
-saveRDS(ssb_mean_by_scenario_noretro, 
-        file = "Manuscript/tables_figs/ssb_mean_by_scenario_noretro.rds")
-
-saveRDS(f_mean_by_scenario_noretro,
-        file = "Manuscript/tables_figs/f_mean_by_scenario_noretro.rds")
-
-saveRDS(catch_mean_by_scenario_noretro, 
-        file = "Manuscript/tables_figs/catch_mean_by_scenario_noretro.rds")
-
-
 ### trade-off plots
-
-# makes base and no retro plots assuming list of these 2 sent
 make_td_plot <- function(mytib, myxlab, myylab, mytitle){
-  mytitleext <- c("", "(No retro scenarios)")
-  myplot <- list()
-  for (i in 1:2){
-    myplot[[i]] <- ggplot(mytib[[i]], aes(x=x_value, y=y_value, color=retro_type)) +
+  myplot <- ggplot(mytib, aes(x=x_value, y=y_value, color=retro_type)) +
     geom_point() +
     facet_wrap(~IBMlab) +
-    labs(x=myxlab, y=myylab, title=paste(mytitle, mytitleext[i])) +
+    labs(x=myxlab, y=myylab, title=mytitle) +
     theme_bw()
-  }
   return(myplot)
 }
 
@@ -336,21 +230,7 @@ catch_temp <- catch_mean_by_scenario %>%
   mutate(metric = paste0("catch_", metric))
 td <- rbind(ssb_temp, f_temp, catch_temp)
 
-ssb_temp_noretro <- ssb_mean_by_scenario_noretro %>%
-  mutate(metric = paste0("ssb_", metric))
-f_temp_noretro <- f_mean_by_scenario_noretro %>%
-  mutate(metric = paste0("f_", metric))
-catch_temp_noretro <- catch_mean_by_scenario_noretro %>%
-  mutate(metric = paste0("catch_", metric))
-td_noretro <- rbind(ssb_temp_noretro, f_temp_noretro, catch_temp_noretro)
-
 td1_l <- td %>%
-  filter(metric %in% c("ssb_l_is_ge_bmsy", "catch_l_avg_catch_msy")) %>%
-  distinct() %>%
-  pivot_wider(names_from = metric, values_from = value) %>%
-  rename(x_value = ssb_l_is_ge_bmsy, y_value = catch_l_avg_catch_msy)
-
-td1_l_noretro <- td_noretro %>%
   filter(metric %in% c("ssb_l_is_ge_bmsy", "catch_l_avg_catch_msy")) %>%
   distinct() %>%
   pivot_wider(names_from = metric, values_from = value) %>%
@@ -362,23 +242,11 @@ td1_s <- td %>%
   pivot_wider(names_from = metric, values_from = value) %>%
   rename(x_value = ssb_s_is_ge_bmsy, y_value = catch_s_avg_catch_msy)
 
-td1_s_noretro <- td_noretro %>%
-  filter(metric %in% c("ssb_s_is_ge_bmsy", "catch_s_avg_catch_msy")) %>%
-  distinct() %>%
-  pivot_wider(names_from = metric, values_from = value) %>%
-  rename(x_value = ssb_s_is_ge_bmsy, y_value = catch_s_avg_catch_msy)
+td1_l_plot <- make_td_plot(td1_l, "Prob(SSB>=SSBmsy)", "Mean(Catch/MSY)", "Long Term")
 
-td1_l_plot <- make_td_plot(list(td1_l, td1_l_noretro), "Prob(SSB>=SSBmsy)", "Mean(Catch/MSY)", "Long Term")
-
-td1_s_plot <- make_td_plot(list(td1_s, td1_s_noretro), "Prob(SSB>=SSBmsy)", "Mean(Catch/MSY)", "Short Term")
+td1_s_plot <- make_td_plot(td1_s, "Prob(SSB>=SSBmsy)", "Mean(Catch/MSY)", "Short Term")
 
 td2_l <- td %>%
-  filter(metric %in% c("ssb_l_is_less_05_bmsy", "f_l_is_gr_fmsy")) %>%
-  distinct() %>%
-  pivot_wider(names_from = metric, values_from = value) %>%
-  rename(x_value = ssb_l_is_less_05_bmsy, y_value = f_l_is_gr_fmsy)
-
-td2_l_noretro <- td_noretro %>%
   filter(metric %in% c("ssb_l_is_less_05_bmsy", "f_l_is_gr_fmsy")) %>%
   distinct() %>%
   pivot_wider(names_from = metric, values_from = value) %>%
@@ -390,23 +258,11 @@ td2_s <- td %>%
   pivot_wider(names_from = metric, values_from = value) %>%
   rename(x_value = ssb_s_is_less_05_bmsy, y_value = f_s_is_gr_fmsy)
 
-td2_s_noretro <- td_noretro %>%
-  filter(metric %in% c("ssb_s_is_less_05_bmsy", "f_s_is_gr_fmsy")) %>%
-  distinct() %>%
-  pivot_wider(names_from = metric, values_from = value) %>%
-  rename(x_value = ssb_s_is_less_05_bmsy, y_value = f_s_is_gr_fmsy)
+td2_l_plot <- make_td_plot(td2_l, "Prob(SSB<0.5SSBmsy)", "Prob(F>Fmsy)", "Long Term")
 
-td2_l_plot <- make_td_plot(list(td2_l, td2_l_noretro), "Prob(SSB<0.5SSBmsy)", "Prob(F>Fmsy)", "Long Term")
-
-td2_s_plot <- make_td_plot(list(td2_s, td2_s_noretro), "Prob(SSB<0.5SSBmsy)", "Prob(F>Fmsy)", "Short Term")
+td2_s_plot <- make_td_plot(td2_s, "Prob(SSB<0.5SSBmsy)", "Prob(F>Fmsy)", "Short Term")
 
 td3_l <- td %>%
-  filter(metric %in% c("ssb_l_avg_ssb_ssbmsy", "catch_l_avg_catch_msy")) %>%
-  distinct() %>%
-  pivot_wider(names_from = metric, values_from = value) %>%
-  rename(x_value = ssb_l_avg_ssb_ssbmsy, y_value = catch_l_avg_catch_msy)
-
-td3_l_noretro <- td_noretro %>%
   filter(metric %in% c("ssb_l_avg_ssb_ssbmsy", "catch_l_avg_catch_msy")) %>%
   distinct() %>%
   pivot_wider(names_from = metric, values_from = value) %>%
@@ -418,18 +274,11 @@ td3_s <- td %>%
   pivot_wider(names_from = metric, values_from = value) %>%
   rename(x_value = ssb_s_avg_ssb_ssbmsy, y_value = catch_s_avg_catch_msy)
 
-td3_s_noretro <- td_noretro %>%
-  filter(metric %in% c("ssb_s_avg_ssb_ssbmsy", "catch_s_avg_catch_msy")) %>%
-  distinct() %>%
-  pivot_wider(names_from = metric, values_from = value) %>%
-  rename(x_value = ssb_s_avg_ssb_ssbmsy, y_value = catch_s_avg_catch_msy)
+td3_l_plot <- make_td_plot(td3_l, "SSB/SSBmsy", "Catch/MSY", "Long Term")
 
-td3_l_plot <- make_td_plot(list(td3_l, td3_l_noretro), "SSB/SSBmsy", "Catch/MSY", "Long Term")
-
-td3_s_plot <- make_td_plot(list(td3_s, td3_s_noretro), "SSB/SSBmsy", "Catch/MSY", "Short Term")
+td3_s_plot <- make_td_plot(td3_s, "SSB/SSBmsy", "Catch/MSY", "Short Term")
 
 # tradeoffs showing individual simulations as points
-# too confusing to make this one a 3 parter, so run base, noretro, and scc separately
 make_td_sim_plot <- function(mytibble, myxlab, myylab, mytitle, myxmax, myymax, mycol){
     myplot <- ggplot(mytibble, aes(x=x_value, y=y_value)) +
     geom_point(color=mycol) +
@@ -518,7 +367,6 @@ for (i in 1:length(myibmlabs)){
     facet_wrap(~Scenlab)
 }
 
-
 # compare metrics plot
 # bb controls whether largest mean value at top (TRUE) or smallest (FALSE)
 compare_all_plot <- function(mytib, myxlab, mytitle, bb){
@@ -605,31 +453,19 @@ get_status_data <- function(myssbtib, myftib){
 }
 
 make_status_plot <- function(mytib, myxlab, mygridscales){
-  mytitle <- c("Base scenarios", "No retro scenarios")
-  myplot <- list()
-  for (i in 1:2){
-    myplot[[i]] <- ggplot(mytib[[i]], aes(x=meanval, y=IBMlab)) +
-      geom_point() +
-      facet_grid(sdc~period, scales = mygridscales) +
-      expand_limits(x=c(0, 1)) +
-      labs(x=myxlab, y="", title=mytitle[i]) +
-      theme_bw()
-  }
+  myplot <- ggplot(mytib, aes(x=meanval, y=IBMlab)) +
+    geom_point() +
+    facet_grid(sdc~period, scales = mygridscales) +
+    expand_limits(x=c(0, 1)) +
+    labs(x=myxlab, y="") +
+    theme_bw()
   return(myplot)
 }
 
 mystatus <- get_status_data(ssb_mean_by_scenario, f_mean_by_scenario)
 
-mystatus_noretro <- get_status_data(ssb_mean_by_scenario_noretro,
-                                    f_mean_by_scenario_noretro)
-
-prob_status_plot <- make_status_plot(list(mystatus[[1]], 
-                                          mystatus_noretro[[1]]), 
-                                     "Probability", "fixed")
-nyrs_status_plot <- make_status_plot(list(mystatus[[2]], 
-                                          mystatus_noretro[[2]]), 
-                                     "Number of Years", "free_x")
-
+prob_status_plot <- make_status_plot(mystatus[[1]], "Probability", "fixed")
+nyrs_status_plot <- make_status_plot(mystatus[[2]], "Number of Years", "free_x")
 
 ### put plots into pdf
 
@@ -640,17 +476,12 @@ pdf(file = outfile)
 print(nsim_plot)
 print(scenlab_plot)
 
-print(td1_l_plot[[1]])
-print(td1_s_plot[[1]])
-print(td2_l_plot[[1]])
-print(td2_s_plot[[1]])
-print(td3_l_plot[[1]])
-print(td3_s_plot[[1]])
-
-# walk(td4_l_IBM_plot, print)
-# walk(td4_s_IBM_plot, print)
-# walk(td4_l_Scen_plot, print)
-# walk(td4_s_Scen_plot, print)
+print(td1_l_plot)
+print(td1_s_plot)
+print(td2_l_plot)
+print(td2_s_plot)
+print(td3_l_plot)
+print(td3_s_plot)
 
 print(ssb_ssbmsy_l)
 print(f_fmsy_l) 
@@ -659,8 +490,13 @@ print(ssb_ssbmsy_s)
 print(f_fmsy_s) 
 print(catch_msy_s) 
 
-print(prob_status_plot[[1]])
-print(nyrs_status_plot[[1]])
+print(prob_status_plot)
+print(nyrs_status_plot)
+
+walk(td4_l_IBM_plot, print)
+walk(td4_s_IBM_plot, print)
+walk(td4_l_Scen_plot, print)
+walk(td4_s_Scen_plot, print)
 
 dev.off()
 
