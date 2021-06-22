@@ -192,6 +192,37 @@ catch_mean_by_scenario_scaa <- catch_results_scaa %>%
   summarise_all(mean) %>%
   inner_join(defined_scaa, by = "iscen")
 
+### compute median for all metrics for each scenario
+ssb_median_by_scenario <- ssb_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined, by = "iscen")
+
+f_median_by_scenario <- f_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined, by = "iscen")
+
+catch_median_by_scenario <- catch_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined, by = "iscen")
+
+ssb_median_by_scenario_scaa <- ssb_results_scaa %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined_scaa, by = "iscen")
+
+f_median_by_scenario_scaa <- f_results_scaa %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined_scaa, by = "iscen")
+
+catch_median_by_scenario_scaa <- catch_results_scaa %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined_scaa, by = "iscen")
+
 # combine scaa and base scenarios
 ssb_mean_by_scenario <- rbind(ssb_mean_by_scenario, ssb_mean_by_scenario_scaa)
 
@@ -199,7 +230,13 @@ f_mean_by_scenario <- rbind(f_mean_by_scenario, f_mean_by_scenario_scaa)
 
 catch_mean_by_scenario <- rbind(catch_mean_by_scenario, catch_mean_by_scenario_scaa)
 
-### save mean_by_scenario results for easier modeling and ranking
+ssb_median_by_scenario <- rbind(ssb_median_by_scenario, ssb_median_by_scenario_scaa)
+
+f_median_by_scenario <- rbind(f_median_by_scenario, f_median_by_scenario_scaa)
+
+catch_median_by_scenario <- rbind(catch_median_by_scenario, catch_median_by_scenario_scaa)
+
+### save mean and median by_scenario results for easier modeling and ranking
 saveRDS(ssb_mean_by_scenario, 
         file = "Manuscript/tables_figs/ssb_mean_by_scenario.rds")
 
@@ -208,6 +245,15 @@ saveRDS(f_mean_by_scenario,
 
 saveRDS(catch_mean_by_scenario, 
         file = "Manuscript/tables_figs/catch_mean_by_scenario.rds")
+
+saveRDS(ssb_median_by_scenario, 
+        file = "Manuscript/tables_figs/ssb_median_by_scenario.rds")
+
+saveRDS(f_median_by_scenario,
+        file = "Manuscript/tables_figs/f_median_by_scenario.rds")
+
+saveRDS(catch_median_by_scenario, 
+        file = "Manuscript/tables_figs/catch_median_by_scenario.rds")
 
 ### trade-off plots
 make_td_plot <- function(mytib, myxlab, myylab, mytitle){
