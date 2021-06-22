@@ -571,6 +571,7 @@ catch_iav_a_med <- compare_all_plot(filter(catch_median_by_scenario,
 catch_iav_a_med$layers[[2]] <- NULL # fudge to remove vertical line at 1.0
 
 # probabilty and nyears overfished overfishing 
+# note: using alternative refpts requires going back to original data and computing whether or not each year is above/below the alternative refpt
 get_status_data <- function(myssbtib, myftib){
   
   prob_overfished <- filter(myssbtib,
