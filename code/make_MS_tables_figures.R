@@ -5,6 +5,16 @@
 
 library(tidyverse)
 
+# get reference points
+# note: we used year 50 for reporting refpts in WG report
+# to get alternative refpts using year 1, multiply by ratio reftpt50/refpt1
+refpts <- read.csv("demonstrations/chris/base_sims/refpts.csv", 
+                   stringsAsFactors = FALSE) %>%
+  mutate(ssbmsyratio = ssbmsy50 / ssbmsy1,
+         fmsyratio = fmsy50 / fmsy1,
+         msyratio = msy50 / msy1) %>%
+  mutate(Fhist = ifelse(Fhist == "F", 1, 2))
+
 # get resuls and simulation set up information
 mse_results <- readRDS("results/perform-metrics_clean.rds")
 scaa_results <- readRDS("results/perform-metrics_full_scaa.rds") # note full
@@ -322,6 +332,10 @@ td3_l <- td %>%
   pivot_wider(names_from = metric, values_from = value) %>%
   rename(x_value = ssb_l_avg_ssb_ssbmsy, y_value = catch_l_avg_catch_msy)
 
+td3_l_alt <- td3_l %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(x_value = x_value * ssbmsyratio, y_value = y_value * msyratio)
+
 # td3_s <- td %>%
 #   filter(metric %in% c("ssb_s_avg_ssb_ssbmsy", "catch_s_avg_catch_msy")) %>%
 #   distinct() %>%
@@ -329,6 +343,8 @@ td3_l <- td %>%
 #   rename(x_value = ssb_s_avg_ssb_ssbmsy, y_value = catch_s_avg_catch_msy)
 
 td3_l_plot <- make_td_plot(td3_l, "SSB/SSBmsy", "Catch/MSY", "Long Term (means)")
+
+td3_l_alt_plot <- make_td_plot(td3_l_alt, "SSB/SSBmsy", "Catch/MSY", "Long Term (means) Alternative RefPts")
 
 # td3_s_plot <- make_td_plot(td3_s, "SSB/SSBmsy", "Catch/MSY", "Short Term")
 
@@ -339,6 +355,12 @@ td3_l_med <- td_med %>%
   rename(x_value = ssb_l_avg_ssb_ssbmsy, y_value = catch_l_avg_catch_msy)
 
 td3_l_med_plot <- make_td_plot(td3_l_med, "SSB/SSBmsy", "Catch/MSY", "Long Term (medians)")
+
+td3_l_med_alt <- td3_l_med %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(x_value = x_value * ssbmsyratio, y_value = y_value * msyratio)
+
+td3_l_med_alt_plot <- make_td_plot(td3_l_med_alt, "SSB/SSBmsy", "Catch/MSY", "Long Term (medians) Alternative RefPts")
 
 # tradeoffs showing individual simulations as points
 make_td_sim_plot <- function(mytibble, myxlab, myylab, mytitle, myxmax, myymax, mycol){
@@ -460,6 +482,33 @@ catch_msy_l <- compare_all_plot(filter(catch_mean_by_scenario,
                                        metric == "l_avg_catch_msy"), 
                                 "Catch/MSY", "Long Term (means)", TRUE)
 
+ssb_alt_tmp <- ssb_mean_by_scenario %>%
+  filter(metric == "l_avg_ssb_ssbmsy") %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(value = value * ssbmsyratio)
+
+f_alt_tmp <- f_mean_by_scenario %>%
+  filter(metric == "l_avg_f_fmsy") %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(value = value * fmsyratio)
+
+catch_alt_tmp <- catch_mean_by_scenario %>%
+  filter(metric == "l_avg_catch_msy") %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(value = value * msyratio)
+
+ssb_ssbmsy_l_alt <- compare_all_plot(ssb_alt_tmp, 
+                                 "SSB/SSBmsy", 
+                                 "Long Term (means) Alternative RefPts", TRUE)
+
+f_fmsy_l_alt <- compare_all_plot(f_alt_tmp, 
+                             "F/Fmsy", 
+                             "Long Term (means) Alternative RefPts", FALSE)
+
+catch_msy_l_alt <- compare_all_plot(catch_alt_tmp, 
+                                "Catch/MSY", 
+                                "Long Term (means) Alternative Refpts", TRUE)
+
 catch_iav_a <- compare_all_plot(filter(catch_mean_by_scenario,
                                        metric == "a_iav_catch"),
                                 "IAV Catch", "All Years (means)", TRUE)
@@ -488,6 +537,33 @@ f_fmsy_l_med <- compare_all_plot(filter(f_median_by_scenario,
 catch_msy_l_med <- compare_all_plot(filter(catch_median_by_scenario, 
                                            metric == "l_avg_catch_msy"), 
                                     "Catch/MSY", "Long Term (medians)", TRUE)
+
+ssb_alt_tmp_med <- ssb_median_by_scenario %>%
+  filter(metric == "l_avg_ssb_ssbmsy") %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(value = value * ssbmsyratio)
+
+f_alt_tmp_med <- f_median_by_scenario %>%
+  filter(metric == "l_avg_f_fmsy") %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(value = value * fmsyratio)
+
+catch_alt_tmp_med <- catch_median_by_scenario %>%
+  filter(metric == "l_avg_catch_msy") %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(value = value * msyratio)
+
+ssb_ssbmsy_l_alt_med <- compare_all_plot(ssb_alt_tmp_med, 
+                                     "SSB/SSBmsy", 
+                                     "Long Term (medians) Alternative RefPts", TRUE)
+
+f_fmsy_l_alt_med <- compare_all_plot(f_alt_tmp_med, 
+                                 "F/Fmsy", 
+                                 "Long Term (medians) Alternative RefPts", FALSE)
+
+catch_msy_l_alt_med <- compare_all_plot(catch_alt_tmp_med, 
+                                    "Catch/MSY", 
+                                    "Long Term (medians) Alternative Refpts", TRUE)
 
 catch_iav_a_med <- compare_all_plot(filter(catch_median_by_scenario,
                                        metric == "a_iav_catch"),
@@ -567,14 +643,22 @@ pdf(file = outfile)
 # print(td2_s_plot)
 print(td3_l_plot)
 print(td3_l_med_plot)
+print(td3_l_alt_plot)
+print(td3_l_med_alt_plot)
 # print(td3_s_plot)
 
 print(ssb_ssbmsy_l)
 print(ssb_ssbmsy_l_med)
+print(ssb_ssbmsy_l_alt)
+print(ssb_ssbmsy_l_alt_med)
 print(f_fmsy_l) 
 print(f_fmsy_l_med) 
+print(f_fmsy_l_alt)
+print(f_fmsy_l_alt_med)
 print(catch_msy_l)
 print(catch_msy_l_med)
+print(catch_msy_l_alt)
+print(catch_msy_l_alt_med)
 print(catch_iav_a)
 print(catch_iav_a_med)
 # print(ssb_ssbmsy_s)
