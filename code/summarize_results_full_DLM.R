@@ -20,7 +20,7 @@ myfiles <- str_subset(myfiles, "mse-")
 myfiles
 
 # which files are read (will skip files already in database)
-newfiles <- myfiles[13:37] # can subset using brackets for testing, e.g., myfiles[1:3]
+newfiles <- myfiles[10:37] # can subset using brackets for testing, e.g., myfiles[1:3]
 nfiles <- length(newfiles)
 
 # defines names of files that are saved
