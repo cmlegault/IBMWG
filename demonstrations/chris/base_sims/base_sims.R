@@ -195,3 +195,6 @@ ggsave(filename = "demonstrations/chris/base_sims/f_plots1.png", f_plots$myplot,
 ggsave(filename = "demonstrations/chris/base_sims/ssb_plots_rel50.png", ssb_plots$myrelplot50, width = 6.5, height = 6.5, units = "in")
 ggsave(filename = "demonstrations/chris/base_sims/f_plots_rel50.png", f_plots$myrelplot50, width = 6.5, height = 6.5, units = "in")
 ggsave(filename = "demonstrations/chris/base_sims/catch_plots_rel50.png", catch_plots$myrelplot50, width = 6.5, height = 6.5, units = "in")
+
+# save csv of ref points
+write.csv(refpts, file = "demonstrations/chris/base_sims/refpts.csv", row.names = FALSE)

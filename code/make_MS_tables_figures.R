@@ -5,6 +5,16 @@
 
 library(tidyverse)
 
+# get reference points
+# note: we used year 50 for reporting refpts in WG report
+# to get alternative refpts using year 1, multiply by ratio reftpt50/refpt1
+refpts <- read.csv("demonstrations/chris/base_sims/refpts.csv", 
+                   stringsAsFactors = FALSE) %>%
+  mutate(ssbmsyratio = ssbmsy50 / ssbmsy1,
+         fmsyratio = fmsy50 / fmsy1,
+         msyratio = msy50 / msy1) %>%
+  mutate(Fhist = ifelse(Fhist == "F", 1, 2))
+
 # get resuls and simulation set up information
 mse_results <- readRDS("results/perform-metrics_clean.rds")
 scaa_results <- readRDS("results/perform-metrics_full_scaa.rds") # note full
@@ -192,6 +202,37 @@ catch_mean_by_scenario_scaa <- catch_results_scaa %>%
   summarise_all(mean) %>%
   inner_join(defined_scaa, by = "iscen")
 
+### compute median for all metrics for each scenario
+ssb_median_by_scenario <- ssb_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined, by = "iscen")
+
+f_median_by_scenario <- f_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined, by = "iscen")
+
+catch_median_by_scenario <- catch_results %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined, by = "iscen")
+
+ssb_median_by_scenario_scaa <- ssb_results_scaa %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined_scaa, by = "iscen")
+
+f_median_by_scenario_scaa <- f_results_scaa %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined_scaa, by = "iscen")
+
+catch_median_by_scenario_scaa <- catch_results_scaa %>%
+  group_by(iscen, metric) %>%
+  summarise_all(median) %>%
+  inner_join(defined_scaa, by = "iscen")
+
 # combine scaa and base scenarios
 ssb_mean_by_scenario <- rbind(ssb_mean_by_scenario, ssb_mean_by_scenario_scaa)
 
@@ -199,7 +240,13 @@ f_mean_by_scenario <- rbind(f_mean_by_scenario, f_mean_by_scenario_scaa)
 
 catch_mean_by_scenario <- rbind(catch_mean_by_scenario, catch_mean_by_scenario_scaa)
 
-### save mean_by_scenario results for easier modeling and ranking
+ssb_median_by_scenario <- rbind(ssb_median_by_scenario, ssb_median_by_scenario_scaa)
+
+f_median_by_scenario <- rbind(f_median_by_scenario, f_median_by_scenario_scaa)
+
+catch_median_by_scenario <- rbind(catch_median_by_scenario, catch_median_by_scenario_scaa)
+
+### save mean and median by_scenario results for easier modeling and ranking
 saveRDS(ssb_mean_by_scenario, 
         file = "Manuscript/tables_figs/ssb_mean_by_scenario.rds")
 
@@ -208,6 +255,15 @@ saveRDS(f_mean_by_scenario,
 
 saveRDS(catch_mean_by_scenario, 
         file = "Manuscript/tables_figs/catch_mean_by_scenario.rds")
+
+saveRDS(ssb_median_by_scenario, 
+        file = "Manuscript/tables_figs/ssb_median_by_scenario.rds")
+
+saveRDS(f_median_by_scenario,
+        file = "Manuscript/tables_figs/f_median_by_scenario.rds")
+
+saveRDS(catch_median_by_scenario, 
+        file = "Manuscript/tables_figs/catch_median_by_scenario.rds")
 
 ### trade-off plots
 make_td_plot <- function(mytib, myxlab, myylab, mytitle){
@@ -230,37 +286,45 @@ catch_temp <- catch_mean_by_scenario %>%
   mutate(metric = paste0("catch_", metric))
 td <- rbind(ssb_temp, f_temp, catch_temp)
 
-td1_l <- td %>%
-  filter(metric %in% c("ssb_l_is_ge_bmsy", "catch_l_avg_catch_msy")) %>%
-  distinct() %>%
-  pivot_wider(names_from = metric, values_from = value) %>%
-  rename(x_value = ssb_l_is_ge_bmsy, y_value = catch_l_avg_catch_msy)
+ssb_temp_med <- ssb_median_by_scenario %>%
+  mutate(metric = paste0("ssb_", metric))
+f_temp_med <- f_median_by_scenario %>%
+  mutate(metric = paste0("f_", metric))
+catch_temp_med <- catch_median_by_scenario %>%
+  mutate(metric = paste0("catch_", metric))
+td_med <- rbind(ssb_temp_med, f_temp_med, catch_temp_med)
 
-td1_s <- td %>%
-  filter(metric %in% c("ssb_s_is_ge_bmsy", "catch_s_avg_catch_msy")) %>%
-  distinct() %>%
-  pivot_wider(names_from = metric, values_from = value) %>%
-  rename(x_value = ssb_s_is_ge_bmsy, y_value = catch_s_avg_catch_msy)
-
-td1_l_plot <- make_td_plot(td1_l, "Prob(SSB>=SSBmsy)", "Mean(Catch/MSY)", "Long Term")
-
-td1_s_plot <- make_td_plot(td1_s, "Prob(SSB>=SSBmsy)", "Mean(Catch/MSY)", "Short Term")
-
-td2_l <- td %>%
-  filter(metric %in% c("ssb_l_is_less_05_bmsy", "f_l_is_gr_fmsy")) %>%
-  distinct() %>%
-  pivot_wider(names_from = metric, values_from = value) %>%
-  rename(x_value = ssb_l_is_less_05_bmsy, y_value = f_l_is_gr_fmsy)
-
-td2_s <- td %>%
-  filter(metric %in% c("ssb_s_is_less_05_bmsy", "f_s_is_gr_fmsy")) %>%
-  distinct() %>%
-  pivot_wider(names_from = metric, values_from = value) %>%
-  rename(x_value = ssb_s_is_less_05_bmsy, y_value = f_s_is_gr_fmsy)
-
-td2_l_plot <- make_td_plot(td2_l, "Prob(SSB<0.5SSBmsy)", "Prob(F>Fmsy)", "Long Term")
-
-td2_s_plot <- make_td_plot(td2_s, "Prob(SSB<0.5SSBmsy)", "Prob(F>Fmsy)", "Short Term")
+# td1_l <- td %>%
+#   filter(metric %in% c("ssb_l_is_ge_bmsy", "catch_l_avg_catch_msy")) %>%
+#   distinct() %>%
+#   pivot_wider(names_from = metric, values_from = value) %>%
+#   rename(x_value = ssb_l_is_ge_bmsy, y_value = catch_l_avg_catch_msy)
+# 
+# td1_s <- td %>%
+#   filter(metric %in% c("ssb_s_is_ge_bmsy", "catch_s_avg_catch_msy")) %>%
+#   distinct() %>%
+#   pivot_wider(names_from = metric, values_from = value) %>%
+#   rename(x_value = ssb_s_is_ge_bmsy, y_value = catch_s_avg_catch_msy)
+# 
+# td1_l_plot <- make_td_plot(td1_l, "Prob(SSB>=SSBmsy)", "Mean(Catch/MSY)", "Long Term")
+# 
+# td1_s_plot <- make_td_plot(td1_s, "Prob(SSB>=SSBmsy)", "Mean(Catch/MSY)", "Short Term")
+# 
+# td2_l <- td %>%
+#   filter(metric %in% c("ssb_l_is_less_05_bmsy", "f_l_is_gr_fmsy")) %>%
+#   distinct() %>%
+#   pivot_wider(names_from = metric, values_from = value) %>%
+#   rename(x_value = ssb_l_is_less_05_bmsy, y_value = f_l_is_gr_fmsy)
+# 
+# td2_s <- td %>%
+#   filter(metric %in% c("ssb_s_is_less_05_bmsy", "f_s_is_gr_fmsy")) %>%
+#   distinct() %>%
+#   pivot_wider(names_from = metric, values_from = value) %>%
+#   rename(x_value = ssb_s_is_less_05_bmsy, y_value = f_s_is_gr_fmsy)
+# 
+# td2_l_plot <- make_td_plot(td2_l, "Prob(SSB<0.5SSBmsy)", "Prob(F>Fmsy)", "Long Term")
+# 
+# td2_s_plot <- make_td_plot(td2_s, "Prob(SSB<0.5SSBmsy)", "Prob(F>Fmsy)", "Short Term")
 
 td3_l <- td %>%
   filter(metric %in% c("ssb_l_avg_ssb_ssbmsy", "catch_l_avg_catch_msy")) %>%
@@ -268,15 +332,35 @@ td3_l <- td %>%
   pivot_wider(names_from = metric, values_from = value) %>%
   rename(x_value = ssb_l_avg_ssb_ssbmsy, y_value = catch_l_avg_catch_msy)
 
-td3_s <- td %>%
-  filter(metric %in% c("ssb_s_avg_ssb_ssbmsy", "catch_s_avg_catch_msy")) %>%
+td3_l_alt <- td3_l %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(x_value = x_value * ssbmsyratio, y_value = y_value * msyratio)
+
+# td3_s <- td %>%
+#   filter(metric %in% c("ssb_s_avg_ssb_ssbmsy", "catch_s_avg_catch_msy")) %>%
+#   distinct() %>%
+#   pivot_wider(names_from = metric, values_from = value) %>%
+#   rename(x_value = ssb_s_avg_ssb_ssbmsy, y_value = catch_s_avg_catch_msy)
+
+td3_l_plot <- make_td_plot(td3_l, "SSB/SSBmsy", "Catch/MSY", "Long Term (means)")
+
+td3_l_alt_plot <- make_td_plot(td3_l_alt, "SSB/SSBmsy", "Catch/MSY", "Long Term (means) Alternative RefPts")
+
+# td3_s_plot <- make_td_plot(td3_s, "SSB/SSBmsy", "Catch/MSY", "Short Term")
+
+td3_l_med <- td_med %>%
+  filter(metric %in% c("ssb_l_avg_ssb_ssbmsy", "catch_l_avg_catch_msy")) %>%
   distinct() %>%
   pivot_wider(names_from = metric, values_from = value) %>%
-  rename(x_value = ssb_s_avg_ssb_ssbmsy, y_value = catch_s_avg_catch_msy)
+  rename(x_value = ssb_l_avg_ssb_ssbmsy, y_value = catch_l_avg_catch_msy)
 
-td3_l_plot <- make_td_plot(td3_l, "SSB/SSBmsy", "Catch/MSY", "Long Term")
+td3_l_med_plot <- make_td_plot(td3_l_med, "SSB/SSBmsy", "Catch/MSY", "Long Term (medians)")
 
-td3_s_plot <- make_td_plot(td3_s, "SSB/SSBmsy", "Catch/MSY", "Short Term")
+td3_l_med_alt <- td3_l_med %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(x_value = x_value * ssbmsyratio, y_value = y_value * msyratio)
+
+td3_l_med_alt_plot <- make_td_plot(td3_l_med_alt, "SSB/SSBmsy", "Catch/MSY", "Long Term (medians) Alternative RefPts")
 
 # tradeoffs showing individual simulations as points
 make_td_sim_plot <- function(mytibble, myxlab, myylab, mytitle, myxmax, myymax, mycol){
@@ -379,6 +463,7 @@ compare_all_plot <- function(mytib, myxlab, mytitle, bb){
   }
   myplot <- ggplot(mysum, aes(x=value, y=reorder(IBMlab, meanval), color=factor(catch.mult))) +
     geom_point() +
+    geom_vline(xintercept = 1, linetype = "dashed") +
     facet_grid(retro_type~Fhistlab[Fhist]+n_selblocks) +
     labs(x=myxlab, y="", color="Catch Mult", title=mytitle) +
     theme_bw()
@@ -387,29 +472,106 @@ compare_all_plot <- function(mytib, myxlab, mytitle, bb){
 
 ssb_ssbmsy_l <- compare_all_plot(filter(ssb_mean_by_scenario, 
                                         metric == "l_avg_ssb_ssbmsy"), 
-                                 "SSB/SSBmsy", "Long Term", TRUE)
+                                 "SSB/SSBmsy", "Long Term (means)", TRUE)
 
 f_fmsy_l <- compare_all_plot(filter(f_mean_by_scenario, 
                                     metric == "l_avg_f_fmsy"), 
-                             "F/Fmsy", "Long Term", FALSE)
+                             "F/Fmsy", "Long Term (means)", FALSE)
 
 catch_msy_l <- compare_all_plot(filter(catch_mean_by_scenario, 
                                        metric == "l_avg_catch_msy"), 
-                                "Catch/MSY", "Long Term", TRUE)
+                                "Catch/MSY", "Long Term (means)", TRUE)
 
-ssb_ssbmsy_s <- compare_all_plot(filter(ssb_mean_by_scenario, 
-                                        metric == "s_avg_ssb_ssbmsy"), 
-                                 "SSB/SSBmsy", "Short Term", TRUE)
+ssb_alt_tmp <- ssb_mean_by_scenario %>%
+  filter(metric == "l_avg_ssb_ssbmsy") %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(value = value * ssbmsyratio)
 
-f_fmsy_s <- compare_all_plot(filter(f_mean_by_scenario, 
-                                    metric == "s_avg_f_fmsy"), 
-                             "F/Fmsy", "Short Term", FALSE)
+f_alt_tmp <- f_mean_by_scenario %>%
+  filter(metric == "l_avg_f_fmsy") %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(value = value * fmsyratio)
 
-catch_msy_s <- compare_all_plot(filter(catch_mean_by_scenario, 
-                                       metric == "s_avg_catch_msy"), 
-                                "Catch/MSY", "Short Term", TRUE)
+catch_alt_tmp <- catch_mean_by_scenario %>%
+  filter(metric == "l_avg_catch_msy") %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(value = value * msyratio)
+
+ssb_ssbmsy_l_alt <- compare_all_plot(ssb_alt_tmp, 
+                                 "SSB/SSBmsy", 
+                                 "Long Term (means) Alternative RefPts", TRUE)
+
+f_fmsy_l_alt <- compare_all_plot(f_alt_tmp, 
+                             "F/Fmsy", 
+                             "Long Term (means) Alternative RefPts", FALSE)
+
+catch_msy_l_alt <- compare_all_plot(catch_alt_tmp, 
+                                "Catch/MSY", 
+                                "Long Term (means) Alternative Refpts", TRUE)
+
+catch_iav_a <- compare_all_plot(filter(catch_mean_by_scenario,
+                                       metric == "a_iav_catch"),
+                                "IAV Catch", "All Years (means)", TRUE)
+catch_iav_a$layers[[2]] <- NULL # fudge to remove vertical line at 1.0
+
+# ssb_ssbmsy_s <- compare_all_plot(filter(ssb_mean_by_scenario, 
+#                                         metric == "s_avg_ssb_ssbmsy"), 
+#                                  "SSB/SSBmsy", "Short Term", TRUE)
+# 
+# f_fmsy_s <- compare_all_plot(filter(f_mean_by_scenario, 
+#                                     metric == "s_avg_f_fmsy"), 
+#                              "F/Fmsy", "Short Term", FALSE)
+# 
+# catch_msy_s <- compare_all_plot(filter(catch_mean_by_scenario, 
+#                                        metric == "s_avg_catch_msy"), 
+#                                 "Catch/MSY", "Short Term", TRUE)
+
+ssb_ssbmsy_l_med <- compare_all_plot(filter(ssb_median_by_scenario, 
+                                            metric == "l_avg_ssb_ssbmsy"), 
+                                     "SSB/SSBmsy", "Long Term (medians)", TRUE)
+
+f_fmsy_l_med <- compare_all_plot(filter(f_median_by_scenario, 
+                                        metric == "l_avg_f_fmsy"), 
+                                 "F/Fmsy", "Long Term (medians)", FALSE)
+
+catch_msy_l_med <- compare_all_plot(filter(catch_median_by_scenario, 
+                                           metric == "l_avg_catch_msy"), 
+                                    "Catch/MSY", "Long Term (medians)", TRUE)
+
+ssb_alt_tmp_med <- ssb_median_by_scenario %>%
+  filter(metric == "l_avg_ssb_ssbmsy") %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(value = value * ssbmsyratio)
+
+f_alt_tmp_med <- f_median_by_scenario %>%
+  filter(metric == "l_avg_f_fmsy") %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(value = value * fmsyratio)
+
+catch_alt_tmp_med <- catch_median_by_scenario %>%
+  filter(metric == "l_avg_catch_msy") %>%
+  left_join(refpts, by = c("retro_type", "Fhist", "n_selblocks")) %>%
+  mutate(value = value * msyratio)
+
+ssb_ssbmsy_l_alt_med <- compare_all_plot(ssb_alt_tmp_med, 
+                                     "SSB/SSBmsy", 
+                                     "Long Term (medians) Alternative RefPts", TRUE)
+
+f_fmsy_l_alt_med <- compare_all_plot(f_alt_tmp_med, 
+                                 "F/Fmsy", 
+                                 "Long Term (medians) Alternative RefPts", FALSE)
+
+catch_msy_l_alt_med <- compare_all_plot(catch_alt_tmp_med, 
+                                    "Catch/MSY", 
+                                    "Long Term (medians) Alternative Refpts", TRUE)
+
+catch_iav_a_med <- compare_all_plot(filter(catch_median_by_scenario,
+                                       metric == "a_iav_catch"),
+                                "IAV Catch", "All Years (medians)", TRUE)
+catch_iav_a_med$layers[[2]] <- NULL # fudge to remove vertical line at 1.0
 
 # probabilty and nyears overfished overfishing 
+# note: using alternative refpts requires going back to original data and computing whether or not each year is above/below the alternative refpt
 get_status_data <- function(myssbtib, myftib){
   
   prob_overfished <- filter(myssbtib,
@@ -434,14 +596,14 @@ get_status_data <- function(myssbtib, myftib){
                                           "s_n_less_05_bmsy")) %>%
     mutate(period = ifelse(substr(metric, 1, 1) == "l", "Long Term", "Short Term")) %>%
     group_by(IBMlab, period) %>%
-    summarise(meanval = mean(value)) %>%
+    summarise(meanval = mean(value), medianval = median(value)) %>%
     mutate(sdc = "Overfished")
   
   nyrs_overfishing <- filter(myftib,
                              metric %in% c("l_n_gr_fmsy", "s_n_gr_fmsy")) %>%
     mutate(period = ifelse(substr(metric, 1, 1) == "l", "Long Term", "Short Term")) %>%
     group_by(IBMlab, period) %>%
-    summarise(meanval = mean(value)) %>%
+    summarise(meanval = mean(value), medianval = median(value)) %>%
     mutate(sdc = "Overfishing")
   
   nyrs_status <- rbind(nyrs_overfished, nyrs_overfishing)
@@ -453,11 +615,11 @@ get_status_data <- function(myssbtib, myftib){
 }
 
 make_status_plot <- function(mytib, myxlab, mygridscales){
-  myplot <- ggplot(mytib, aes(x=meanval, y=IBMlab)) +
+  myplot <- ggplot(filter(mytib, period == "Long Term"), aes(x=meanval, y=IBMlab)) +
     geom_point() +
-    facet_grid(sdc~period, scales = mygridscales) +
+    facet_grid(~sdc, scales = mygridscales) +
     expand_limits(x=c(0, 1)) +
-    labs(x=myxlab, y="") +
+    labs(x=myxlab, y="", title = "(Long Term means)") +
     theme_bw()
   return(myplot)
 }
@@ -465,7 +627,7 @@ make_status_plot <- function(mytib, myxlab, mygridscales){
 mystatus <- get_status_data(ssb_mean_by_scenario, f_mean_by_scenario)
 
 prob_status_plot <- make_status_plot(mystatus[[1]], "Probability", "fixed")
-nyrs_status_plot <- make_status_plot(mystatus[[2]], "Number of Years", "free_x")
+#nyrs_status_plot <- make_status_plot(mystatus[[2]], "Number of Years", "free_x")
 
 ### put plots into pdf
 
@@ -473,30 +635,46 @@ outfile <- "Manuscript/tables_figs/tables_figures.pdf"
 
 pdf(file = outfile)
 
-print(nsim_plot)
-print(scenlab_plot)
+#print(nsim_plot)
+#print(scenlab_plot)
 
-print(td1_l_plot)
-print(td1_s_plot)
-print(td2_l_plot)
-print(td2_s_plot)
+# print(td1_l_plot)
+# print(td1_s_plot)
+# print(td2_l_plot)
+# print(td2_s_plot)
 print(td3_l_plot)
-print(td3_s_plot)
+print(td3_l_med_plot)
+print(td3_l_alt_plot)
+print(td3_l_med_alt_plot)
+# print(td3_s_plot)
 
 print(ssb_ssbmsy_l)
+print(ssb_ssbmsy_l_med)
+print(ssb_ssbmsy_l_alt)
+print(ssb_ssbmsy_l_alt_med)
 print(f_fmsy_l) 
+print(f_fmsy_l_med) 
+print(f_fmsy_l_alt)
+print(f_fmsy_l_alt_med)
 print(catch_msy_l)
-print(ssb_ssbmsy_s)
-print(f_fmsy_s) 
-print(catch_msy_s) 
+print(catch_msy_l_med)
+print(catch_msy_l_alt)
+print(catch_msy_l_alt_med)
+print(catch_iav_a)
+print(catch_iav_a_med)
+# print(ssb_ssbmsy_s)
+# print(f_fmsy_s) 
+# print(catch_msy_s) 
 
 print(prob_status_plot)
-print(nyrs_status_plot)
+# print(nyrs_status_plot)
 
-walk(td4_l_IBM_plot, print)
-walk(td4_s_IBM_plot, print)
-walk(td4_l_Scen_plot, print)
-walk(td4_s_Scen_plot, print)
+# uncomment the walk lines to see all the plots
+# walk(td4_l_IBM_plot, print)
+# walk(td4_s_IBM_plot, print)
+# walk(td4_l_Scen_plot, print)
+# walk(td4_s_Scen_plot, print)
+print(td4_l_IBM_plot[[1]]) # this shows just one example
 
 dev.off()
 
