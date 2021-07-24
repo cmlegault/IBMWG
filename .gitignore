@@ -15,7 +15,9 @@ run_script_liz2.R
 run_script_liz3.R
 run_script_liz4.R
 run_script_liz_full_scaa.R
+run_script_missing_DLM.R
 text_for_putty.txt
+check_DLM_runs.txt
 /demonstrations/tim/*.rds
 /demonstrations/tim/*.RDS
 .httr-oauth
