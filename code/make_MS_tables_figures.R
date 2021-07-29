@@ -635,7 +635,7 @@ outfile <- "Manuscript/tables_figs/tables_figures.pdf"
 
 pdf(file = outfile)
 
-#print(nsim_plot)
+print(nsim_plot)
 #print(scenlab_plot)
 
 # print(td1_l_plot)
