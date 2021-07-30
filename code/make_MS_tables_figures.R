@@ -16,7 +16,7 @@ refpts <- read.csv("demonstrations/chris/base_sims/refpts.csv",
   mutate(Fhist = ifelse(Fhist == "F", 1, 2))
 
 # get resuls and simulation set up information
-mse_results <- readRDS("results/perform-metrics_clean.rds")
+mse_results <- readRDS("results/perform-metrics_clean_full_DLM.rds")
 scaa_results <- readRDS("results/perform-metrics_full_scaa.rds") # note full
 mse_sim_setup <- readRDS("settings/mse_sim_setup.rds")
 
@@ -635,7 +635,7 @@ outfile <- "Manuscript/tables_figs/tables_figures.pdf"
 
 pdf(file = outfile)
 
-#print(nsim_plot)
+print(nsim_plot)
 #print(scenlab_plot)
 
 # print(td1_l_plot)
