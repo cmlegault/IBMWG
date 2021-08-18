@@ -700,8 +700,6 @@ linetype_order <- c("1", "2")
 
 #  create Scenario labels for the legend and color & linetype info
 sims.time <- sims %>% 
-  #select(IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult) %>%
-  #mutate(time.avg = ifelse(substr(ssb_sims$metric,1,1)=="l", "L", "S")) %>%
   mutate(Scenario = factor(paste0(retro_type, ".", "F", Fhist, ".", "Cmult", catch.mult, ".", "Sel", n_selblocks),  levels=color_order) ) %>%
   mutate(lty = factor(if_else(Fhist==1, 1, 2)) ) %>%
   mutate(lcol = case_when(
@@ -731,7 +729,7 @@ sims.time <- sims %>%
 
 
 
-## !!!!!!!!!!!!!! this one below works !!!!!!!!!!!!!!!!!!!!
+## function to make ecdf plot ====
 
 make.ecdf.plot <- function(df, xlim1,  xlim2, xtxt, ytxt, plot.title)
 {
@@ -801,6 +799,7 @@ catch.long.plot <- make.ecdf.plot(df=sims.catch.long ,  xlim1=0, xlim2=3, xtxt =
 install.packages('Cairo')
 library('Cairo')
 
+# create a single pdf of the ecdf plots (note the lines have heavy aliasing and look crappy)-- any suggestions for anti-aliasing pdfs?
 # outfile2 <- "Manuscript/tables_figs/tables_figures_ECDF_cairo.pdf"
 # 
 # pdf(file = outfile2, height=11, width=9, dpi = 300, type = 'cairo')
@@ -815,7 +814,7 @@ library('Cairo')
 # 
 # dev.off()
  
-# saving as png because the pdf lines look like crap -- any suggestions for anti-aliasing pdfs?
+# saving as png because the pdf lines look like crap 
 ggsave(ssb.short.plot, file="Manuscript/tables_figs/ssb.short.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9, units="in") 
 ggsave(ssb.long.plot, file="Manuscript/tables_figs/ssb.long.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9) 
 ggsave(f.short.plot, file="Manuscript/tables_figs/f.short.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9) 
