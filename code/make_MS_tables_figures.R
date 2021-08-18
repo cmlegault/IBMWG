@@ -3,6 +3,9 @@
 # uses cleaned performance metrics from base, full SCAA, and no retro  
 # output goes to Manuscript/tables_figs directory
 
+
+
+#library(vctrs, lib.loc="C:/R/R-3.6.1/library") # (liz needs this line)
 library(tidyverse)
 
 # get reference points
@@ -635,7 +638,7 @@ outfile <- "Manuscript/tables_figs/tables_figures.pdf"
 
 pdf(file = outfile)
 
-print(nsim_plot)
+#print(nsim_plot)
 #print(scenlab_plot)
 
 # print(td1_l_plot)
@@ -677,4 +680,162 @@ print(prob_status_plot)
 print(td4_l_IBM_plot[[1]]) # this shows just one example
 
 dev.off()
+
+
+## make ecdf plots to show distributions of results (LIZ)  ====
+
+color_order <- c("Catch.F1.Cmult1.Sel1", "Catch.F2.Cmult1.Sel1", "Catch.F1.Cmult0.75.Sel1", "Catch.F2.Cmult0.75.Sel1",
+                 "Catch.F1.Cmult1.Sel2", "Catch.F2.Cmult1.Sel2", "Catch.F1.Cmult0.75.Sel2", "Catch.F2.Cmult0.75.Sel2", 
+                 "M.F1.Cmult1.Sel1", "M.F2.Cmult1.Sel1", "M.F1.Cmult0.75.Sel1", "M.F2.Cmult0.75.Sel1", 
+                 "M.F1.Cmult1.Sel2", "M.F2.Cmult1.Sel2", "M.F1.Cmult0.75.Sel2", "M.F2.Cmult0.75.Sel2" )
+color_vector <- c( "#00AA11" , "#00AA11" , "#aacc00", "#aacc00", 
+                   "#0055ee", "#0055ee",  "#00ddff",  "#00ddff", 
+                   "#CC1100", "#CC1100", "#CC7722", "#CC7722", 
+                   "#BB11AA", "#BB11AA", "#FF88CC" , "#FF88CC"  )
+
+linetype_vector <- c( "solid" , "dashed" ,   "solid" , "dashed" ,   "solid" , "dashed" ,   "solid" , "dashed" ,
+                     "solid", "dashed",   "solid", "dashed",   "solid", "dashed",   "solid", "dashed" )
+linetype_order <- c("1", "2")
+
+
+#  create Scenario labels for the legend and color & linetype info
+sims.time <- sims %>% 
+  #select(IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult) %>%
+  #mutate(time.avg = ifelse(substr(ssb_sims$metric,1,1)=="l", "L", "S")) %>%
+  mutate(Scenario = factor(paste0(retro_type, ".", "F", Fhist, ".", "Cmult", catch.mult, ".", "Sel", n_selblocks),  levels=color_order) ) %>%
+  mutate(lty = factor(if_else(Fhist==1, 1, 2)) ) %>%
+  mutate(lcol = case_when(
+    Scenario=="Catch.F1.Cmult1.Sel1" ~ "#00AA11" ,
+    Scenario=="Catch.F2.Cmult1.Sel1" ~ "#00AA12",
+    Scenario=="M.F1.Cmult1.Sel1" ~ "#0055CC" ,
+    Scenario=="M.F2.Cmult1.Sel1" ~ "#0055CD" ,
+
+    Scenario=="Catch.F1.Cmult0.75.Sel1" ~ "#addd8e" ,
+    Scenario=="Catch.F2.Cmult0.75.Sel1" ~ "#addd8f",
+    Scenario=="M.F1.Cmult0.75.Sel1" ~ "#00BBCC" ,
+    Scenario=="M.F2.Cmult0.75.Sel1" ~ "#00BBCD" ,
+
+    Scenario=="Catch.F1.Cmult1.Sel2" ~ "#CC1100" ,
+    Scenario=="Catch.F2.Cmult1.Sel2" ~ "#CC1101",
+    Scenario=="M.F1.Cmult1.Sel2" ~ "#BB11AA" ,
+    Scenario=="M.F2.Cmult1.Sel2" ~ "#BB11AB" ,
+
+    Scenario=="Catch.F1.Cmult0.75.Sel2" ~ "#CC9900" ,
+    Scenario=="Catch.F2.Cmult0.75.Sel2" ~ "#CC9901",
+    Scenario=="M.F1.Cmult0.75.Sel2" ~ "#FF88CC" ,
+    Scenario=="M.F2.Cmult0.75.Sel2" ~ "#FF88CD" ,
+
+
+
+  ))
+
+
+
+## !!!!!!!!!!!!!! this one below works !!!!!!!!!!!!!!!!!!!!
+
+make.ecdf.plot <- function(df, xlim1,  xlim2, xtxt, ytxt, plot.title)
+{
+  this.plot <- ggplot(data=df, 
+                      aes(x=xval, col=Scenario, linetype = Scenario )) +
+    facet_wrap(~IBMlab, ncol=2, dir='v') +
+    # set up some reference lines and areas ====
+    geom_rect(aes(xmin = xlim1, xmax = xlim2, ymin = 0, ymax = 0.5),
+              fill = "#ddddddaa",
+              inherit.aes = FALSE, linetype=0) +
+    geom_vline(xintercept=0.5, linetype="dashed", 
+               color = "black", size=1) +
+    geom_vline(xintercept=1.0, 
+               color = "black", size=1) +
+    # create ecdf ====
+    stat_ecdf(data=df, 
+              aes(x=xval, col=Scenario, linetype = Scenario )) +
+    # set theme specs ====
+    theme_light() +
+    theme(
+      strip.background = element_rect(
+        color="grey60", fill="#dddddd", size=1.5, linetype="solid"
+      ),
+      strip.text.x = element_text(
+        size = 9, color = "black")
+    )  +
+    scale_color_manual(name = "Scenario", 
+                       values=color_vector) + 
+    scale_linetype_manual(name = "Scenario", 
+                          values = linetype_vector ) +
+    # axis and title formatting ====
+    xlim(c(xlim1, xlim2)) +
+    ylab(ytxt) +
+    xlab(xtxt) +
+    ggtitle(plot.title)
+
+  return(this.plot)
+}
+
+
+sims.ssb.short <- sims.time %>% 
+  mutate(xval=s_avg_ssb_ssbmsy)
+sims.ssb.long <- sims.time %>% 
+  mutate(xval=l_avg_ssb_ssbmsy)
+sims.f.short <- sims.time %>% 
+  mutate(xval=s_avg_f_fmsy)
+sims.f.long <- sims.time %>% 
+  mutate(xval=l_avg_f_fmsy)
+sims.catch.short <- sims.time %>% 
+  mutate(xval=s_avg_catch_msy)
+sims.catch.long <- sims.time %>% 
+  mutate(xval=l_avg_catch_msy)
+
+ssb.short.plot <- make.ecdf.plot(df=sims.ssb.short ,  xlim1=0, xlim2=3, xtxt = "SSB / SSBmsy (short term average)", ytxt= "Probability <= SSB / SSBmsy" , plot.title="")
+
+ssb.long.plot <- make.ecdf.plot(df=sims.ssb.long ,  xlim1=0, xlim2=3, xtxt = "SSB / SSBmsy (long term average)", ytxt= "Probability <= SSB / SSBmsy", plot.title="" )
+
+f.short.plot <- make.ecdf.plot(df=sims.f.short ,  xlim1=0, xlim2=3, xtxt = "F / Fmsy (short term average)", ytxt= "Probability <= F / Fmsy" , plot.title="")
+
+f.long.plot <- make.ecdf.plot(df=sims.f.long ,  xlim1=0, xlim2=3, xtxt = "F / Fmsy (long term average)", ytxt= "Probability <= F / Fmsy" , plot.title="" )
+
+catch.short.plot <- make.ecdf.plot(df=sims.catch.short ,  xlim1=0, xlim2=3, xtxt = "Catch / MSY (short term average)", ytxt= "Probability <= Catch / MSY" , plot.title="" )
+
+catch.long.plot <- make.ecdf.plot(df=sims.catch.long ,  xlim1=0, xlim2=3, xtxt = "Catch / MSY (long term average)", ytxt= "Probability <= Catch / MSY" , plot.title="" )
+
+
+install.packages('Cairo')
+library('Cairo')
+
+# outfile2 <- "Manuscript/tables_figs/tables_figures_ECDF_cairo.pdf"
+# 
+# pdf(file = outfile2, height=11, width=9, dpi = 300, type = 'cairo')
+# # cairo_pdf(filename = outfile2, height=11, width=9)
+# 
+# print(ssb.short.plot)
+# print(ssb.long.plot)
+# print(f.short.plot)
+# print(f.long.plot)
+# print(catch.short.plot)
+# print(catch.long.plot)
+# 
+# dev.off()
+ 
+# saving as png because the pdf lines look like crap -- any suggestions for anti-aliasing pdfs?
+ggsave(ssb.short.plot, file="Manuscript/tables_figs/ssb.short.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9, units="in") 
+ggsave(ssb.long.plot, file="Manuscript/tables_figs/ssb.long.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9) 
+ggsave(f.short.plot, file="Manuscript/tables_figs/f.short.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9) 
+ggsave(f.long.plot, file="Manuscript/tables_figs/f.long.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9) 
+ggsave(catch.short.plot, file="Manuscript/tables_figs/catch.short.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9) 
+ggsave(catch.long.plot, file="Manuscript/tables_figs/catch.long.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9) 
+
+
+
+#Note: if the x-axis limits are narrower than the range of data, then you will get warnings about data rows being removed;
+##  e.g. for ssb.short.plot if xlim2=2.5 then 18494 rows are removed; if xlim2=3 then 9878 rows are removed; if xlim2=9 then no rows removed
+# ssb.short.plot2 <- make.ecdf.plot(df=sims.ssb.short ,  xlim1=0, xlim2=5, xtxt = "SSB / SSBmsy (short term average)", ytxt= "Probability <= SSB / SSBmsy" )
+##  in these cases, *it seems like* it may be dropping points greater than xlim2 and recalculating probabilities w/o those values
+# i'll test this if there is interest in pursuing this further
+
+# test ecdf separately as a plot
+
+x <- sims.ssb.short$xval[sims.ssb.short$IBMlab=="Skate" & sims.ssb.short$Scenario=="M.F1.Cmult0.75.Sel1"]
+fun.ecdf <- ecdf(x)
+my.ecdf <- fun.ecdf(sort(x))
+
+x.ecdf <- cbind(X=sort(x), ECDF=my.ecdf)
 
