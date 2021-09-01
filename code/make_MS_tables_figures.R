@@ -761,7 +761,8 @@ make.ecdf.plot <- function(df, xlim1,  xlim2, xtxt, ytxt, plot.title)
     scale_linetype_manual(name = "Scenario", 
                           values = linetype_vector ) +
     # axis and title formatting ====
-    xlim(c(xlim1, xlim2)) +
+    #xlim(c(xlim1, xlim2)) +
+    coord_cartesian(xlim = c(xlim1, xlim2) ) +
     ylab(ytxt) +
     xlab(xtxt) +
     ggtitle(plot.title)
@@ -799,11 +800,13 @@ catch.long.plot <- make.ecdf.plot(df=sims.catch.long ,  xlim1=0, xlim2=3, xtxt =
 install.packages('Cairo')
 library('Cairo')
 
-# create a single pdf of the ecdf plots (note the lines have heavy aliasing and look crappy)-- any suggestions for anti-aliasing pdfs?
+# # create a single pdf of the ecdf plots 
+## !! note the lines in this pdf have heavy aliasing and look crappy-- any suggestions for anti-aliasing pdfs?
+
 # outfile2 <- "Manuscript/tables_figs/tables_figures_ECDF_cairo.pdf"
 # 
-# pdf(file = outfile2, height=11, width=9, dpi = 300, type = 'cairo')
-# # cairo_pdf(filename = outfile2, height=11, width=9)
+# #pdf(file = outfile2, height=11, width=9, dpi = 300, type = 'cairo')
+# grDevices::cairo_pdf(onefile=T, filename = outfile2, height=11, width=9, antialias="gray")  #  antialias="subpixel"
 # 
 # print(ssb.short.plot)
 # print(ssb.long.plot)
@@ -813,7 +816,7 @@ library('Cairo')
 # print(catch.long.plot)
 # 
 # dev.off()
- 
+
 # saving as png because the pdf lines look like crap 
 ggsave(ssb.short.plot, file="Manuscript/tables_figs/ssb.short.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9, units="in") 
 ggsave(ssb.long.plot, file="Manuscript/tables_figs/ssb.long.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9) 
@@ -822,19 +825,4 @@ ggsave(f.long.plot, file="Manuscript/tables_figs/f.long.ecdf.cairo.png", dpi = 3
 ggsave(catch.short.plot, file="Manuscript/tables_figs/catch.short.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9) 
 ggsave(catch.long.plot, file="Manuscript/tables_figs/catch.long.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9) 
 
-
-
-#Note: if the x-axis limits are narrower than the range of data, then you will get warnings about data rows being removed;
-##  e.g. for ssb.short.plot if xlim2=2.5 then 18494 rows are removed; if xlim2=3 then 9878 rows are removed; if xlim2=9 then no rows removed
-# ssb.short.plot2 <- make.ecdf.plot(df=sims.ssb.short ,  xlim1=0, xlim2=5, xtxt = "SSB / SSBmsy (short term average)", ytxt= "Probability <= SSB / SSBmsy" )
-##  in these cases, *it seems like* it may be dropping points greater than xlim2 and recalculating probabilities w/o those values
-# i'll test this if there is interest in pursuing this further
-
-# test ecdf separately as a plot
-
-x <- sims.ssb.short$xval[sims.ssb.short$IBMlab=="Skate" & sims.ssb.short$Scenario=="M.F1.Cmult0.75.Sel1"]
-fun.ecdf <- ecdf(x)
-my.ecdf <- fun.ecdf(sort(x))
-
-x.ecdf <- cbind(X=sort(x), ECDF=my.ecdf)
 
