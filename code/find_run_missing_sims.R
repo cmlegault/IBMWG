@@ -126,6 +126,9 @@ fourbad <- data.frame(iscen = c(bad1$iscen, bad2$iscen, bad3$iscen, bad4$iscen),
                                bad4$missing_isim))
 fourbad
 
+left_join(fourbad, mse_sim_setup, by = c("iscen", "isim")) %>%
+  select(iscen, isim, rowid, seed)
+
 # select just the four bad runs
 todo <- left_join(fourbad, mse_sim_setup, by = c("iscen", "isim")) %>% 
   select(rowid) %>% t() %>% as.numeric() %>% 
