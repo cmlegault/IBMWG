@@ -156,7 +156,16 @@ mse_output <- mse_sim_todo %>%
   select(-input) %>% 
   I()
 #) #ends profvis
-  
+
+#this will do the run for the first "row" of mse_sim_todo which throws the error
+#You can see that one of the last relative Fs is 0 and then the log provides -Inf and wrecks the call to lm() 
+x = do_wham_mse_sim(mse_sim_todo$seed[1],mse_sim_todo$input[[1]])
+
+#rows 2 and 4 seems to run?
+x = do_wham_mse_sim(mse_sim_todo$seed[2],mse_sim_todo$input[[2]])
+x = do_wham_mse_sim(mse_sim_todo$seed[3],mse_sim_todo$input[[3]])
+x = do_wham_mse_sim(mse_sim_todo$seed[4],mse_sim_todo$input[[4]])
+
 # get the following Error message when run mse_output line:
   Error: Problem with `mutate()` input `wham`.
   x NA/NaN/Inf in 'x'

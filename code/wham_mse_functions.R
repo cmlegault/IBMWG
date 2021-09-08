@@ -411,10 +411,18 @@ get.stable.period <- function(y=NULL) {
   
   #Replacement ratio regression
   #df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
+  print("rr")
+  print(rr)
+  print("ff")
+  print(ff)
+  print("(I.smooth+1)")
+  print((I.smooth+1))
   df <- data.frame(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears]))
+  print("df: this is used by lm()")
+  print(df)
   ln.rr <- invisible(lm(R~F, data=df))
   reg.pars <- summary(ln.rr)
-  
+  print(ln.rr)
   #Solve for ln(relative F) where ln(Replacement ratio) =0    
   #fstart = log(ff[1])
   fstart = log(ff[which(is.na(ff)==F)] [10])
