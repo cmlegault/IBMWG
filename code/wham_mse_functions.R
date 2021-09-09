@@ -1019,6 +1019,7 @@ run.aim <- function(y) {
   #Replacement ratio regression
   #df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
   df <- data.frame(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears]))
+  print(df)
   ln.rr <- invisible(lm(R~F, data=df))
   reg.pars <- summary(ln.rr)
   
