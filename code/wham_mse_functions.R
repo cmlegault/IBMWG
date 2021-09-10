@@ -130,10 +130,17 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
   observed_sim$scaa_nyr_add = 0
   observed_sim$observed_om = observed_om  
   
-
+print(sort(names(observed_sim)))
+print(observed_sim$agg_catch)
+print(cbind(observed_sim$catch_proj,observed_sim$agg_catch_proj))
+print(observed_sim$FAA_tot[,10])
+ 
   sim_data_series = list(observed_sim)
   catch_advice = observed_om_input$IBM(y=observed_sim) #JJD
+  print(catch_advice[[1]])
   catch_advice[[1]] = input$catch.mult * catch_advice[[1]]
+  print(catch_advice[[1]])
+
   advice <- list(catch_advice) 
 
   assess_years <- seq(1,(nprojyrs-adv.yr+1),by=adv.yr)
@@ -158,7 +165,14 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
     set.seed(seed) 
     true_sim = true_om$simulate(complete= TRUE)
     #Check to see if F brake is needed, if so change projection type to F = 2 for the next set of projection years
+    print(Cscale)
+    print(advice[[i]][[1]])
+    print(true_om$env$data$proj_F_opt[year:(year+adv.yr-1)])
+    print(true_om$env$data$proj_Fcatch[year:(year+adv.yr-1)])
+    print(true_sim$FAA_tot[,10])
     nextF = true_sim$FAA_tot[true_om_input$data$n_years_model+year:(year+adv.yr-1),10]
+    print("nextF")
+    print(nextF)
     if(any(is.na(nextF)) | any(nextF>2)) {
       advice[[i]] = 2
       proj_type = 4
@@ -174,8 +188,8 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
       set.seed(seed) 
       true_sim = true_om$simulate(complete= TRUE)
       nextF = true_sim$FAA_tot[true_om_input$data$n_years_model+year:(year+adv.yr-1),10]
-      #print("F too high")
-      #print(nextF)
+      print("F too high")
+      print(nextF)
     }
     observed_om$env$data$proj_Fcatch[year:(year+adv.yr-1)] = advice[[i]][[1]] #TJM, incorrect catch projected if it is ever used.
     observed_om$env$data$proj_F_opt[year:(year+adv.yr-1)] = proj_type #Specify Catch #JJD,TJM
@@ -195,12 +209,20 @@ do_wham_mse_sim <- function(seed = 42, input = NULL) {  #JJD
     observed_sim$MAA = observed_rep$MAA
     observed_sim$expand_method <- input$expand_method
     observed_sim$M_CC_method <- input$M_CC_method
+print("before")
+print(cbind(observed_sim$catch_proj,observed_sim$agg_catch_proj))
     observed_sim = get.IBM.input(y=observed_sim, i=year, adv.yr = adv.yr) #JJD; GF
     observed_sim$scaa_nyr_add = year-1
     observed_sim$observed_om = observed_om
     sim_data_series[[i+1]] = observed_sim
+#print(sort(names(observed_sim)))
+print(observed_sim$agg_catch)
+print('after')
+print(cbind(observed_sim$catch_proj,observed_sim$agg_catch_proj))
+print(observed_sim$FAA_tot[,10])
     catch_advice = input$IBM(y=sim_data_series[[i+1]]) #JJD
     catch_advice[[1]] = input$catch.mult * catch_advice[[1]]
+    print(catch_advice[[1]])
     advice[[i+1]] <- catch_advice
   }
   true_rep = true_om$report()
@@ -295,7 +317,6 @@ y$first_yr<-first_yr
   if(is.null(nrow(y$q))==FALSE){
     y$init_q<-y$q[1,]
   }
-  
   y=IBM.options(y=y, adv.yr = adv.yr) # added adv.yr, the number of years between assessments to IBM.options as two IBM functions require it. 
   
   return(y)
@@ -386,7 +407,8 @@ get.stable.period <- function(y=NULL) {
     } #end floop
     
   } #end ctr if statement
-  
+  print("catch")
+  print(catch)
   if (center==F) {
     ff= rep(NA, nyears)
     denom=1.0
@@ -411,18 +433,18 @@ get.stable.period <- function(y=NULL) {
   
   #Replacement ratio regression
   #df <- as.data.frame(cbind(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears])))
-  print("rr")
-  print(rr)
-  print("ff")
-  print(ff)
-  print("(I.smooth+1)")
-  print((I.smooth+1))
+#  print("rr")
+#  print(rr)
+#  print("ff")
+#  print(ff)
+#  print("(I.smooth+1)")
+#  print((I.smooth+1))
   df <- data.frame(R=log(rr[(I.smooth+1):nyears]), F=log(ff[(I.smooth+1):nyears]))
-  print("df: this is used by lm()")
-  print(df)
+  #print("df: this is used by lm()")
+  #print(df)
   ln.rr <- invisible(lm(R~F, data=df))
   reg.pars <- summary(ln.rr)
-  print(ln.rr)
+#  print(ln.rr)
   #Solve for ln(relative F) where ln(Replacement ratio) =0    
   #fstart = log(ff[1])
   fstart = log(ff[which(is.na(ff)==F)] [10])

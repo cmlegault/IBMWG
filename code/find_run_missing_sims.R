@@ -1,6 +1,11 @@
 # find_run_missing_sims.R
 # find and run the four missing simulations to examine what went wrong
 
+#mid-September 2020 version 0.0.9000 of wham
+83d0333bab4b3839eb671ec96318e6943722b1a5
+#devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="00f8788fa77ffddb842e45653bec956c7bdb710b") #9/11/20
+devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="83d0333bab4b3839eb671ec96318e6943722b1a5") #9/16/20
+devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="1ddfd9edc1f40720dff990c24078b9b59b99af78") #9/23/20
 library(wham)
 library(tidyverse)
 library(furrr)
@@ -135,12 +140,22 @@ todo <- left_join(fourbad, mse_sim_setup, by = c("iscen", "isim")) %>%
   I()
 
 # pull out realizations to be run today from the setup list using "todo". 
+source("code/wham_mse_functions.R")
 mse_sim_todo <- mse_sim_setup %>% 
   filter(rowid %in% todo) %>% 
   left_join(input_setup) %>% 
   #modify the input object here
   mutate(input = pmap(list(input=input, change=specs), change_input)) %>% 
   I()
+
+#this will do the run for the first "row" of mse_sim_todo which throws the error
+#You can see that one of the last relative Fs is 0 and then the log provides -Inf and wrecks the call to lm() 
+x = do_wham_mse_sim(mse_sim_todo$seed[1],mse_sim_todo$input[[1]])
+
+#rows 2 and 4 seems to run?
+x = do_wham_mse_sim(mse_sim_todo$seed[2],mse_sim_todo$input[[2]])
+x = do_wham_mse_sim(mse_sim_todo$seed[3],mse_sim_todo$input[[3]])
+x = do_wham_mse_sim(mse_sim_todo$seed[4],mse_sim_todo$input[[4]])
 
 ### run the MSE over each row of the mse_sims todo
 #add a safe mode (returns error safely rather than crashing)
@@ -157,14 +172,6 @@ mse_output <- mse_sim_todo %>%
   I()
 #) #ends profvis
 
-#this will do the run for the first "row" of mse_sim_todo which throws the error
-#You can see that one of the last relative Fs is 0 and then the log provides -Inf and wrecks the call to lm() 
-x = do_wham_mse_sim(mse_sim_todo$seed[1],mse_sim_todo$input[[1]])
-
-#rows 2 and 4 seems to run?
-x = do_wham_mse_sim(mse_sim_todo$seed[2],mse_sim_todo$input[[2]])
-x = do_wham_mse_sim(mse_sim_todo$seed[3],mse_sim_todo$input[[3]])
-x = do_wham_mse_sim(mse_sim_todo$seed[4],mse_sim_todo$input[[4]])
 
 # get the following Error message when run mse_output line:
   Error: Problem with `mutate()` input `wham`.
