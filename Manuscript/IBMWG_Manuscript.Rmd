@@ -1,9 +1,26 @@
 ---
-title: "Data Rich but Model Resistant: An Evaluation of Data-Limited Methods to Manage Fisheries with Failed Age-based Stock Assessments"
-author: Christopher M. Legault, Richard Bell, Elizabeth Brooks, Jamie Cournane, Jonathan J. Deroba, Gavin Fay, Andy Jones, Joe Langan, Timothy Miller, Brandon Muffley, John Wiedenmann
+title: 'Data Rich but Model Resistant: An Evaluation of Data-Limited Methods to Manage
+  Fisheries with Failed Age-based Stock Assessments'
+author:
+- Christopher M. Legault
+- Richard Bell
+- Elizabeth Brooks
+- Jamie Cournane
+- Jonathan J. Deroba
+- Gavin Fay
+- Andy Jones
+- Joe Langan
+- Timothy J. Miller
+- Brandon Muffley
+- John Wiedenmann
 csl: canadian-journal-of-fisheries-and-aquatic-sciences.csl
-output: html_document
-bibliography: NULL
+output:
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+  html_document: default
+  word_document: default
+bibliography: IBMWG.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -14,15 +31,15 @@ if(!require(kableExtra)) {
 ```
 
 ## Introduction
-In the U.S., integrated fisheries stock assessment models that are most frequently age-structured are used to estimate annual stock abundance (biomass), fishing mortality rates, and management reference points (Maunder and Punt 2013). These models must undergo peer review, where an independent panel of experts determines whether or not results from the model are suitable as the basis for determining stock status and for setting catch advice.  There are a number of model diagnostics that are used to evaluate uncertainty and stability of assessment model results, but one that is commonly used and carries substantial weight during review is the retrospective pattern. A retrospective pattern is a systematic inconsistency among a series of sequential assessment estimates of population size (or other related assessment variables), based on increasing time periods of data used in the model fitting (Mohn 1999).  These inconsistencies in assessment estimates are indicative of one or more mismatches between model assumptions and patterns in the data used to fit the model.  Large or persistent retrospective patterns indicate an instability in model results, and may therefore be the basis for a peer review panel to determine that model results are not suitable for management purposes (Punt et al. 2020).  
+In the U.S., integrated fisheries stock assessment models that are most frequently age-structured are used to estimate annual stock abundance (biomass), fishing mortality rates, and management reference points [@maunder2013review]. These models must undergo peer review, where an independent panel of experts determines whether or not results from the model are suitable as the basis for determining stock status and for setting catch advice.  There are a number of model diagnostics that are used to evaluate uncertainty and stability of assessment model results, but one that is commonly used and carries substantial weight during review is the retrospective pattern. A retrospective pattern is a systematic inconsistency among a series of sequential assessment estimates of population size (or other related assessment variables), based on increasing time periods of data used in the model fitting [@mohn1999rho].  These inconsistencies in assessment estimates are indicative of one or more mismatches between model assumptions and patterns in the data used to fit the model.  Large or persistent retrospective patterns indicate an instability in model results, and may therefore be the basis for a peer review panel to determine that model results are not suitable for management purposes [@punt2020reject].  
 
-Many stock assessments in the Northeast U.S. have a history of strong retrospective patterns, whereby estimates of biomass are typically revised downward and estimates of fishing mortality rate are revised upward as new data are added to the model.  NOAA Fisheries, the New England Fishery Management Council, the Mid-Atlantic Fishery Management Council, and the Atlantic States Marine Fisheries Commission manage these stocks, and retrospective issues remain a challenge for managers when setting catch advice and tracking stock status.  This problem has been particularly acute for, but not limited to, stocks in the New England groundfish complex (NEFSC 2002a, 2005, 2008, 2015a, 2015b, 2017, 2019; Deroba et al. 2010), managed under NOAA Fisheries and the New England Council’s Northeast Multispecies (Groundfish) fishery management plan.
+Many stock assessments in the Northeast U.S. have a history of strong retrospective patterns, whereby estimates of biomass are typically revised downward and estimates of fishing mortality rate are revised upward as new data are added to the model.  NOAA Fisheries, the New England Fishery Management Council, the Mid-Atlantic Fishery Management Council, and the Atlantic States Marine Fisheries Commission manage these stocks, and retrospective issues remain a challenge for managers when setting catch advice and tracking stock status.  This problem has been particularly acute for, but not limited to, stocks in the New England groundfish complex [@nefsc02a; @nefsc05; @nefsc08; @nefsc15a; @nefsc15b; @nefsc17; @nefsc19; @deroba2010mackerel], managed under NOAA Fisheries and the New England Council’s Northeast Multispecies (Groundfish) fishery management plan.
     
-The magnitude of the retrospective pattern is typically measured with a statistic called Mohn’s rho (Mohn 1999).  Mohn's rho can be used to adjust terminal year estimates of biomass in anticipation that the retrospective pattern will persist, and so some accounting for the pattern will provide a more accurate estimate.  Stock assessments where the so-called rho-adjusted value is outside the 90% confidence interval of the terminal year estimate of spawning stock biomass ($SSB$) or fishing mortality rate are classified as strong retrospective patterns.  In these cases, the rho-adjusted values are used for status determination and to modify the starting population for projections used to provide catch advice (Brooks and Legault 2016). 
+The magnitude of the retrospective pattern is typically measured with a statistic called Mohn’s rho [@mohn1999rho].  Mohn's rho can be used to adjust terminal year estimates of biomass in anticipation that the retrospective pattern will persist, and so some accounting for the pattern will provide a more accurate estimate.  Stock assessments where the so-called rho-adjusted value is outside the 90\% confidence interval of the terminal year estimate of spawning stock biomass ($SSB$) or fishing mortality rate are classified as strong retrospective patterns.  In these cases, the rho-adjusted values are used for status determination and to modify the starting population for projections used to provide catch advice [@brooks2016retroforecast]. 
 
-There is no formal criteria in the region for rejecting an assessment based on Mohn’s rho, but large, positive values of rho (especially those persisting)  have played an important role in the rejection of recent age-based assessments, including Atlantic mackerel (Scomber scombrus), Georges Bank Atlantic cod (Gadus morhua), Georges Bank yellowtail flounder (Limanda ferruginea), and witch flounder (Glyptocephalus cynoglossus; Deroba et al. 2010; Legault et al. 2014; NEFSC 2015a, 2015b).  In each of these cases, and another where the assessment rejection was not based on the retrospective pattern (black sea bass, Centropristis striatus; NEFSC 2012), the Councils have relied on a variety data-limited approaches for setting catch advice for these stocks (McNamee et al. 2015; NEFSC 2015a, 2015b;  Wiedenmann 2015).  These approaches have all been ad-hoc, and a recent analysis suggested that some of the data-limited approaches may not be suitable for stocks in the Northeast U.S. with a history of high exploitation rates (Wiedenmann et al. 2019).   In addition, large, positive retrospective patterns persist for a number of other stocks in the region (NEFSC 2019), raising concerns that additional stocks may rely on data-limited approaches in the future.  Therefore, there is an immediate need to identify suitable data-limited approaches for setting catch advice and for stocks with age-based assessments that did not pass review.
+There is no formal criteria in the region for rejecting an assessment based on Mohn’s rho, but large, positive values of rho (especially those persisting)  have played an important role in the rejection of recent age-based assessments, including Atlantic mackerel (*Scomber scombrus*), Georges Bank Atlantic cod (*Gadus morhua*), Georges Bank yellowtail flounder (*Limanda ferruginea*), and witch flounder (*Glyptocephalus cynoglossus*) [@deroba2010mackerel; @legault2014tracgbytf; @nefsc15a; @nefsc15b].  In each of these cases, and another where the assessment rejection was not based on the retrospective pattern [black sea bass, *Centropristis striatus*; @nefsc12], the Councils have relied on a variety data-limited approaches for setting catch advice for these stocks [@mcnamee2015mafmc; @nefsc15a; @nefsc15b; @wiedenmann2015mackerel].  These approaches have all been ad-hoc, and a recent analysis suggested that some of the data-limited approaches may not be suitable for stocks in the Northeast U.S. with a history of high exploitation rates [@wiedenman2019dlm].   In addition, large, positive retrospective patterns persist for a number of other stocks in the region [@nefsc19], raising concerns that additional stocks may rely on data-limited approaches in the future.  Therefore, there is an immediate need to identify suitable data-limited approaches for setting catch advice and for stocks with age-based assessments that did not pass review.
 
-We developed a management strategy evaluation (MSE; e.g., Punt et al. 2016) to evaluate the suitability of alternative data-limited methods for setting target catches when age-based stock assessments fail.  In particular, focus was placed on methods that use survey indices of abundance, or more generally, index based methods (IBMs).
+We developed a management strategy evaluation [MSE; e.g., @punt2016mse] to evaluate the suitability of alternative data-limited methods for setting target catches when age-based stock assessments fail.  In particular, focus was placed on methods that use survey indices of abundance, or more generally, index based methods (IBMs).
 
 ## Methods
 
@@ -32,7 +49,7 @@ The MSE used here attempted to approximate a process where an age-based assessme
 
 <font size="5">*Operating and Observation Models*</font>
 
-The Woods Hole Assessment Model (WHAM; Stock and Miller, in review, Miller and Stock 2020) was used as the basis for the OM in the MSE. WHAM is an R package and the general model is built using the Template Model Builder package (Kristensen et al. 2016). While WHAM can serve as a stock assessment model used to estimate parameters, it can also simulate the data needed for age-based stock assessments and IBMs given a range of input parameters. WHAM was used to simulate data with known properties during the base and feedback periods. Catch and index observations upon which the IBMs largely relied were simulated according to user supplied biological and fishery parameters for each scenario (see below). Catches during the feedback period were iteratively updated based on an IBM and harvest control rule that used the simulated observations to make catch advice. Catch advice from a given combination of IBM and control rule was specified in two year blocks, a typical catch specification timeframe for New England and Mid-Atlantic Council managed fisheries. WHAM used these catches, along with the user supplied biological and fishery data, to have the simulated population respond to the IBM, thereby completing the closed-loop simulation aspect of an MSE.
+The Woods Hole Assessment Model [WHAM; @miller2020wham; @stock2021wham] was used as the basis for the OM in the MSE. WHAM is an R package and the general model is built using the Template Model Builder package (Kristensen et al. 2016). While WHAM can serve as a stock assessment model used to estimate parameters, it can also simulate the data needed for age-based stock assessments and IBMs given a range of input parameters. WHAM was used to simulate data with known properties during the base and feedback periods. Catch and index observations upon which the IBMs largely relied were simulated according to user supplied biological and fishery parameters for each scenario (see below). Catches during the feedback period were iteratively updated based on an IBM and harvest control rule that used the simulated observations to make catch advice. Catch advice from a given combination of IBM and control rule was specified in two year blocks, a typical catch specification timeframe for New England and Mid-Atlantic Council managed fisheries. WHAM used these catches, along with the user supplied biological and fishery data, to have the simulated population respond to the IBM, thereby completing the closed-loop simulation aspect of an MSE.
 
 The age-structured OM had ten ages, with the oldest age being a plus group. Maturity- and weight-at-age were time and simulation invariant and equaled values intended to be groundfish-like for the region (Table 1). The OM simulated catch and age composition data for a single fishery with logistic selectivity (Table 1; see below).  Annual, total catch observations (metric tons) were simulated as lognormal deviations from the underlying "true" catches with a coefficient of variation (CV) equal to 0.1.  Fishery age composition data was assumed to follow a multinomial distribution with an effective sample size (ESS) equal to 200.  Two fishery independent surveys were simulated and were intended to represent the spring and fall, coastwide bottom trawl surveys conducted in the region.  Both surveys were assumed to have time invariant logistic selectivity and constant catchability. Annual survey observations were simulated as lognormal deviations from the underlying "true" survey catches with a CV of 0.3 in the spring survey and 0.4 in the fall. Survey age composition data were assumed to follow a multinomial distribution with an ESS equal to 100 in both seasons.
 
@@ -50,7 +67,7 @@ $\bar{I}_{y} = \frac{I_{fall,y-1} + I_{spr,y}}{2}$.
 
 <font size="5">*Control Rules*</font>
 
-Most IBMs do not have the ability to estimate a biomass reference point (e.g., $B_{MSY}$), which made consideration of so called biomass-based harvest control rules that reduce $F$ or catch in response to estimated changes in relative stock status impossible.  Lack of clarity exists, however, on whether the catch advice from IBMs should be treated as an overfishing limit (OFL) or an acceptable biological catch (ABC).  OFLs are equated to the catch that would result from applying $F_{MSY}$, whereas an ABC is a catch reduced from the OFL to account for scientific uncertainty.  Each IBM was evaluated using two “harvest control rules”: 1) the catch advice from a given IBM was applied directly and assumed to serve as a proxy for the catch associated with $F_{MSY}$, thereby being equated to an OFL (catch multiplier = 1), and 2) the catch advice from a given IBM was reduced by 25% to account for unspecified scientific uncertainty, thereby being equated to an ABC (catch multiplier = 0.75).  Catches were reduced by 25% to approximate an ABC because using the catch associated with 0.75 $F_{MSY}$ is a common default ABC control rule in the region.
+Most IBMs do not have the ability to estimate a biomass reference point (e.g., $B_{MSY}$), which made consideration of so called biomass-based harvest control rules that reduce $F$ or catch in response to estimated changes in relative stock status impossible.  Lack of clarity exists, however, on whether the catch advice from IBMs should be treated as an overfishing limit (OFL) or an acceptable biological catch (ABC).  OFLs are equated to the catch that would result from applying $F_{MSY}$, whereas an ABC is a catch reduced from the OFL to account for scientific uncertainty.  Each IBM was evaluated using two “harvest control rules”: 1) the catch advice from a given IBM was applied directly and assumed to serve as a proxy for the catch associated with $F_{MSY}$, thereby being equated to an OFL (catch multiplier = 1), and 2) the catch advice from a given IBM was reduced by 25\% to account for unspecified scientific uncertainty, thereby being equated to an ABC (catch multiplier = 0.75).  Catches were reduced by 25\% to approximate an ABC because using the catch associated with 0.75 $F_{MSY}$ is a common default ABC control rule in the region.
 
 <font size="5">*Application of a Statistical Catch-at-Age Assessment (SCAA)*</font>
 
@@ -60,7 +77,7 @@ A SCAA model was also applied to all scenarios to generate catch advice for comp
 
 In addition to the two control rules applied for each IBM described above, three aspects of the OM were varied in a full factorial study design: fishing history, fishery selectivity, and cause of the retrospective pattern. Two variants of fishing history were considered, with fully selected fishing mortality during the base period either constant at a level equal to $2.5F_{MSY}$ (always overfishing; referred to as "*OF*" below) or equaling $2.5F_{MSY}$ in the first half of the base period then a knife-edged decline to $F_{MSY}$ for the second half of the base period (referred to as "*KF*" below). These patterns in fishing mortality rate were based on observed patterns for Northeast groundfish (Wiedenmann et al. 2019). These two different fishing intensities during the latter half of the base period led to different starting conditions for the feedback period. 
 
-Two variations of the OM were considered with either time invariant, asympototic, fishery selectivity in the base and feedback periods (referred to as "*S1*" below), or a change in selectivity after the first half of the base period so that the age at 50% selectivity increased from approximately 3.7 to 5 (referred to as "*S2*" below; Table 1). The asymptotic selectivity pattern was based on Northeast groundfish fishery selectivity patterns. The change in the selectivity pattern when selectivity varied through time approximated an increase in mesh size in the fishery to avoid younger fish.
+Two variations of the OM were considered with either time invariant, asympototic, fishery selectivity in the base and feedback periods (referred to as "*S1*" below), or a change in selectivity after the first half of the base period so that the age at 50\% selectivity increased from approximately 3.7 to 5 (referred to as "*S2*" below; Table 1). The asymptotic selectivity pattern was based on Northeast groundfish fishery selectivity patterns. The change in the selectivity pattern when selectivity varied through time approximated an increase in mesh size in the fishery to avoid younger fish.
 
 Two different sources of stock assessment misspecification leading to retrospective patterns were considered, temporal changes in natural mortality and misreported catch. The degree to which natural mortality and unreported catch changed through time was determined by attempting to achieve an average Mohn’s rho of approximately 0.5 for $SSB$ when an SCAA model (i.e., configured using WHAM) was used to fit the simulated data. We also fit the same SCAA configuration to data without misspecified M or catch to verify that retrospective patterns were not present on average (Figure 1.2). A third source of misspecification was also attempted, time varying survey catchability, but this source of misspecification was unable to produce severe enough retrospective patterns and was abandoned.
 
@@ -80,7 +97,7 @@ A total of 50 performance metrics were recorded during the simulations, but many
 
 Which Figures do we want to include?
 Take away from peer review?
-Which performance measures do we want to focus on? (need to pick probably ≤ 6) 
+Which performance measures do we want to focus on? (need to pick probably $\leq$ 6) 
 
 Are we OK with the coarse overview of results, or are more details needed?
 
@@ -151,13 +168,18 @@ There were two groups of IBMs that performed similarly. In situations where the 
 
 
 <font size="5">
-Discussion
 
-Acknowledgements
+## Discussion
 
-References
+## Acknowledgements
 
-Tables
+## References
+
+<div id="refs"></div>
+
+\pagebreak
+
+## Tables
 </font>
 
 <!---markdown style table. fucking escape characters-->
@@ -180,6 +202,8 @@ tabl <- "
 cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
 ```
 
+\pagebreak
+
 Table 2.
 ```{r methodtable, tab.cap="Index based methods used in this study showing equations and details for each method. \\label{methodtable}", echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
 tabl <- "
@@ -201,6 +225,8 @@ tabl <- "
 "
 cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
 ```
+
+\pagebreak
 
 Table 3.
 ```{r schemetable, tab.cap="Coding scheme used to identify scenarios. There are four factors, each with 2 or 3 possible values, that combine to make the 4 character code. \\label{schemetable}", echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
