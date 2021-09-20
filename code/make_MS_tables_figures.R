@@ -7,6 +7,12 @@
 
 #library(vctrs, lib.loc="C:/R/R-3.6.1/library") # (liz needs this line)
 library(tidyverse)
+library(aplpack)
+library(pracma)
+library(car)
+library(gplots)
+#install.packages('Cairo')
+library('Cairo')
 
 # get reference points
 # note: we used year 50 for reporting refpts in WG report
@@ -797,8 +803,6 @@ catch.short.plot <- make.ecdf.plot(df=sims.catch.short ,  xlim1=0, xlim2=3, xtxt
 catch.long.plot <- make.ecdf.plot(df=sims.catch.long ,  xlim1=0, xlim2=3, xtxt = "Catch / MSY (long term average)", ytxt= "Probability <= Catch / MSY" , plot.title="" )
 
 
-install.packages('Cairo')
-library('Cairo')
 
 # # create a single pdf of the ecdf plots 
 ## !! note the lines in this pdf have heavy aliasing and look crappy-- any suggestions for anti-aliasing pdfs?
@@ -826,3 +830,289 @@ ggsave(catch.short.plot, file="Manuscript/tables_figs/catch.short.ecdf.cairo.png
 ggsave(catch.long.plot, file="Manuscript/tables_figs/catch.long.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9) 
 
 
+## add heatmap plots and save csv files in Manuscript/tables_figs/heatmap directory
+
+# make time variable for use in heatmaps
+ssb_sims.time <- rbind(ssb_sims, ssb_sims_scaa) %>% 
+  select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult, metric) %>%
+  mutate(time.avg = ifelse(substr(metric,1,1)=="l", "L", "S"))
+
+f_sims.time <- rbind(f_sims, f_sims_scaa) %>% 
+  select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult, metric) %>%
+  mutate(time.avg = ifelse(substr(metric,1,1)=="l", "L", "S"))
+
+catch_sims.time <- rbind(catch_sims, catch_sims_scaa) %>% 
+  select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult, metric) %>%
+  mutate(time.avg = ifelse(substr(metric,1,1)=="l", "L", "S"))
+
+heat.cols <- c('#ffffe5','#fff7bc','#fee391','#fec44f','#fe9929','#ec7014','#cc4c02','#993404','#662506')  # 9 colors
+
+# 1. by IBM
+ssb_median_by_ibm <- ssb_sims.time %>%
+  group_by(IBMlab) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm <- f_sims.time %>%
+  group_by(IBMlab) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm <- catch_sims.time %>%
+  group_by(IBMlab) %>%
+  summarise(medianval=median(value))
+all_median_by_ibm <- cbind(SSB=ssb_median_by_ibm$medianval, F=f_median_by_ibm$medianval, Catch=catch_median_by_ibm$medianval)
+rownames(all_median_by_ibm) <- ssb_median_by_ibm$IBMlab
+
+
+# 2. by IBM*retro type
+ssb_median_by_ibm_retro <- ssb_sims.time %>%
+  group_by(IBMlab, retro_type) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_retro <- f_sims.time %>%
+  group_by(IBMlab, retro_type) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_retro <- catch_sims.time %>%
+  group_by(IBMlab, retro_type) %>%
+  summarise(medianval=median(value)) 
+all_median_by_ibm_retro <- cbind(SSB=ssb_median_by_ibm_retro$medianval, F=f_median_by_ibm_retro$medianval, Catch=catch_median_by_ibm_retro$medianval)
+rownames(all_median_by_ibm_retro) <- paste(ssb_median_by_ibm_retro$IBMlab, ssb_median_by_ibm_retro$retro_type, sep= "-")
+
+
+# 3. by IBM* time
+ssb_median_by_ibm_time <- ssb_sims.time %>%
+  group_by(IBMlab, time.avg) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_time <- f_sims.time %>%
+  group_by(IBMlab, time.avg) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_time <- catch_sims.time %>%
+  group_by(IBMlab, time.avg) %>%
+  summarise(medianval=median(value)) 
+all_median_by_ibm_time <- cbind(SSB=ssb_median_by_ibm_time$medianval, F=f_median_by_ibm_time$medianval, Catch=catch_median_by_ibm_time$medianval)
+rownames(all_median_by_ibm_time) <- paste(ssb_median_by_ibm_time$IBMlab, ssb_median_by_ibm_time$time.avg, sep= "-")
+
+
+# 4. by IBM* catch multiplier
+ssb_median_by_ibm_catch.mult <- ssb_sims.time %>%
+  group_by(IBMlab, catch.mult) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_catch.mult <- f_sims.time %>%
+  group_by(IBMlab, catch.mult) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_catch.mult <- catch_sims.time %>%
+  group_by(IBMlab, catch.mult) %>%
+  summarise(medianval=median(value)) 
+all_median_by_ibm_cmult <- cbind(SSB=ssb_median_by_ibm_catch.mult$medianval, F=f_median_by_ibm_catch.mult$medianval, Catch=catch_median_by_ibm_catch.mult$medianval)
+rownames(all_median_by_ibm_cmult) <- paste(ssb_median_by_ibm_catch.mult$IBMlab, ssb_median_by_ibm_catch.mult$catch.mult, sep= "-")
+
+# 5. by IBM* Fhistory
+ssb_median_by_ibm_Fhist <- ssb_sims.time %>%
+  group_by(IBMlab, Fhist) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_Fhist <- f_sims.time %>%
+  group_by(IBMlab, Fhist) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_Fhist <- catch_sims.time %>%
+  group_by(IBMlab, Fhist) %>%
+  summarise(medianval=median(value)) 
+all_median_by_ibm_Fhist <- cbind(SSB=ssb_median_by_ibm_Fhist$medianval, F=f_median_by_ibm_Fhist$medianval, Catch=catch_median_by_ibm_Fhist$medianval)
+rownames(all_median_by_ibm_Fhist) <- paste(ssb_median_by_ibm_Fhist$IBMlab, ssb_median_by_ibm_Fhist$Fhist, sep= "-")
+
+# 6. by IBM* Cmult * time
+ssb_median_by_ibm_cmult_time <- ssb_sims.time %>%
+  group_by(IBMlab, catch.mult, time.avg) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_cmult_time <- f_sims.time %>%
+  group_by(IBMlab, catch.mult, time.avg) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_cmult_time <- catch_sims.time %>%
+  group_by(IBMlab, catch.mult, time.avg) %>%
+  summarise(medianval=median(value)) 
+all_median_by_ibm_Cmult_time <- cbind(SSB=ssb_median_by_ibm_cmult_time$medianval, F=f_median_by_ibm_cmult_time$medianval, Catch=catch_median_by_ibm_cmult_time$medianval)
+rownames(all_median_by_ibm_Cmult_time) <- paste(ssb_median_by_ibm_cmult_time$IBMlab, ssb_median_by_ibm_cmult_time$time.avg, ssb_median_by_ibm_cmult_time$catch.mult, sep= "-")
+
+# 7. by IBM* Fhist * time
+ssb_median_by_ibm_Fhist_time <- ssb_sims.time %>%
+  group_by(IBMlab, Fhist, time.avg) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_Fhist_time <- f_sims.time %>%
+  group_by(IBMlab, Fhist, time.avg) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_Fhist_time <- catch_sims.time %>%
+  group_by(IBMlab, Fhist, time.avg) %>%
+  summarise(medianval=median(value)) 
+all_median_by_ibm_Fhist_time <- cbind(SSB=ssb_median_by_ibm_Fhist_time$medianval, F=f_median_by_ibm_Fhist_time$medianval, Catch=catch_median_by_ibm_Fhist_time$medianval)
+rownames(all_median_by_ibm_Fhist_time) <- paste(ssb_median_by_ibm_Fhist_time$IBMlab, ssb_median_by_ibm_Fhist_time$Fhist, ssb_median_by_ibm_Fhist_time$time.avg, sep= "-")
+
+# 8. by IBM* retro * Fhist
+ssb_median_by_ibm_retro_Fhist <- ssb_sims.time %>%
+  group_by(IBMlab, retro_type, Fhist) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_retro_Fhist <- f_sims.time %>%
+  group_by(IBMlab, retro_type, Fhist) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_retro_Fhist <- catch_sims.time %>%
+  group_by(IBMlab, retro_type, Fhist) %>%
+  summarise(medianval=median(value)) 
+all_median_by_ibm_retro_Fhist <- cbind(SSB=ssb_median_by_ibm_retro_Fhist$medianval, F=f_median_by_ibm_retro_Fhist$medianval, Catch=catch_median_by_ibm_retro_Fhist$medianval)
+rownames(all_median_by_ibm_retro_Fhist) <- paste(ssb_median_by_ibm_retro_Fhist$IBMlab, ssb_median_by_ibm_retro_Fhist$retro_type, ssb_median_by_ibm_retro_Fhist$Fhist, sep= "-")
+
+# 9. by IBM* retro * time
+ssb_median_by_ibm_retro_time <- ssb_sims.time %>%
+  group_by(IBMlab, retro_type, time.avg) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_retro_time <- f_sims.time %>%
+  group_by(IBMlab, retro_type, time.avg) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_retro_time <- catch_sims.time %>%
+  group_by(IBMlab, retro_type, time.avg) %>%
+  summarise(medianval=median(value))
+all_median_by_ibm_retro_time <- cbind(SSB=ssb_median_by_ibm_retro_time$medianval, F=f_median_by_ibm_retro_time$medianval, Catch=catch_median_by_ibm_retro_time$medianval)
+rownames(all_median_by_ibm_retro_time) <- paste(ssb_median_by_ibm_retro_time$IBMlab, ssb_median_by_ibm_retro_time$retro_type, ssb_median_by_ibm_retro_time$time.avg, sep= "-")
+
+# 10. Fhist: catch.mult 
+ssb_median_by_ibm_Fhist_Cmult <- ssb_sims.time %>%
+  group_by(IBMlab, Fhist, catch.mult) %>%
+  summarise(medianval=median(value)) 
+f_median_by_ibm_Fhist_Cmult <- f_sims.time %>%
+  group_by(IBMlab, Fhist, catch.mult) %>%
+  summarise(medianval=median(value)) 
+catch_median_by_ibm_Fhist_Cmult <- catch_sims.time %>%
+  group_by(IBMlab, Fhist, catch.mult) %>%
+  summarise(medianval=median(value)) 
+all_median_by_ibm_Fhist_Cmult <- cbind(SSB=ssb_median_by_ibm_Fhist_Cmult$medianval, F=f_median_by_ibm_Fhist_Cmult$medianval, Catch=catch_median_by_ibm_Fhist_Cmult$medianval)
+rownames(all_median_by_ibm_Fhist_Cmult) <- paste(ssb_median_by_ibm_Fhist_Cmult$IBMlab, ssb_median_by_ibm_Fhist_Cmult$Fhist, ssb_median_by_ibm_Fhist_Cmult$catch.mult, sep= "-")
+
+# function to make the png
+make_heatmap_png <- function(myfile,
+                             mydata,
+                             mymain,
+                             mydir="Manuscript/tables_figs/heatmap/",
+                             png.h = 10,
+                             png.w = 8,
+                             myunits = "in",
+                             png.res = 500,
+                             mytype = "cairo",
+                             mycols = heat.cols){
+  
+  png(file=paste0(mydir,myfile), height=png.h, width=png.w, units=myunits,
+      res=png.res, type=mytype)
+  
+  heatmap.2(mydata, scale="column", margins=c(7,10), keysize = 1, col=mycols, main = mymain)
+  
+  dev.off()
+}
+
+# 1
+make_heatmap_png(myfile = "heatmap.ibm_median.png",
+                 mydata = all_median_by_ibm,
+                 mymain = "IBM")
+# 2
+make_heatmap_png(myfile = "heatmap.ibm.retro_median.png",
+                 mydata = all_median_by_ibm_retro,
+                 mymain = "IBM by Retro Source")
+# 3
+make_heatmap_png(myfile = "heatmap.ibm.time_median.png",
+                 mydata = all_median_by_ibm_time,
+                 mymain = "IBM by Time Horizon")
+# 4
+make_heatmap_png(myfile = "heatmap.ibm.cmult_median.png",
+                 mydata = all_median_by_ibm_cmult,
+                 mymain = "IBM by Catch Multiplier")
+# 5
+make_heatmap_png(myfile = "heatmap.ibm.Fhist_median.png",
+                 mydata = all_median_by_ibm_Fhist,
+                 mymain = "IBM by F history")
+# 6
+make_heatmap_png(myfile = "heatmap.ibm.cmult.time_median.png",
+                 mydata = all_median_by_ibm_Cmult_time,
+                 mymain = "IBM by Catch Mult and Time Horizon")
+# 7
+make_heatmap_png(myfile = "heatmap.ibm.fhist.time_median.png",
+                 mydata = all_median_by_ibm_Fhist_time,
+                 mymain = "IBM by F history and Time Horizon")
+# 8
+make_heatmap_png(myfile = "heatmap.ibm.retro.fhist_median.png",
+                 mydata = all_median_by_ibm_retro_Fhist,
+                 mymain = "IBM by Retro Type and F history")
+# 9
+make_heatmap_png(myfile = "heatmap.ibm.retro.time_median.png",
+                 mydata = all_median_by_ibm_retro_time,
+                 mymain = "IBM by Retro Type and Time Horizon")
+# 10
+make_heatmap_png(myfile = "heatmap.ibm.fhist.cmult_median.png",
+                 mydata = all_median_by_ibm_Fhist_Cmult,
+                 mymain = "IBM by F history and Catch Mult")
+
+
+
+# --- write csv files for table of MEAN heatmap results ====
+
+#  by IBM
+heat2.all_med <-heatmap.2(all_median_by_ibm, scale="column", margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM")
+
+# 1 factor by IBM
+heat2.all.retro_med <- heatmap.2(all_median_by_ibm_retro, scale="column",  margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM by Retro Source")
+heat2.all.time_med <- heatmap.2(all_median_by_ibm_time, scale="column",  margins=c(7,10), keysize = 1, col=heat.cols, main = "IBM by Time Horizon")
+heat2.all.cmult_med <- heatmap.2(all_median_by_ibm_cmult, scale="column", margins=c(7,10), keysize = 1, col=heat.cols , main = "IBM by Catch Multiplier")
+heat2.all.Fhist_med <- heatmap.2(all_median_by_ibm_Fhist, scale="column", margins=c(7,10), keysize = 1, col=heat.cols , main = "IBM by F history")
+
+# 2 factors by IBM
+heat2.all.time.cmult.time_med <- heatmap.2(all_median_by_ibm_Cmult_time, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Catch Mult and Time Horizon")
+heat2.all.fhist.time_med <- heatmap.2(all_median_by_ibm_Fhist_time, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by F History and Time Horizon")
+heat2.all.retro.fhist_med <- heatmap.2(all_median_by_ibm_retro_Fhist, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Type and F History")
+heat2.all.retro.time_med <- heatmap.2(all_median_by_ibm_retro_time, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by Retro Type and Time Horizon")
+heat2.all.Fhist.cmult_med <- heatmap.2(all_median_by_ibm_Fhist_Cmult, scale="column", margins=c(7,10), keysize = 1, col=heat.cols  , main = "IBM by F History and Catch Multiplier")
+
+
+#1 
+nrows <- dim(t(all_median_by_ibm))[2]
+#write.csv(t(heat2.all_med$carpet)[rev(seq(1,nrows)),], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm_median_normalized.csv")  #this gives table of standardized values
+write.csv(all_median_by_ibm[rev(heat2.all_med$rowInd),heat2.all_med$colInd], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm_median.csv") #this gives table of values
+
+
+# 2
+nrows <- dim(t(all_median_by_ibm_retro))[2]
+#write.csv(t(heat2.all.retro_med$carpet)[rev(seq(1,nrows)),], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.retro_median_normalized.csv")
+write.csv(all_median_by_ibm_retro[rev(heat2.all.retro_med$rowInd),heat2.all.retro_med$colInd], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.retro_median.csv")
+
+# 3
+nrows <- dim(t(all_median_by_ibm_time))[2]
+#write.csv(t(heat2.all.time_med$carpet)[rev(seq(1,nrows)),], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.time_median_normalized.csv")
+write.csv(all_median_by_ibm_time[rev(heat2.all.time_med$rowInd),heat2.all.time_med$colInd], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.time_median.csv")
+
+# 4
+nrows <- dim(t(all_median_by_ibm_cmult))[2]
+#write.csv(t(heat2.all.cmult_med$carpet)[rev(seq(1,nrows)),], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.cmult_median_normalized.csv")
+write.csv( all_median_by_ibm_cmult[rev(heat2.all.cmult_med$rowInd),heat2.all.cmult_med$colInd], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.cmult_median.csv")
+
+# 5
+nrows <- dim(t(all_median_by_ibm_Fhist))[2]
+#write.csv(t(heat2.all.Fhist_med$carpet)[rev(seq(1,nrows)),], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.Fhist_median_normalized.csv")
+write.csv(all_median_by_ibm_Fhist[rev(heat2.all.Fhist_med$rowInd),heat2.all.Fhist_med$colInd] , file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.Fhist_median.csv")
+
+# 6
+nrows <- dim(t(all_median_by_ibm_Cmult_time))[2]
+#write.csv(t(heat2.all.time.cmult.time_med$carpet)[rev(seq(1,nrows)),], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.cmul.time_median_normalized.csv")
+write.csv(all_median_by_ibm_Cmult_time[rev(heat2.all.time.cmult.time_med$rowInd),heat2.all.time.cmult.time_med$colInd] , file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.cmul.time_median.csv")
+
+# 7
+nrows <- dim(t(all_median_by_ibm_Fhist_time))[2]
+#write.csv(t(heat2.all.fhist.time_med$carpet)[rev(seq(1,nrows)),], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.fhist.time_median_normalized.csv")
+write.csv( all_median_by_ibm_Fhist_time[rev(heat2.all.fhist.time_med$rowInd),heat2.all.fhist.time_med$colInd], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.fhist.time_median.csv")
+
+# 8
+nrows <- dim(t(all_median_by_ibm_retro_Fhist))[2]
+#write.csv(t(heat2.all.retro.fhist_med$carpet)[rev(seq(1,nrows)),], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.retro.fhist_median_normalized.csv")
+write.csv(all_median_by_ibm_retro_Fhist[rev(heat2.all.retro.fhist_med$rowInd),heat2.all.retro.fhist_med$colInd] , file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.retro.fhist_median.csv")
+
+# 9
+nrows <- dim(t(all_median_by_ibm_retro_time))[2]
+#write.csv(t(heat2.all.retro.time_med$carpet)[rev(seq(1,nrows)),], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.retro.time_median_normalized.csv")
+write.csv(all_median_by_ibm_retro_time[rev(heat2.all.retro.time_med$rowInd),heat2.all.retro.time_med$colInd] , file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.retro.time_median.csv")
+
+# 10
+nrows <- dim(t(all_median_by_ibm_Fhist_Cmult))[2]
+#write.csv(t(heat2.all.Fhist.cmult_med$carpet)[rev(seq(1,nrows)),], file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.fhist.cmult_median_normalized.csv")
+write.csv(all_median_by_ibm_Fhist_Cmult[rev(heat2.all.Fhist.cmult_med$rowInd),heat2.all.Fhist.cmult_med$colInd]  , file="Manuscript/tables_figs/heatmap/table.heatmap.ibm.fhist.cmult_median.csv")
+
+
+
+##--- End of Heatmap Stuff (Medians) ====
