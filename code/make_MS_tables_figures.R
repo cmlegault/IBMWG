@@ -830,6 +830,7 @@ ggsave(catch.short.plot, file="Manuscript/tables_figs/catch.short.ecdf.cairo.png
 ggsave(catch.long.plot, file="Manuscript/tables_figs/catch.long.ecdf.cairo.png", dpi = 300, type="cairo", height=11, width=9) 
 
 
+##--- HEATMAPS ====
 ## add heatmap plots and save csv files in Manuscript/tables_figs/heatmap directory
 
 # make time variable for use in heatmaps
@@ -1116,3 +1117,101 @@ write.csv(all_median_by_ibm_Fhist_Cmult[rev(heat2.all.Fhist.cmult_med$rowInd),he
 
 
 ##--- End of Heatmap Stuff (Medians) ====
+
+## also summarize probabilities of overfished and overfishing as well as interannual variability in catch (across full feedback period, so cannot break out by time period)
+# ped = probability overfished
+# ping = probability overfishing
+
+ped_sims <- ssb_results %>%
+  filter(metric %in% c("l_is_less_05_bmsy", 
+                       "s_is_less_05_bmsy")) %>%
+  inner_join(defined, by = c("iscen"))
+
+ped_sims_scaa <- ssb_results_scaa %>%
+  filter(metric %in% c("l_is_less_05_bmsy", 
+                       "s_is_less_05_bmsy")) %>%
+  inner_join(defined_scaa, by = c("iscen"))
+
+ped_sims.time <- rbind(ped_sims, ped_sims_scaa) %>% 
+  select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult, metric) %>%
+  mutate(time.avg = ifelse(substr(metric,1,1)=="l", "L", "S"))
+
+ping_sims <- f_results %>%
+  filter(metric %in% c("l_is_gr_fmsy", "s_is_gr_fmsy")) %>%
+  inner_join(defined, by = c("iscen"))
+
+ping_sims_scaa <- f_results_scaa %>%
+  filter(metric %in% c("l_is_gr_fmsy", "s_is_gr_fmsy")) %>%
+  inner_join(defined_scaa, by = c("iscen"))
+
+ping_sims.time <- rbind(ping_sims, ping_sims_scaa) %>% 
+  select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult, metric) %>%
+  mutate(time.avg = ifelse(substr(metric,1,1)=="l", "L", "S"))
+
+iav_sims <- catch_results %>%
+  filter(metric == "a_iav_catch") %>%
+  inner_join(defined, by = c("iscen"))
+
+iav_sims_scaa <- catch_results_scaa %>%
+  filter(metric == "a_iav_catch") %>%
+  inner_join(defined_scaa, by = c("iscen"))
+
+iav_sims.time <- rbind(iav_sims, iav_sims_scaa) %>% 
+  select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult, metric) %>%
+  mutate(time.avg = "A") # note using full time series for IAV
+
+# function to handle summarizing by user supplied variable(s)
+my.summarize <- function(.data, ...){
+  .data %>%
+    group_by(...) %>%
+    summarize(meanval=mean(value), medianval=median(value))
+}
+
+# wrapper function to get all three variables
+wrap3 <- function(ped_sims.time, ping_sims.time, iav_sims.time, ...){
+  
+  ped_by_group <- my.summarize(ped_sims.time, ...) %>%
+    select(meanval, ...) %>%
+    rename(PED = meanval)
+  
+  ping_by_group <- my.summarize(ping_sims.time, ...) %>%
+    select(meanval, ...) %>%
+    rename(PING = meanval)
+  
+  if(!is.null(iav_sims.time)){
+    iav_by_group <- my.summarize(iav_sims.time, ...) %>%
+      select(medianval, ...) %>%
+      rename(IAV = medianval)
+  }
+
+  sdc <- inner_join(ped_by_group, ping_by_group)
+  if(is.null(iav_sims.time)){
+    all3 <- sdc %>%
+      mutate(IAV = NA)
+  }else{
+    all3 <- inner_join(sdc, iav_by_group)
+  }
+  return(all3)
+}
+
+x1 <- wrap3(ped_sims.time, ping_sims.time, iav_sims.time, IBMlab) %>% select(PED, PING, IAV, IBMlab)
+x2 <- wrap3(ped_sims.time, ping_sims.time, iav_sims.time, IBMlab, retro_type) %>% select(PED, PING, IAV, IBMlab, retro_type)
+x3 <- wrap3(ped_sims.time, ping_sims.time, NULL, IBMlab, time.avg) %>% select(PED, PING, IAV, IBMlab, time.avg)
+x4 <- wrap3(ped_sims.time, ping_sims.time, iav_sims.time, IBMlab, catch.mult) %>% select(PED, PING, IAV, IBMlab, catch.mult)
+x5 <- wrap3(ped_sims.time, ping_sims.time, iav_sims.time, IBMlab, Fhist) %>% select(PED, PING, IAV, IBMlab, Fhist)
+x6 <- wrap3(ped_sims.time, ping_sims.time, NULL, IBMlab, catch.mult, time.avg) %>% select(PED, PING, IAV, IBMlab, catch.mult, time.avg)
+x7 <- wrap3(ped_sims.time, ping_sims.time, NULL, IBMlab, Fhist, time.avg) %>% select(PED, PING, IAV, IBMlab, Fhist, time.avg)
+x8 <- wrap3(ped_sims.time, ping_sims.time, iav_sims.time, IBMlab, retro_type, Fhist) %>% select(PED, PING, IAV, IBMlab, retro_type, Fhist)
+x9 <- wrap3(ped_sims.time, ping_sims.time, NULL, IBMlab, retro_type, time.avg) %>% select(PED, PING, IAV, IBMlab, retro_type, time.avg)
+x10 <- wrap3(ped_sims.time, ping_sims.time, iav_sims.time, IBMlab, Fhist, catch.mult) %>% select(PED, PING, IAV, IBMlab, Fhist, catch.mult)
+
+write.csv(x1, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.csv", row.names = FALSE)
+write.csv(x2, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.retro.csv", row.names = FALSE)
+write.csv(x3, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.time.csv", row.names = FALSE)
+write.csv(x4, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.cmult.csv", row.names = FALSE)
+write.csv(x5, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.Fhist.csv", row.names = FALSE)
+write.csv(x6, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.cmult.time.csv", row.names = FALSE)
+write.csv(x7, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.Fhist.time.csv", row.names = FALSE)
+write.csv(x8, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.retro.Fhist.csv", row.names = FALSE)
+write.csv(x9, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.retro.time.csv", row.names = FALSE)
+write.csv(x10, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.Fhist.cmult.csv", row.names = FALSE)
