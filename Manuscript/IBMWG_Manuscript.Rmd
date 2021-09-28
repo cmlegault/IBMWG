@@ -198,17 +198,21 @@ tabl <- "
 cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
 ```
 
-## Example embedding R table
-```{r cars}
-summary(cars)
-```
 
-## Example Including Plots
+## Figures
 
-You can also embed plots, for example:
+![Figure 1. Median performance measures across all scenarios and runs for each method.  Vertical lines are shown at a value of 1 for the perfrormance measures that are relative to the MSY reference points (A,B,C), and at a value of 0.5 for the probability of overfishing (E). ](./MS_tables_figs/PMs_all_scenarios.jpg){#id .class width=7in height=8in}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+![Figure 2. Relationship between long-term average spawning biomass and average catch (relative to MSY levels) for each method. Each point represents the median for a given scenario, separated by the source of the retrospective pattern (catch or M).  **NOTE to coauthors: this was taken from the mass output figures Chris provided.  If we want to keep this we'll want to 1) change font to Times, 2) reorder to consistent with other Figs (alphabetical except for Ensebmle and SCAA which are last), 3) change the points for retro source so distinguishable in B&W, 4 change X axis title to $SSB_{MSY}$).   ](./MS_tables_figs/S_Smsy_vs_C_MSY.png){#id .class width=7in height=7in}
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+![Figure 3. Median performance measures for each method, with separated out by the source of the retrospective error (catch = black, M = gray) and the exploitation history in the base period (always overfishing at $2.5 x F_{MSY}$ (circle), or $F$ reduced to $F_{MSY}$ during base period (triangle)) .  Vertical lines are shown at a value of 1 for the perfrormance measures that are relative to the MSY reference points (A,B,C), and at a value of 0.5 for the probability of overfishing (E). ](./MS_tables_figs/PMs_by_retro_Fhistory.jpg){#id .class width=7in height=8in}
+
+
+![Figure 4. Median $F / F_{MSY}$  for each method, with results separated by the exploitation history in the base period (always overfishing at $2.5 x F_{MSY}$ (circle), or $F$ reduced to $F_{MSY}$ during base period (triangle)) showing A) short- (gray) versus long-term (black) values, and B) with (black) or without (gray) a buffer applied when setting the catch (catch_mult = 0.75 or 1). NOTE: I could add other PMs here too, but didn't think it necessary to have the full suite of PMs ](./MS_tables_figs/F_Fmsy_by_scens.jpg){#id .class width=7in height=8in}
+
+![Figure 5. Relationship between long-term average catch / MSY and average $SSB / SSB_{MSY}$ by method.  Each point represents the average for a single iteration for the scenario where catch was the source of the retrospective pattern with $F$ reduced to $F_{MSY}$ in the second half of the base period, there was a single selectivity block, and where no buffer was applied to the catch advice (catch multiplier = 1). ](./MS_tables_figs/Linear_vs_diffuse.png){#id .class width=7in height=7in}
+
+
+
+
+
