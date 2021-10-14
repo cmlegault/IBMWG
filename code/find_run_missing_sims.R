@@ -2,10 +2,9 @@
 # find and run the four missing simulations to examine what went wrong
 
 #mid-September 2020 version 0.0.9000 of wham
-83d0333bab4b3839eb671ec96318e6943722b1a5
-#devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="00f8788fa77ffddb842e45653bec956c7bdb710b") #9/11/20
-devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="83d0333bab4b3839eb671ec96318e6943722b1a5") #9/16/20
-devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="1ddfd9edc1f40720dff990c24078b9b59b99af78") #9/23/20
+devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="00f8788fa77ffddb842e45653bec956c7bdb710b") #9/11/20
+#devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="83d0333bab4b3839eb671ec96318e6943722b1a5") #9/16/20
+#devtools::install_github("timjmiller/wham", dependencies=TRUE, ref="1ddfd9edc1f40720dff990c24078b9b59b99af78") #9/23/20
 library(wham)
 library(tidyverse)
 library(furrr)
