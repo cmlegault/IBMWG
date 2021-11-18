@@ -15,10 +15,10 @@ author:
 - John Wiedenmann
 csl: canadian-journal-of-fisheries-and-aquatic-sciences.csl
 output:
-  html_document: default
   pdf_document:
     fig_caption: yes
     keep_tex: yes
+  html_document: default
   word_document: default
 bibliography: IBMWG.bib
 ---
