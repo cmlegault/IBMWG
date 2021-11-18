@@ -1121,32 +1121,46 @@ write.csv(all_median_by_ibm_Fhist_Cmult[rev(heat2.all.Fhist.cmult_med$rowInd),he
 ## also summarize probabilities of overfished and overfishing as well as interannual variability in catch (across full feedback period, so cannot break out by time period)
 # ped = probability overfished
 # ping = probability overfishing
+# replace probabilities with proportion of years
+# proped = number of years overfished
+# proping = number of years overfishing
 
-ped_sims <- ssb_results %>%
-  filter(metric %in% c("l_is_less_05_bmsy", 
-                       "s_is_less_05_bmsy")) %>%
+# ped_sims <- ssb_results %>%
+#   filter(metric %in% c("l_is_less_05_bmsy", 
+#                        "s_is_less_05_bmsy")) %>%
+#   inner_join(defined, by = c("iscen"))
+
+proped_sims <- ssb_results %>%
+  filter(metric %in% c("l_n_less_05_bmsy", 
+                       "s_n_less_05_bmsy")) %>%
   inner_join(defined, by = c("iscen"))
 
-ped_sims_scaa <- ssb_results_scaa %>%
-  filter(metric %in% c("l_is_less_05_bmsy", 
-                       "s_is_less_05_bmsy")) %>%
+proped_sims_scaa <- ssb_results_scaa %>%
+  filter(metric %in% c("l_n_less_05_bmsy", 
+                       "s_n_less_05_bmsy")) %>%
   inner_join(defined_scaa, by = c("iscen"))
 
-ped_sims.time <- rbind(ped_sims, ped_sims_scaa) %>% 
+proped_sims.time <- rbind(proped_sims, proped_sims_scaa) %>% 
   select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult, metric) %>%
   mutate(time.avg = ifelse(substr(metric,1,1)=="l", "L", "S"))
 
-ping_sims <- f_results %>%
-  filter(metric %in% c("l_is_gr_fmsy", "s_is_gr_fmsy")) %>%
+proping_sims <- f_results %>%
+  filter(metric %in% c("l_n_gr_fmsy", "s_n_gr_fmsy")) %>%
   inner_join(defined, by = c("iscen"))
 
-ping_sims_scaa <- f_results_scaa %>%
-  filter(metric %in% c("l_is_gr_fmsy", "s_is_gr_fmsy")) %>%
+proping_sims_scaa <- f_results_scaa %>%
+  filter(metric %in% c("l_n_gr_fmsy", "s_n_gr_fmsy")) %>%
   inner_join(defined_scaa, by = c("iscen"))
 
-ping_sims.time <- rbind(ping_sims, ping_sims_scaa) %>% 
+proping_sims.time <- rbind(proping_sims, proping_sims_scaa) %>% 
   select(value, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult, metric) %>%
   mutate(time.avg = ifelse(substr(metric,1,1)=="l", "L", "S"))
+
+# convert number of years to proportions (6 years short, 20 years long)
+proped_sims.time <- proped_sims.time %>%
+  mutate(value = ifelse(time.avg == "S", value/6, value/20))
+proping_sims.time <- proping_sims.time %>%
+  mutate(value = ifelse(time.avg == "S", value/6, value/20))
 
 iav_sims <- catch_results %>%
   filter(metric == "a_iav_catch") %>%
@@ -1168,15 +1182,23 @@ my.summarize <- function(.data, ...){
 }
 
 # wrapper function to get all three variables
-wrap3 <- function(ped_sims.time, ping_sims.time, iav_sims.time, ...){
+wrap3 <- function(proped_sims.time, proping_sims.time, iav_sims.time, ...){
   
-  ped_by_group <- my.summarize(ped_sims.time, ...) %>%
-    select(meanval, ...) %>%
-    rename(PED = meanval)
+  # ped_by_group <- my.summarize(ped_sims.time, ...) %>%
+  #   select(meanval, ...) %>%
+  #   rename(PED = meanval)
+  # 
+  # ping_by_group <- my.summarize(ping_sims.time, ...) %>%
+  #   select(meanval, ...) %>%
+  #   rename(PING = meanval)
   
-  ping_by_group <- my.summarize(ping_sims.time, ...) %>%
-    select(meanval, ...) %>%
-    rename(PING = meanval)
+  proped_by_group <- my.summarize(proped_sims.time, ...) %>%
+    select(medianval, ...) %>%
+    rename(PROPED = medianval)
+  
+  proping_by_group <- my.summarize(proping_sims.time, ...) %>%
+    select(medianval, ...) %>%
+    rename(PROPING = medianval)
   
   if(!is.null(iav_sims.time)){
     iav_by_group <- my.summarize(iav_sims.time, ...) %>%
@@ -1184,7 +1206,7 @@ wrap3 <- function(ped_sims.time, ping_sims.time, iav_sims.time, ...){
       rename(IAV = medianval)
   }
 
-  sdc <- inner_join(ped_by_group, ping_by_group)
+  sdc <- inner_join(proped_by_group, proping_by_group)
   if(is.null(iav_sims.time)){
     all3 <- sdc %>%
       mutate(IAV = NA)
@@ -1194,16 +1216,16 @@ wrap3 <- function(ped_sims.time, ping_sims.time, iav_sims.time, ...){
   return(all3)
 }
 
-x1 <- wrap3(ped_sims.time, ping_sims.time, iav_sims.time, IBMlab) %>% select(PED, PING, IAV, IBMlab)
-x2 <- wrap3(ped_sims.time, ping_sims.time, iav_sims.time, IBMlab, retro_type) %>% select(PED, PING, IAV, IBMlab, retro_type)
-x3 <- wrap3(ped_sims.time, ping_sims.time, NULL, IBMlab, time.avg) %>% select(PED, PING, IAV, IBMlab, time.avg)
-x4 <- wrap3(ped_sims.time, ping_sims.time, iav_sims.time, IBMlab, catch.mult) %>% select(PED, PING, IAV, IBMlab, catch.mult)
-x5 <- wrap3(ped_sims.time, ping_sims.time, iav_sims.time, IBMlab, Fhist) %>% select(PED, PING, IAV, IBMlab, Fhist)
-x6 <- wrap3(ped_sims.time, ping_sims.time, NULL, IBMlab, catch.mult, time.avg) %>% select(PED, PING, IAV, IBMlab, catch.mult, time.avg)
-x7 <- wrap3(ped_sims.time, ping_sims.time, NULL, IBMlab, Fhist, time.avg) %>% select(PED, PING, IAV, IBMlab, Fhist, time.avg)
-x8 <- wrap3(ped_sims.time, ping_sims.time, iav_sims.time, IBMlab, retro_type, Fhist) %>% select(PED, PING, IAV, IBMlab, retro_type, Fhist)
-x9 <- wrap3(ped_sims.time, ping_sims.time, NULL, IBMlab, retro_type, time.avg) %>% select(PED, PING, IAV, IBMlab, retro_type, time.avg)
-x10 <- wrap3(ped_sims.time, ping_sims.time, iav_sims.time, IBMlab, Fhist, catch.mult) %>% select(PED, PING, IAV, IBMlab, Fhist, catch.mult)
+x1 <- wrap3(proped_sims.time, proping_sims.time, iav_sims.time, IBMlab) %>% select(PROPED, PROPING, IAV, IBMlab)
+x2 <- wrap3(proped_sims.time, proping_sims.time, iav_sims.time, IBMlab, retro_type) %>% select(PROPED, PROPING, IAV, IBMlab, retro_type)
+x3 <- wrap3(proped_sims.time, proping_sims.time, NULL, IBMlab, time.avg) %>% select(PROPED, PROPING, IAV, IBMlab, time.avg)
+x4 <- wrap3(proped_sims.time, proping_sims.time, iav_sims.time, IBMlab, catch.mult) %>% select(PROPED, PROPING, IAV, IBMlab, catch.mult)
+x5 <- wrap3(proped_sims.time, proping_sims.time, iav_sims.time, IBMlab, Fhist) %>% select(PROPED, PROPING, IAV, IBMlab, Fhist)
+x6 <- wrap3(proped_sims.time, proping_sims.time, NULL, IBMlab, catch.mult, time.avg) %>% select(PROPED, PROPING, IAV, IBMlab, catch.mult, time.avg)
+x7 <- wrap3(proped_sims.time, proping_sims.time, NULL, IBMlab, Fhist, time.avg) %>% select(PROPED, PROPING, IAV, IBMlab, Fhist, time.avg)
+x8 <- wrap3(proped_sims.time, proping_sims.time, iav_sims.time, IBMlab, retro_type, Fhist) %>% select(PROPED, PROPING, IAV, IBMlab, retro_type, Fhist)
+x9 <- wrap3(proped_sims.time, proping_sims.time, NULL, IBMlab, retro_type, time.avg) %>% select(PROPED, PROPING, IAV, IBMlab, retro_type, time.avg)
+x10 <- wrap3(proped_sims.time, proping_sims.time, iav_sims.time, IBMlab, Fhist, catch.mult) %>% select(PROPED, PROPING, IAV, IBMlab, Fhist, catch.mult)
 
 write.csv(x1, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.csv", row.names = FALSE)
 write.csv(x2, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.retro.csv", row.names = FALSE)
