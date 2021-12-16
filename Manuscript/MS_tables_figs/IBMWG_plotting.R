@@ -7,20 +7,37 @@ IBM_order <- rev(c("AIM","CC-FM","CC-FSPR","DLM","ES-FM","ES-Frecent",
                "ES-FSPR","ES-Fstable","Islope","Ismooth","Itarget",
                "Skate","Ensemble","SCAA"))
 
+# diffuse methods 
+dif <- c("CC-FM","CC-FSPR","DLM","ES-Frecent","Islope","Ismooth")
+
+
 # median values across ass scenarios
-all_scen <- read.csv("PMs_all_scenarios.csv",
+all_scen <- read.csv("PMs_all_scenarios_new.csv",
                      header=TRUE,stringsAsFactors=FALSE) 
-retro <- read.csv("PMs_by_retro.csv",
+retro <- read.csv("PMs_by_retro_new.csv",
                   header=TRUE,stringsAsFactors=FALSE)
 Cmult <- read.csv("PMs_by_Cmult.csv",
                   header=TRUE,stringsAsFactors=FALSE)
-retro_Fhist <- read.csv("PMs_by_retro_Fhist.csv",
+Cmult$Category <- "Linear"
+Cmult$IBM[Cmult$IBM=="PBS"] <- "Ismooth"
+Cmult$Category[Cmult$IBM==dif[1] | Cmult$IBM==dif[2] | Cmult$IBM==dif[3] | Cmult$IBM==dif[4] | Cmult$IBM==dif[5] | Cmult$IBM==dif[6]] = "Diffuse"
+Cmult$IBM=="DLM"
+Cmult$cat_pch <- 1
+Cmult$cat_pch[Cmult$Category=="Diffuse"] <- 16
+
+
+
+
+retro_Fhist <- read.csv("PMs_by_retro_Fhistory_new.csv",
                         header=TRUE,stringsAsFactors=FALSE)
-time_Fhist <- read.csv("PMs_by_time_Fhist.csv",
+time_Fhist <- read.csv("PMs_by_time_Fhist_new.csv",
                     header=TRUE,stringsAsFactors=FALSE)
-Cmult_Fhist <- read.csv("PMs_by_Cmult_Fhist.csv",
+Cmult_Fhist <- read.csv("PMs_by_Cmult_Fhist_new.csv",
                         header=TRUE,stringsAsFactors=FALSE)
 Cmult_Fhist$Catch_mult <- factor(Cmult_Fhist$Catch_mult)
+
+
+# 
 
 # Figure labels for each PM
 SSB_label <-expression(paste("SSB / ",SSB[MSY],sep = ""))
@@ -32,6 +49,7 @@ PED_label <- "Probability of being overfished"
 
 # PMs aggregated across all scenarios
 {
+  quartz()
   pSSB<-ggplot(data=all_scen, aes(x=factor(IBM,level=IBM_order), y=SSB)) +
   geom_bar(stat="identity",fill="gray")+
   theme_classic() + 
@@ -85,12 +103,13 @@ pOFD<-ggplot(data=all_scen, aes(x=factor(IBM,level=IBM_order), y=PED)) +
   coord_flip()
 
  p1 <- grid.arrange(pSSB,pF,pC,pIAV,pOFG,pOFD,nrow=3)
- ggsave("PMs_all_scenarios",plot=p1,device="pdf",width=7,height=8)
+ #ggsave("PMs_all_scenarios",plot=p1,device="pdf",width=7,height=8)
  
 }
 
 # PMs by F history and Retro source
 {
+quartz()
 point_cols <- c("black","dark gray")
 pSSB_retro<-ggplot(data=retro_Fhist, aes(x=factor(IBM,level=IBM_order), y=SSB)) +
   geom_point((aes(colour = Retro_source, shape=F_history)))+
@@ -146,9 +165,9 @@ pOFD_retro<-ggplot(data=retro_Fhist, aes(x=factor(IBM,level=IBM_order), y=PED)) 
 
 p2 <-ggarrange(pSSB_retro,pF_retro,pC_retro,pIAV_retro,pOFG_retro,pOFD_retro, 
                ncol=2, nrow=3, common.legend = TRUE, legend="bottom")
-
+print(p2)
 #p2 <- grid.arrange(p)
-ggsave("PMs_by_retro_Fhistory",plot=p2,device="pdf",width=7,height=8)
+ggsave("PMs_by_retro_Fhistory_new",plot=p2,device="pdf",width=7,height=8)
 }
 
 
@@ -176,6 +195,8 @@ ggsave("PMs_by_retro_Fhistory",plot=p2,device="pdf",width=7,height=8)
   p3 <- grid.arrange(pF_time_Fhist,pF_Cmult_Fhist,nrow=2)
   ggsave("F_Fmsy_by_scens",plot=p3,device="pdf",width=6,height=6)  
 }
+
+
 
 
 
