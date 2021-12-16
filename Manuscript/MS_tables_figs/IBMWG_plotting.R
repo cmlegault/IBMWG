@@ -1,6 +1,8 @@
 # IBMWG plotting based on the summary tables
 library(ggplot2); library(gridExtra); library(grid); library(ggpubr)
+library(dplyr); library(tidyr)
 
+# set working directory to source file location to begin
 
 # specify order for IBMs so Ensemble and SCAA are at the end
 IBM_order <- rev(c("AIM","CC-FM","CC-FSPR","DLM","ES-FM","ES-Frecent",
@@ -49,7 +51,7 @@ PED_label <- "Probability of being overfished"
 
 # PMs aggregated across all scenarios
 {
-  quartz()
+  quartz() # can only run this on Mac
   pSSB<-ggplot(data=all_scen, aes(x=factor(IBM,level=IBM_order), y=SSB)) +
   geom_bar(stat="identity",fill="gray")+
   theme_classic() + 
@@ -109,7 +111,7 @@ pOFD<-ggplot(data=all_scen, aes(x=factor(IBM,level=IBM_order), y=PED)) +
 
 # PMs by F history and Retro source
 {
-quartz()
+quartz() # can only run this on Mac
 point_cols <- c("black","dark gray")
 pSSB_retro<-ggplot(data=retro_Fhist, aes(x=factor(IBM,level=IBM_order), y=SSB)) +
   geom_point((aes(colour = Retro_source, shape=F_history)))+
@@ -196,7 +198,32 @@ ggsave("PMs_by_retro_Fhistory_new",plot=p2,device="pdf",width=7,height=8)
   ggsave("F_Fmsy_by_scens",plot=p3,device="pdf",width=6,height=6)  
 }
 
+# make Figure 2 (median long term C/MSY vs SSB/SSBmsy)
+ssb_median_by_scenario <- readRDS("../tables_figs/ssb_median_by_scenario.rds") %>%
+  mutate(metric = paste0("ssb_", metric))
 
+catch_median_by_scenario <- readRDS("../tables_figs/catch_median_by_scenario.rds") %>%
+  mutate(metric = paste0("catch_", metric))
+
+td_med <- rbind(ssb_median_by_scenario, catch_median_by_scenario)
+
+td3_l_med <- td_med %>%
+  filter(metric %in% c("ssb_l_avg_ssb_ssbmsy", "catch_l_avg_catch_msy")) %>%
+  distinct() %>%
+  pivot_wider(names_from = metric, values_from = value) %>%
+  rename(x_value = ssb_l_avg_ssb_ssbmsy, y_value = catch_l_avg_catch_msy)
+
+point_cols <- c("black","dark gray")
+
+fig2plot <- ggplot(td3_l_med, aes(x=x_value, y=y_value, color=retro_type)) +
+    geom_point() +
+    facet_wrap(~factor(IBMlab, level=rev(IBM_order))) +
+  theme_classic() + 
+  theme(text = element_text(family = "Times New Roman")) +
+  labs(x=SSB_label, y=C_label) +
+  scale_color_manual(values=point_cols)
+fig2plot
+ggsave(filename = "Fig2_med_longterm_CMSY_SSBSSBmsy.png", fig2plot, width=6,height=6)
 
 
 
