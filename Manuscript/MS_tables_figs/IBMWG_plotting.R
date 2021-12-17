@@ -2,6 +2,10 @@
 library(ggplot2); library(gridExtra); library(grid); library(ggpubr)
 library(dplyr); library(tidyr)
 
+# used for Windows 
+windowsFonts(Times=windowsFont("Times New Roman"))
+# end used for Windows section
+
 # set working directory to source file location to begin
 
 # specify order for IBMs so Ensemble and SCAA are at the end
@@ -219,7 +223,7 @@ fig2plot <- ggplot(td3_l_med, aes(x=x_value, y=y_value, color=retro_type)) +
   geom_point() +
   facet_wrap(~factor(IBMlab, level=rev(IBM_order))) +
   theme_classic() + 
-  theme(text = element_text(family = "Times New Roman")) +
+  theme(text = element_text(family = "Times")) +
   labs(x=SSB_label, y=C_label) +
   scale_color_manual(values=point_cols)
 fig2plot
@@ -236,7 +240,7 @@ fig5plot <- ggplot(sims, aes(x=l_avg_ssb_ssbmsy, y=l_avg_catch_msy)) +
   geom_hline(yintercept = 1, color="red", linetype="dashed") +
   facet_wrap(~factor(IBMlab, level=rev(IBM_order))) +
   theme_classic() + 
-  theme(text = element_text(family = "Times New Roman")) +
+  theme(text = element_text(family = "Times")) +
   labs(x=SSB_label, y=C_label)
 fig5plot  
 ggsave(filename = "Fig5_points_longterm_CMSY_SSBSSBmsy.png", fig5plot, width=6,height=6)
