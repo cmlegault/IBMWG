@@ -216,8 +216,8 @@ td3_l_med <- td_med %>%
 point_cols <- c("black","dark gray")
 
 fig2plot <- ggplot(td3_l_med, aes(x=x_value, y=y_value, color=retro_type)) +
-    geom_point() +
-    facet_wrap(~factor(IBMlab, level=rev(IBM_order))) +
+  geom_point() +
+  facet_wrap(~factor(IBMlab, level=rev(IBM_order))) +
   theme_classic() + 
   theme(text = element_text(family = "Times New Roman")) +
   labs(x=SSB_label, y=C_label) +
@@ -225,8 +225,21 @@ fig2plot <- ggplot(td3_l_med, aes(x=x_value, y=y_value, color=retro_type)) +
 fig2plot
 ggsave(filename = "Fig2_med_longterm_CMSY_SSBSSBmsy.png", fig2plot, width=6,height=6)
 
+# make Figure 5 (long term C/MSY vs SSB/SSBmsy by realization and IBM)
+# uses sceanario CF1A (see make_MS_tables_figures.R at bottom)
 
+sims <- readRDS("Fig5_sims.rds")
 
+fig5plot <- ggplot(sims, aes(x=l_avg_ssb_ssbmsy, y=l_avg_catch_msy)) +
+  geom_point() +
+  geom_vline(xintercept = 1, color="red", linetype="dashed") +
+  geom_hline(yintercept = 1, color="red", linetype="dashed") +
+  facet_wrap(~factor(IBMlab, level=rev(IBM_order))) +
+  theme_classic() + 
+  theme(text = element_text(family = "Times New Roman")) +
+  labs(x=SSB_label, y=C_label)
+fig5plot  
+ggsave(filename = "Fig5_points_longterm_CMSY_SSBSSBmsy.png", fig5plot, width=6,height=6)
 
 
 

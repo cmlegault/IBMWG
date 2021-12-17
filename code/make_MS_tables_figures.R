@@ -1237,3 +1237,10 @@ write.csv(x7, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.Fhist.time
 write.csv(x8, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.retro.Fhist.csv", row.names = FALSE)
 write.csv(x9, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.retro.time.csv", row.names = FALSE)
 write.csv(x10, file = "Manuscript/tables_figs/heatmap/table.sdciav.ibm.Fhist.cmult.csv", row.names = FALSE)
+
+
+fig5_sims <- sims %>%
+  filter(Scenlab == "CF1A") %>%
+  select(IBMlab, l_avg_ssb_ssbmsy, l_avg_catch_msy)
+
+saveRDS(fig5_sims, file = "Manuscript/MS_tables_figs/Fig5_sims.rds")
