@@ -54,7 +54,7 @@ defined <- mse_sim_setup %>%
   mutate(IBMlab = case_when(
     IBM == "true_Skate_CR" ~ "Skate",
     IBM == "M_CC" ~ paste("CC", CClab[M_CC_method], sep="-"),
-    IBM == "planBsmoothfxn" ~ "Islope",
+    IBM == "planBsmoothfxn" ~ "Ismooth",
     IBM == "ExpandSurvey_modified" ~ paste("ES", EMlab[expand_method], sep="-"),
     IBM == "run.aim" ~ "AIM",
     IBM == "JoeDLM" ~ "DLM",

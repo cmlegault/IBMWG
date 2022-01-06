@@ -15,15 +15,15 @@ author:
 - Brandon Muffley
 csl: canadian-journal-of-fisheries-and-aquatic-sciences.csl
 output:
-  html_document: default
+  pdf_document:
+    toc: no
   bookdown::pdf_document2:
     toc: no
     number_sections: no
     fig_caption: yes
     keep_tex: yes
   word_document: default
-  pdf_document:
-    toc: no
+  html_document: default
 bibliography: IBMWG.bib
 fontsize: 12pt
 header-includes:
