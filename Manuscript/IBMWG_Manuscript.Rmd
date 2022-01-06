@@ -44,6 +44,9 @@ if(!require(kableExtra)) {
 \newpage
 
 ## Abstract
+Age-based assessments are sometimes rejected by review panels due to large retrospective patterns. When this occurs, data-limited approaches are often used in place of the rejected assessment under the assumption that these simpler methods will not be impacted by the problems found in the age-based assessment. This hypothesis was examined through simulation of situations with known sources of retrospective patterns. Twelve index-based methods, an ensemble of a subset of these methods, and a statistical catch-at-age model with retrospective adjustment were all applied in closed-loop simulation to examine the ability to prevent overfishing and rebuild overfished stocks. Overall performance varied widely across methods, and the individual performance of a method was sensitive to the different scenarios explored. Overall, none of the index-based methods outperformed the retrospective adjusted statistical catch-at-age model, demonstrating the hypothesis of improved performance is not always true.
+
+*This is a strawman for the abstract. Please feel free to edit or replace.*
 
 \newpage
 
@@ -149,11 +152,14 @@ An interesting finding of this study is the linear versus diffuse patterns betwe
 
 *Paragraph on the overall difference between catch and M?  Not sure if we want to get into this because we'll have to raise the issue of the different reference points. JJD thinks we don't need to raise this issue explicitly, as it seems evident from the text above; then we can dodge the reference point bullet...then again the reference point bullet might be interesting discussion fodder in it's own right.* 
 
+One of the reasons for the difference in performance between the catch and natural mortality retrospective sources was how the reference points were calculated. In all cases, the initial conditions, including the natural mortality rate, were used to compute the reference points. This decision was made based on the fact that the increase in natural mortality was assumed to be unknown in the simulations. If the increase in natural mortality was known, the assessments would have accounted for it, different reference points might be computed [@Legault2016increaseM] and there may not have been a retrospective pattern at all [@Legault2020rose]. The reference points would have been different if they were computed using the final year values, but the overall conclusions regarding the different IBMs did not change as this just results in a rescaling of the axis. These results are not shown to reduce confusion regarding the simulations.
+
+*The above paragraph is Chris’ attempt to address the reference point issue. Please feel free to edit or delete.*
 
 This study is a first attempt to identify suitable methods for setting catch advice when stock assessment models are rejected due to large, positive retrospective patterns.  Although no single method performed best across scenarios, a number of generally suitable and unsuitable methods were identified under specific conditions.  The results of this work can help scientists and managers select a subset of possible options for consideration to set catch advice when assessment models are rejected. The approach developed here can, and should be expanded to consider other cases not explored here, as performance of individual methods os very likely case-dependent.  
 
 ## Acknowledgements
-We thank Paul Rago, Yong Chen, ..., and ... for revieweing an earlier version of this work.  *Generic statment about views expressed not reflecting NOAA...*  ANything else?
+We thank the Index-Based Methods and Control Rules Research Track review panel of Paul Rago (chair), Yong Chen, Robin Cook, and Paul Medley for feedback on preliminary results, and ... for revieweing an earlier version of this work.  *Generic statment about views expressed not reflecting NOAA...* 
 
 ## References
 
