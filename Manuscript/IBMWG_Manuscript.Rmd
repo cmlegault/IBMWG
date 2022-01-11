@@ -15,15 +15,15 @@ author:
 - Brandon Muffley
 csl: canadian-journal-of-fisheries-and-aquatic-sciences.csl
 output:
-  html_document: default
+  pdf_document:
+    toc: no
   bookdown::pdf_document2:
     toc: no
     number_sections: no
     fig_caption: yes
     keep_tex: yes
   word_document: default
-  pdf_document:
-    toc: no
+  html_document: default
 bibliography: IBMWG.bib
 fontsize: 12pt
 header-includes:
@@ -240,7 +240,7 @@ cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
 knitr::include_graphics(file.path(getwd(),"MS_tables_figs","PMs_all_scenarios_new.jpg"))
 ```
 
-```{r SSmsyvsCMSY, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in', fig.cap="Relationship between long-term average spawning biomass and average catch (relative to MSY levels) for each method. Each point represents the median for a given scenario, separated by the source of the retrospective pattern (catch or M).  **NOTE to coauthors: this was taken from the mass output figures Chris provided.  If we want to keep this we'll want to 1) change font to Times, 2) reorder to consistent with other Figs (alphabetical except for Ensebmle and SCAA which are last), 3) change the points for retro source so distinguishable in BandW, 4 change X axis title to $SSB_{MSY}$). DONE"}
+```{r SSmsyvsCMSY, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in', fig.cap="Relationship between long-term average spawning biomass and average catch (relative to MSY levels) for each method. Each point represents the median for a given scenario, separated by the source of the retrospective pattern (catch or M)."}
 knitr::include_graphics(file.path(getwd(),"MS_tables_figs","Fig2_med_longterm_CMSY_SSBSSBmsy.png"))
 ```
 
