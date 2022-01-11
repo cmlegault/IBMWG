@@ -15,15 +15,15 @@ author:
 - Brandon Muffley
 csl: canadian-journal-of-fisheries-and-aquatic-sciences.csl
 output:
-  pdf_document:
-    toc: no
+  html_document: default
   bookdown::pdf_document2:
     toc: no
     number_sections: no
     fig_caption: yes
     keep_tex: yes
   word_document: default
-  html_document: default
+  pdf_document:
+    toc: no
 bibliography: IBMWG.bib
 fontsize: 12pt
 header-includes:
@@ -45,9 +45,8 @@ if(!require(kableExtra)) {
 
 ## Abstract
 
-Age-based stock assessments are sometimes rejected by review panels due to large retrospective patterns. When this occurs, data-limited approaches are often used in place of the rejected assessment under the assumption that these simpler methods will not be impacted by the problems found in the age-based assessment. This hypothesis was examined through simulation of situations with known sources of retrospective patterns. Twelve index-based methods, an ensemble of a subset of these methods, and a statistical catch-at-age model with retrospective adjustment were all applied in closed-loop simulation to examine the ability to prevent overfishing and rebuild overfished stocks. Overall, none of the methods evaluated performed best across the scenarios exploring the different sources of the retrospective pattern (unreported catch or increasing natural mortality, $M$) and different levels of historical fishing intensity. A number of methods performed consistently poorly, resulting in frequent and intense overfishing and low stock sizes.  Some methods did perform well in many cases, including methods that adjusted recent average catches based on trends in the survey index of abundance. The retrospective adjusted statistical catch-at-age performed better than a number of the alternatives explored here under certain circumstances, demonstrating the hypothesis of improved performance by data-limited method is not always true.
+Age-based stock assessments are sometimes rejected by review panels due to large retrospective patterns. When this occurs, data-limited approaches that rely almost exclusively on index observations are often used to set catch advice, under the assumption that these simpler methods will not be impacted by the problems causing retrospective patterns in the age-based assessment. This assumption has never been formally evaluated. Closed-loop simulations were conducted under a range of situations where a known source of error caused a retrospective pattern in an age-based assessment and so catch was specified using an index-based method. Twelve index-based methods, an ensemble of a subset of these methods, and a statistical catch-at-age model with retrospective adjustment were all evaluated to examine their ability to prevent overfishing and rebuild overfished stocks. Overall, none of the methods evaluated performed best across the scenarios exploring the different sources of the retrospective pattern (unreported catch or increasing natural mortality) and different levels of historical fishing intensity. A number of methods performed consistently poorly, resulting in frequent and intense overfishing and low stock sizes. Some methods did perform well in many cases, especially methods that adjusted recent average catches based on trends in the survey index of abundance. The retrospective adjusted statistical catch-at-age assessment performed better than a number of the alternatives explored under certain circumstances. Thus, using a data-limited approach to set catch advice will not necessarily result in better performance than relying on the age-based assessment with a retrospective adjustment.
 
-*This is a strawman for the abstract. Please feel free to edit or replace.*
 
 \newpage
 
