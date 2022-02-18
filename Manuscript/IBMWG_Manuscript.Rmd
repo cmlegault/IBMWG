@@ -13,6 +13,7 @@ author:
 - Jamie Cournane
 - Andy Jones
 - Brandon Muffley
+
 csl: canadian-journal-of-fisheries-and-aquatic-sciences.csl
 output:
   pdf_document:
@@ -43,10 +44,26 @@ if(!require(kableExtra)) {
 
 \newpage
 
+Christopher M. Legault^1^, John Wiedenmann^2^ Jonathan J. Deroba^1^, Gavin Fay^3^, Timothy J. Miller^1^, Elizabeth Brooks^1^, Richard J. Bell^4^, Joe Langan^5^, Jamie Cournane^6^, Andy Jones^1^, Brandon Muffley^7^
+
+^1^National Marine Fisheries Service, Northeast Fisheries Science Center, Woods Hole, MA, USA  
+^2^Department of Ecology, Evolution and Natural Resources, Rutgers, The State University of New Jersey, New Brunswick, New Jersey, USA  
+^3^University of Massachusetts Dartmouth, School for Marine Science
+and Technology, Massachusetts, USA  
+^4^The Nature Conservancy, Rhode Island, USA  
+^5^University of Rhode Island, Graduate School of Oceanography, Narragansett, RI, USA  
+^6^New England Fishery Management Council, Newburyport, MA, USA  
+^7^Mid-Atlantic Fishery Management Council, Dover, DE, USA  
+
+\newpage
+
 ## Abstract
 
 Age-based stock assessments are sometimes rejected by review panels due to large retrospective patterns. When this occurs, data-limited approaches that rely almost exclusively on index observations are often used to set catch advice, under the assumption that these simpler methods will not be impacted by the problems causing retrospective patterns in the age-based assessment. This assumption has never been formally evaluated. Closed-loop simulations were conducted under a range of situations where a known source of error caused a retrospective pattern in an age-based assessment, which then served as the operating model. Twelve index-based methods, an ensemble of a subset of these methods, and a statistical catch-at-age model with retrospective adjustment were all evaluated to examine their ability to prevent overfishing and rebuild overfished stocks. Overall, none of the methods evaluated performed best across the scenarios exploring the different sources of the retrospective pattern (unreported catch or increasing natural mortality) and different levels of historical fishing intensity. A number of methods performed consistently poorly, resulting in frequent and intense overfishing and low stock sizes. Some methods did perform well in many cases, especially methods that adjusted recent average catches based on trends in the survey index of abundance. The retrospective adjusted statistical catch-at-age assessment performed better than a number of the alternatives explored under certain circumstances. Thus, using a data-limited approach to set catch advice will not necessarily result in better performance than relying on the age-based assessment with a retrospective adjustment.
 
+## Keywords
+
+closed-loop simulation, data-limited methods, retrospective analysis, management advice 
 
 \newpage
 
@@ -99,7 +116,7 @@ In addition to the two control rules applied for each IBM described above, three
 
 Two variations of the OM were considered with either time invariant, asympototic, fishery selectivity in the base and feedback periods, or a change in selectivity after the first half of the base period so that the age at 50\% selectivity increased from approximately 3.7 to 5 (Table 1). The asymptotic selectivity pattern was based on Northeast groundfish fishery selectivity patterns. The change in the selectivity pattern when selectivity varied through time approximated an increase in mesh size in the fishery to avoid younger fish.
 
-Two different sources of stock assessment misspecification leading to retrospective patterns were considered, temporal changes in natural mortality and misreported catch. The degree to which natural mortality and unreported catch changed through time was determined by attempting to achieve an average Mohn’s rho of approximately 0.5 for $SSB$ when an SCAA model (i.e., configured using WHAM) was used to fit the simulated data. We also fit the same SCAA configuration to data without misspecified M or catch to verify that retrospective patterns were not present on average (Figure 1.2). A third source of misspecification was also attempted, time varying survey catchability, but this source of misspecification was unable to produce severe enough retrospective patterns and was abandoned.
+Two different sources of stock assessment misspecification leading to retrospective patterns were considered, temporal changes in natural mortality and misreported catch. The degree to which natural mortality and unreported catch changed through time was determined by attempting to achieve an average Mohn’s rho of approximately 0.5 for $SSB$ when an SCAA model (i.e., configured using WHAM) was used to fit the simulated data. We also fit the same SCAA configuration to data without misspecified M or catch to verify that retrospective patterns were not present on average. A third source of misspecification was also attempted, time varying survey catchability, but this source of misspecification was unable to produce severe enough retrospective patterns and was abandoned.
 
 For the natural mortality misspecification, the true natural mortality changed from 0.2 to 0.32 in scenarios where the fishing history was always overfishing or from 0.2 to 0.36 when the fishing history included a reduction from overfished to $F_{MSY}$, with the differences between fishing histories necessary to produce the desired retrospective pattern severity. In each case, natural mortality trended linearly from 0.2 to the higher value between years 31 and 40 of the base period and held constant at the higher level for years 41-50. Natural mortality remained constant at the higher level throughout the feedback period. Those IBMs that required natural mortality as an input parameter used the value from before any change in natural mortality (0.2) because the change in natural mortality is meant to be unknown.
 
@@ -109,7 +126,7 @@ Fourteen methods for setting catches were explored (13 IBMs and the SCAA) and we
 
 <font size="5">*Performance Metrics*</font>
 
-A total of 50 performance metrics were recorded during the simulations, but many were redundant and displayed similar tradeoffs among the IBMs and SCAA model. Ultimately, six metrics thought to be of broad interest were reported here, each calculated and reported separately for a short-term (i.e., first six years of the feedback period) and long-term (i.e., last 20 years of the feedback period) period. These metrics were selected to represent the tradeoffs in terms of benefits to the fishery and risks to the stock. The specific metrics reported were: mean catch relative to $MSY$, mean interannual variation in catch [@amar2010mse], mean $\frac{SSB}{SSB_{MSY}}$, mean number of years among simulation with $SSB$ less than half $SSB_{MSY}$, mean number of years among realizations that fully-selected fishing mortaity was greater than the $F_{MSY}$, and mean $\frac{F}{F_{MSY}}$.
+A total of 50 performance metrics were recorded during the simulations, but many were redundant and displayed similar tradeoffs among the IBMs and SCAA model. Ultimately, six metrics thought to be of broad interest were reported here, each calculated and reported separately for a short-term (i.e., first six years of the feedback period) and long-term (i.e., last 20 years of the feedback period) period. These metrics were selected to represent the tradeoffs in terms of benefits to the fishery and risks to the stock. The specific metrics reported were: median $\frac{SSB}{SSB_{MSY}}$, median $\frac{F}{F_{MSY}}$, median catch relative to $MSY$, median interannual variation in catch [@amar2010mse], median probability of overfishing ($F > F_{MSY}$), and median probability of the stock being overfished ($SSB < 0.5 SSB_{MSY}$).
 
 ## Results
 
@@ -135,7 +152,7 @@ The median performance measures reported thus far do not express the full range 
 
 A range of a data-limited methods for setting catch advice were evaluated for stocks where assessment models may be rejected due to strong, positive retrospective patterns. A method was considered to perform well if it limited overfishing without resulting in light exploitation rates ($F << F_{MSY}$), thereby allowing depleted stocks to recover to $SSB_{MSY}$ (or for healthy stocks to remain there), and for high and stable catches (close to $MSY$).
 
-Overall, none of the methods evaluated performed best across the scenarios exploring the different sources of the retrospective pattern (unreported catch or increasing $M$) and different levels of historical fishing intensity. A number of methods did perform well in many cases,however, while others performed consistently poorly, resulting in frequent and intense overfishing ($F>>F_{MSY}$). 
+Overall, none of the methods evaluated performed best across the scenarios exploring the different sources of the retrospective pattern (unreported catch or increasing $M$) and different levels of historical fishing intensity. A number of methods did perform well in many cases, however, while others performed consistently poorly, resulting in frequent and intense overfishing ($F>>F_{MSY}$). 
 
 Currently, in the Northeast U.S., if an assessment model is rejected due to a large rho value in $SSB$, the catch advice from that model is ignored and some data-limited approach is used. However, the rho-adjusted SCAA model performed better than a number of the alternatives explored here. Therefore, there should not necessarily be an expectation that a data-limited method will perform better than the rejected assessment model. The SCAA only resulted in high exploitation rates ($F >> F_{MSY}$) when unreported catch was the source of the retrospective pattern and for the scenario where $F=Fmsy$ at the end of the base period that left stock in relatively good condition ($SSB \sim SSB_{MSY}$). In contrast, this method was particularly effective when the stock was depleted and there was uneported catch. When $M$ was the source of the retrospective pattern, the rho-adjusted SCAA method typically resulted in light exploitation rates, on average. The light exploitation rates in these cases were likely driven by the combination of using a rho-adjustment, but also using the lower $M$ from the beginning of the base period than the higher $M$ that occurred during the feedback period. Using an $M$ value that is too low in a stock assessment will typically bias estimates of biomass and reference points too low, resulting in catch advice that is below target levels [@Johnsonetal2014; @Puntetal2021M]. The consequences of using a value for $M$ that is too low versus too high is also asymmetrical [@Johnsonetal2014], with negative consequences being more severe when $M$ is assumed too high than low, and the results here are consistent with these previous conclusions.
 
@@ -145,7 +162,7 @@ The Ismooth method is currently used to set catches for Georges Bank cod [@nefsc
 
 Three methods were consistently risk-averse across scenarios, limiting the frequency and magnitude of overfishing and resulting in high stock biomass. These methods were the two catch curve options (CC-FM and CC-FSPR) and DLM. The catch curve methods produced a wider range of average catches across scenarios, and also had greater interannual variability in catches compared to DLM. While the lower exploitation rates from these approaches may be undesirable due to forgone yield, there may be circumstances where they are preferred. For example, for stocks that are believed to be heavily depleted, low exploitation rates would allow for a more rapid recovery. 
 
-A number of methods performed poorly, particularly when catches were unreported. These methods include three of the expanded survey biomass approaches (ES-Fstable, ES-FM, ES-FSPR), AIM, and Skate. The AIM model has been widely used across stocks in the region [@nefsc02a; @nefsc05; @nefsc08], although there is a decreasing trend in its use across model resistant stocks [@nefsc19]. The findings here suggest that alternative approaches should be considered in cases where AIM is still used and there is concern over unreported catches. The Skate method is used to manage the skate complex in the Northeast U.S. (a group of seven co-managed species). Interestingly, six of the seven species are considered in good condition with high survey biomass indices in recent years (@nefmc20). That the Skate method performed poorly in our analysis but performs well for the skate complex illustrates how the performance of methods in this analysis may be sensitive to the scenarios and species life history considered. As may be the case for the Skate method, the performance of some methods may depend on the condition of the stock when the method is first applied, and less so on life-history. Therefore, care is needed when trying to generalize these results across stocks that may have different life histories, exploitation histories, and without unreported catches or increases in $M$. 
+A number of methods performed poorly, particularly when catches were unreported. These methods include three of the expanded survey biomass approaches (ES-Fstable, ES-FM, ES-FSPR), AIM, and Skate. The AIM model has been widely used across stocks in the region [@nefsc02a; @nefsc05; @nefsc08], although there is a decreasing trend in its use across model resistant stocks [@nefsc19]. The findings here suggest that alternative approaches should be considered in cases where AIM is still used and there is concern over unreported catches. The Skate method is used to manage the skate complex in the Northeast U.S. (a group of seven co-managed species). Interestingly, six of the seven species are considered in good condition with high survey biomass indices in recent years [@nefmc20]. That the Skate method performed poorly in our analysis but performs well for the skate complex illustrates how the performance of methods in this analysis may be sensitive to the scenarios and species life history considered. As may be the case for the Skate method, the performance of some methods may depend on the condition of the stock when the method is first applied, and less so on life-history. Therefore, care is needed when trying to generalize these results across stocks that may have different life histories, exploitation histories, and without unreported catches or increases in $M$. 
 
 In addition to the analytical differences among the thirteen IBMs, most of the IBMs and control rules had multiple options that could be adjusted to make them more or less risk averse. DLM had a large number of user defined decision points. Given the large range of options already explored in the study, one suite of options was selected for each IBM-control rule and kept constant for all simulations. Further studies could explore the the different options within an individual IBM to understand how they might affect performance. 
 
@@ -172,18 +189,18 @@ Table 1. Maturity-, weight-, and selectivity-at-age of the simulated fish popula
 ```{r lifehisttabl, tab.cap="Maturity-, weight-at-age, etc.", echo=FALSE, results='asis'}
 #, message=FALSE, warnings=FALSE}
 tabl <- "
-|	Age	|	Maturity | Weight (kg) | Fishery Selectivity (before change if applicable) | Fishery Selectivity (after change if applicable)
+|	Age	|	Maturity | Weight (kg) | Fishery Selectivity (before change if  applicable) | Fishery Selectivity (after change if applicable)
 |:---	|:------ |:------ |:------ |:------
 |	1	|	0.04 | 0.15 | 0.07 | 0.02
 |	2	|	0.25 | 0.5 | 0.17 | 0.05
-|	3	|	0.6 | 0.9 | 0.36 | 0.12
+|	3	|	0.60 | 0.9 | 0.36 | 0.12
 | 4 | 0.77 | 1.4 | 0.61 | 0.27
 | 5 | 0.85 | 2.0 | 0.81 | 0.50
 | 6 | 0.92 | 2.6 | 0.92 | 0.74
-| 7 | 1.0 | 3.2 | 0.97 | 0.89
-| 8 | 1.0 | 4.1 | 0.99 | 0.96
-| 9 | 1.0 | 5.9 | 1.0 | 0.99
-| 10+ | 1.0 | 9.0 | 1.0 | 1.0
+| 7 | 1.00 | 3.2 | 0.97 | 0.89
+| 8 | 1.00 | 4.1 | 0.99 | 0.96
+| 9 | 1.00 | 5.9 | 1.00 | 0.99
+| 10+ | 1.00 | 9.0 | 1.00 | 1.00
 "
 cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
 ```
@@ -248,7 +265,7 @@ knitr::include_graphics(file.path(getwd(),"MS_tables_figs","PMs_by_retro_Fhistor
 ```
 
 
-```{r FFmsybyscenario, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in', fig.cap="Median $F/F_{MSY}$  for each method, with results separated by the exploitation history in the base period (always overfishing at $2.5 x F_{MSY}$ (circle), or $F$ reduced to $F_{MSY}$ during base period (triangle)) showing A) short- (gray) versus long-term (black) values, and B) with (black) or without (gray) a buffer applied when setting the catch (Catch_mult = 0.75 or 1)."}
+```{r FFmsybyscenario, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in', fig.cap="Median $F / F_{MSY}$ for each method, with results separated by the exploitation history in the base period (always overfishing at $2.5 x F_{MSY}$ (circle), or $F$ reduced to $F_{MSY}$ during base period (triangle)) showing A) short- (gray) versus long-term (black) values, and B) with (black) or without (gray) a buffer applied when setting the catch (Catch_mult = 0.75 or 1)."}
 knitr::include_graphics(file.path(getwd(),"MS_tables_figs","F_Fmsy_by_scens.jpg"))
 ```
 
