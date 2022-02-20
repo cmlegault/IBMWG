@@ -247,6 +247,7 @@ tabl <- "
 cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
 ```
 
+\pagebreak
 
 ## Figures
 
@@ -260,12 +261,12 @@ knitr::include_graphics(file.path(getwd(),"MS_tables_figs","Fig2_med_longterm_CM
 ```
 
 
-```{r PMsbyretroF, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in', fig.cap="Median performance measures for each method, separated by the source of the retrospective error (catch = black, M = gray) and the exploitation history in the base period (always overfishing at $2.5 x F_{MSY}$ (circle), or $F$ reduced to $F_{MSY}$ during base period (triangle)). Vertical lines are shown at a value of 1 for the performance measures that are relative to the MSY reference points (A,B,C), and at a value of 0.5 for the probability of overfishing (E)."}
+```{r PMsbyretroF, echo=FALSE, message=FALSE, warnings=FALSE, out.width='6in', fig.cap="Median performance measures for each method, separated by the source of the retrospective error (catch = black, M = gray) and the exploitation history in the base period (always overfishing at $2.5 x F_{MSY}$ (circle), or $F$ reduced to $F_{MSY}$ during base period (triangle)). Vertical lines are shown at a value of 1 for the performance measures that are relative to the MSY reference points (A,B,C), and at a value of 0.5 for the probability of overfishing (E)."}
 knitr::include_graphics(file.path(getwd(),"MS_tables_figs","PMs_by_retro_Fhistory.jpg"))
 ```
 
 
-```{r FFmsybyscenario, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in', fig.cap="Median $F / F_{MSY}$ for each method, with results separated by the exploitation history in the base period (always overfishing at $2.5 x F_{MSY}$ (circle), or $F$ reduced to $F_{MSY}$ during base period (triangle)) showing A) short- (gray) versus long-term (black) values, and B) with (black) or without (gray) a buffer applied when setting the catch (Catch_mult = 0.75 or 1)."}
+```{r FFmsybyscenario, echo=FALSE, message=FALSE, warnings=FALSE, out.width='6in', fig.cap="Median $F / F_{MSY}$ for each method, with results separated by the exploitation history in the base period (always overfishing at $2.5 x F_{MSY}$ (circle), or $F$ reduced to $F_{MSY}$ during base period (triangle)) showing A) short- (gray) versus long-term (black) values, and B) with (black) or without (gray) a buffer applied when setting the catch (catch multiplier = 0.75 or 1)."}
 knitr::include_graphics(file.path(getwd(),"MS_tables_figs","F_Fmsy_by_scens.jpg"))
 ```
 
