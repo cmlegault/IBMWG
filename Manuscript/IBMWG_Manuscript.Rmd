@@ -44,6 +44,9 @@ if(!require(kableExtra)) {
 
 \newpage
 
+Data Rich but Model Resistant: An Evaluation of Data-Limited Methods to Manage
+  Fisheries with Failed Age-based Stock Assessments
+  
 Christopher M. Legault^1^, John Wiedenmann^2^ Jonathan J. Deroba^1^, Gavin Fay^3^, Timothy J. Miller^1^, Elizabeth Brooks^1^, Richard J. Bell^4^, Joe Langan^5^, Jamie Cournane^6^, Andy Jones^1^, Brandon Muffley^7^
 
 ^1^National Marine Fisheries Service, Northeast Fisheries Science Center, Woods Hole, MA, USA  
