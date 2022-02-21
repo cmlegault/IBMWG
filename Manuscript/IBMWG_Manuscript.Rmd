@@ -91,7 +91,7 @@ An MSE was designed to approximate a process where an age-based assessment was r
 
 The Woods Hole Assessment Model [WHAM, @miller2020wham; @stock2021wham] was used as the basis for the OM in the MSE. WHAM is an R package and the general model is built using the Template Model Builder package [@kristensenetal2016TMB]. While WHAM can serve as a stock assessment model used to estimate parameters, it can also simulate the data needed for age-based stock assessments and IBMs given a range of input parameters. WHAM was used to simulate data with known properties during the base and feedback periods. Catch and index observations upon which the IBMs largely relied were simulated according to user supplied biological and fishery parameters for each scenario (see below). Catches during the feedback period were iteratively updated based on an IBM and harvest control rule that used the simulated observations to produce catch advice. Catch advice from a given combination of IBM and control rule was specified in two year blocks, a typical catch specification timeframe for New England and Mid-Atlantic Council managed fisheries. WHAM used these catches, along with the user supplied biological and fishery data, to have the simulated population respond to the IBM, thereby completing the closed-loop simulation aspect of an MSE.
 
-The age-structured OM had ten ages, with the oldest age being a plus group. Maturity- and weight-at-age were time and simulation invariant and reflected values observed for groundfish in the region (Table 1\ref{tab:lifehisttabl}). The OM simulated catch and age composition data for a single fishery with logistic selectivity (Table 1 \ref{tab:lifehisttabl}; see below). Annual, total catch observations (metric tons) were simulated as lognormal deviations from the underlying "true" catches with a coefficient of variation (CV) equal to 0.1. Fishery age composition data was assumed to follow a multinomial distribution with an effective sample size (ESS) equal to 200. Two fishery independent surveys were simulated and were intended to represent the spring and fall, coastwide bottom trawl surveys conducted in the region. Both surveys were assumed to have time invariant logistic selectivity and constant catchability. Annual survey observations were simulated as lognormal deviations from the underlying "true" survey catches with a CV of 0.3 in the spring survey and 0.4 in the fall. Survey age composition data were assumed to follow a multinomial distribution with an ESS equal to 100 in both seasons.
+The age-structured OM had ten ages, with the oldest age being a plus group. Maturity- and weight-at-age were time and simulation invariant and reflected values observed for groundfish in the region (Table 1). The OM simulated catch and age composition data for a single fishery with logistic selectivity (Table 1; see below). Annual, total catch observations (metric tons) were simulated as lognormal deviations from the underlying "true" catches with a coefficient of variation (CV) equal to 0.1. Fishery age composition data was assumed to follow a multinomial distribution with an effective sample size (ESS) equal to 200. Two fishery independent surveys were simulated and were intended to represent the spring and fall, coastwide bottom trawl surveys conducted in the region. Both surveys were assumed to have time invariant logistic selectivity and constant catchability. Annual survey observations were simulated as lognormal deviations from the underlying "true" survey catches with a CV of 0.3 in the spring survey and 0.4 in the fall. Survey age composition data were assumed to follow a multinomial distribution with an ESS equal to 100 in both seasons.
 
 Annual recruitment was simulated as autoregressive, lag-1 (AR-1) deviations from an underlying Beverton-Holt stock-recruitment relationship with steepness equal to 0.74. The degree of correlation in the AR-1 process equaled 0.4 with a conditional standard deviation about this relationship equal to 0.5. Unfished recruitment was time- and simulation invariant and equaled 10-million age-1 fish. These stock-recruitment values were based on an average of groundfish parameters estimated for the region.
 
@@ -187,10 +187,9 @@ We thank the Index-Based Methods and Control Rules Research Track review panel o
 ## Tables
 </font>
 
-<!---markdown style table. fucking escape characters-->
 Table 1. Maturity-, weight-, and selectivity-at-age of the simulated fish population.
-```{r lifehisttabl, tab.cap="Maturity-, weight-at-age, etc.", echo=FALSE, results='asis'}
-#, message=FALSE, warnings=FALSE}
+<!---markdown style table. f*cking escape characters-->
+```{r lifehisttabl, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
 tabl <- "
 |	Age	|	Maturity | Weight (kg) | Fishery Selectivity (before change if  applicable) | Fishery Selectivity (after change if applicable)
 |:---	|:------ |:------ |:------ |:------
@@ -209,9 +208,8 @@ cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
 ```
 
 \pagebreak
-
 Table 2. Naming convention and details of the index based methods evaluated.
-```{r methodtable, tab.cap="Index based methods used in this study showing equations and details for each method. \\label{methodtable}", echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+```{r methodtable, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
 tabl <- "
 |	Method	|	Details
 |:---	|:------ 
@@ -233,9 +231,8 @@ cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
 ```
 
 \pagebreak
-
 Table 3. Summary of the scenarios evaluated within the study design.
-```{r schemetable, tab.cap="Coding scheme used to identify scenarios. There are four factors, each with 2 or 3 possible values, that combine to make the 4 character code. \\label{schemetable}", echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+```{r schemetable, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
 tabl <- "
         
 |	Factors | Variants
