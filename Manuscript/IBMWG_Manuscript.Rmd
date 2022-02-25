@@ -162,7 +162,7 @@ One of the reasons for the difference in performance between the catch and natur
 This study is a first attempt to identify suitable methods for setting catch advice when stock assessment models are rejected due to large, positive retrospective patterns. Although no single method performed best across scenarios, a number of generally suitable and unsuitable methods were identified under specific conditions. The results of this work can help scientists and managers select a subset of possible options for consideration to set catch advice when assessment models are rejected. The approach developed here can, and should be expanded to consider other cases not explored here, as performance of individual methods are very likely case-dependent. 
 
 ## Acknowledgements
-We thank the Index-Based Methods and Control Rules Research Track review panel of Paul Rago (chair), Yong Chen, Robin Cook, and Paul Medley for feedback on preliminary results, and ... for revieweing an earlier version of this work. *Generic statment about views expressed not reflecting NOAA...* 
+We thank the Index-Based Methods and Control Rules Research Track review panel of Paul Rago (chair), Yong Chen, Robin Cook, and Paul Medley for feedback on preliminary results, and ... for reviewing an earlier version of this work. The scientific results and conclusions, as well as any views or opinions expressed herein, are those of the authors and do not necessarily reflect those of NOAA or the Department of Commerce.   
 
 ## References
 
