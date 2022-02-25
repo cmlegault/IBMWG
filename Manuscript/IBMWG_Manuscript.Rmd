@@ -1,19 +1,4 @@
 ---
-title: 'Data Rich but Model Resistant: An Evaluation of Data-Limited Methods to Manage
-  Fisheries with Failed Age-based Stock Assessments'
-author:
-- Christopher M. Legault
-- John Wiedenmann
-- Jonathan J. Deroba
-- Gavin Fay
-- Timothy J. Miller
-- Elizabeth Brooks
-- Richard J. Bell
-- Joe Langan
-- Jamie Cournane
-- Andy Jones
-- Brandon Muffley
-
 csl: canadian-journal-of-fisheries-and-aquatic-sciences.csl
 output:
   pdf_document:
@@ -44,10 +29,11 @@ if(!require(kableExtra)) {
 
 \newpage
 
-Data Rich but Model Resistant: An Evaluation of Data-Limited Methods to Manage
-  Fisheries with Failed Age-based Stock Assessments
+# Data Rich but Model Resistant: An Evaluation of Data-Limited Methods to Manage Fisheries with Failed Age-based Stock Assessments
+
   
-Christopher M. Legault^1^, John Wiedenmann^2^ Jonathan J. Deroba^1^, Gavin Fay^3^, Timothy J. Miller^1^, Elizabeth Brooks^1^, Richard J. Bell^4^, Joe Langan^5^, Jamie Cournane^6^, Andy Jones^1^, Brandon Muffley^7^
+Christopher M. Legault^1^, John Wiedenmann^2^ Jonathan J. Deroba^1^, Gavin Fay^3^, Timothy J. Miller^1^, Elizabeth N. Brooks^1^, Richard J. Bell^4^, Joseph A. Langan^5^, Jamie M. Cournane^6^, Andrew W. Jones^1^, Brandon Muffley^7^
+
 
 ^1^National Marine Fisheries Service, Northeast Fisheries Science Center, Woods Hole, MA, USA  
 ^2^Department of Ecology, Evolution and Natural Resources, Rutgers, The State University of New Jersey, New Brunswick, New Jersey, USA  
