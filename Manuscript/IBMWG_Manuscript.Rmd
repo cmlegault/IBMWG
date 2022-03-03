@@ -44,6 +44,10 @@ and Technology, Massachusetts, USA
 ^6^New England Fishery Management Council, Newburyport, MA, USA  
 ^7^Mid-Atlantic Fishery Management Council, Dover, DE, USA  
 
+Corresponding author: C.M. Legault (chris.legault@noaa.gov)
+
+Competing interests: The authors declare there are no competing interests.
+
 \newpage
 
 ## Abstract
@@ -163,6 +167,9 @@ This study is a first attempt to identify suitable methods for setting catch adv
 
 ## Acknowledgements
 We thank the Index-Based Methods and Control Rules Research Track review panel of Paul Rago (chair), Yong Chen, Robin Cook, and Paul Medley for feedback on preliminary results, and ... for reviewing an earlier version of this work. The scientific results and conclusions, as well as any views or opinions expressed herein, are those of the authors and do not necessarily reflect those of NOAA or the Department of Commerce.   
+
+## Data and Code Availability
+All data and code used in this work are available at https://github.com/cmlegault/IBMWG.
 
 ## References
 
