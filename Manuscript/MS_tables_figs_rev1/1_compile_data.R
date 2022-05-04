@@ -3,7 +3,6 @@
 # uses cleaned performance metrics from base, full SCAA, and no retro  
 
 library(tidyverse)
-library(gplots)
 
 # set working directory to source file location to begin
 
@@ -25,11 +24,13 @@ mse_sim_setup <- readRDS("../../settings/mse_sim_setup.rds")
 # remove duplicate runs
 dupes <- duplicated(mse_sim_setup[,-(1:2)])
 not_dupes <- mse_sim_setup$rowid[!dupes]
+dd <- duplicated(mse_results$rowid)
+mse_results <- mse_results[!dd,]
 
-# check number of simlations per scenario
+# check number of simulations per scenario
 count_table <- mse_results %>%
   group_by(iscen) %>%
-  summarise(n = length(unique(isim)))
+  summarise(n = n())
 count_table$n
 
 ### join with setup to figure out what's in each scenario
@@ -205,17 +206,17 @@ sims <- rbind(ssb_sims, ssb_sims_scaa,
                               substr(metric,1,1) == "s" ~ "S",
                               substr(metric,1,1) == "a" ~ "A")) %>%
   mutate(metric = substr(metric, 3, 99)) %>% 
-  select(value, iscen, isim, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult, time.avg, metric) 
+  select(value, iscen, isim, IBM, IBMlab, retro_type, Fhist, n_selblocks, catch.mult, time.avg, Scenlab, metric) 
 
 saveRDS(sims, file="sims.RDS")
 
 # create the summary stats for figures
 # medians across all IBMs 
-byIBM <- sims %>%
-  group_by(IBMlab, metric) %>%
+byIBMScen <- sims %>%
+  group_by(IBMlab, Scenlab, metric) %>%
   summarize(medval = median(value)) %>%
   pivot_wider(names_from = metric, values_from = medval)
-byIBM
+byIBMScen
 
 
 
