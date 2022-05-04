@@ -60,6 +60,16 @@ medIBMScen <- sims %>%
   group_by(IBMlab, Scenlab, metric) %>%
   summarize(medval = median(value))
 
+# get long term SSB/SSBmsy, F/Fmsy, and C/MSY medians
+medlong <- sims %>%
+  filter(time.avg == "L",
+         metric %in% c("avg_ssb_ssbmsy", "avg_f_fmsy", "avg_catch_msy")) %>%
+  group_by(IBMlab, Scenlab, metric) %>%
+  summarize(medval = median(value)) %>%
+  pivot_wider(names_from = metric, values_from = medval) %>%
+  mutate(retro_type = ifelse(substr(Scenlab, 1, 1)=="C", "Catch", "M"))
+
+
 # Figure labels for each PM
 SSB_label <-expression(paste("SSB / ",SSB[MSY],sep = ""))
 F_label <-expression(paste("F / ",F[MSY],sep = ""))
@@ -357,9 +367,9 @@ ggsave("Figure_1_alt2.pdf",plot=p1alt2,device="pdf",width=7,height=8)
 
 # Figure 2 --------------------------------------------------------------- 
 # Median long term C/MSY vs SSB/SSBmsy
+point_cols <- c("black","dark gray")
+# original
 {
-  point_cols <- c("black","dark gray")
-  
   fig2plot <- ggplot(td3_l_med, aes(x=x_value, y=y_value, color=retro_type)) +
     geom_point() +
     facet_wrap(~factor(IBMlab, level=rev(IBM_order))) +
@@ -368,6 +378,42 @@ ggsave("Figure_1_alt2.pdf",plot=p1alt2,device="pdf",width=7,height=8)
     labs(x=SSB_label, y=C_label) +
     scale_color_manual(values=point_cols)
   ggsave(filename = "Figure_2_orig.pdf", plot=fig2plot, device="pdf",width=6,height=6)
+}
+
+# with new data and DynLin label
+{
+  fig2new <- ggplot(medlong, aes(x=avg_ssb_ssbmsy, y=avg_catch_msy, color=retro_type)) +
+    geom_point() +
+    facet_wrap(~factor(IBMlab, level=rev(IBM_order_new))) +
+    theme_classic() + 
+    theme(text = element_text(family = "Times")) +
+    labs(x=SSB_label, y=C_label) +
+    scale_color_manual(values=point_cols)
+  ggsave(filename = "Figure_2_new.pdf", plot=fig2new, device="pdf",width=6,height=6)
+}
+
+# similar plot with F/Fmsy on y-axis
+{
+  fig2alt1 <- ggplot(medlong, aes(x=avg_ssb_ssbmsy, y=avg_f_fmsy, color=retro_type)) +
+    geom_point() +
+    facet_wrap(~factor(IBMlab, level=rev(IBM_order_new))) +
+    theme_classic() + 
+    theme(text = element_text(family = "Times")) +
+    labs(x=SSB_label, y=F_label) +
+    scale_color_manual(values=point_cols)
+  ggsave(filename = "Figure_2_alt1.pdf", plot=fig2alt1, device="pdf",width=6,height=6)
+}
+
+# similar plot with F/Fmsy on x-axis and C/MSY on y-axis
+{
+  fig2alt2 <- ggplot(medlong, aes(x=avg_f_fmsy, y=avg_catch_msy, color=retro_type)) +
+    geom_point() +
+    facet_wrap(~factor(IBMlab, level=rev(IBM_order_new))) +
+    theme_classic() + 
+    theme(text = element_text(family = "Times")) +
+    labs(x=F_label, y=C_label) +
+    scale_color_manual(values=point_cols)
+  ggsave(filename = "Figure_2_alt2.pdf", plot=fig2alt2, device="pdf",width=6,height=6)
 }
 
 # Figure 3 ---------------------------------------------------------------
