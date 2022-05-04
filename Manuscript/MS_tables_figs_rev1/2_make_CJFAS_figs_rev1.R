@@ -50,7 +50,12 @@ td3_l_med <- td_med %>%
 sims <- readRDS("sims.RDS")
 sims5 <- readRDS("../MS_tables_figs/Fig5_sims.rds")
 
-# create medians by IBMs
+# compute medians by IBMs
+medIBM <- sims %>%
+  group_by(IBMlab, metric) %>%
+  summarize(medval = median(value))
+
+# compute medians by IBMs and Scenarios
 medIBMScen <- sims %>%
   group_by(IBMlab, Scenlab, metric) %>%
   summarize(medval = median(value))
@@ -121,24 +126,83 @@ pOFD<-ggplot(data=all_scen, aes(x=factor(IBM,level=IBM_order), y=PED)) +
   scale_y_continuous(expand = c(0,0))+ 
   coord_flip()
 
- p1 <- grid.arrange(pSSB,pF,pC,pIAV,pOFG,pOFD,nrow=3)
- ggsave("Figure_1_orig.pdf",plot=p1,device="pdf",width=7,height=8)
+p1 <- grid.arrange(pSSB,pF,pC,pIAV,pOFG,pOFD,nrow=3)
+ggsave("Figure_1_orig.pdf",plot=p1,device="pdf",width=7,height=8)
+}
+
+# new version of Figure 1 using number of years overfishing and overfished
+{
+pSSBn<-ggplot(data=filter(medIBM, metric=="avg_ssb_ssbmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_bar(stat="identity",fill="gray")+
+    theme_classic() + 
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(SSB_label) + ggtitle("A")+
+    geom_hline(yintercept = 1) +
+    scale_y_continuous(expand = c(0,0))+ 
+    coord_flip()
+  
+pFn<-ggplot(data=filter(medIBM, metric=="avg_f_fmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_bar(stat="identity",fill="gray")+
+    theme_classic() + 
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(F_label) + ggtitle("B")+
+    geom_hline(yintercept = 1) +
+    scale_y_continuous(expand = c(0,0))+ 
+    coord_flip()
+  
+pCn<-ggplot(data=filter(medIBM, metric=="avg_catch_msy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_bar(stat="identity",fill="gray")+
+    theme_classic() + 
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(C_label) + ggtitle("C")+
+    geom_hline(yintercept = 1) +
+    scale_y_continuous(expand = c(0,0))+ 
+    coord_flip()
+  
+pIAVn<-ggplot(data=filter(medIBM, metric=="iav_catch"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_bar(stat="identity",fill="gray")+
+    theme_classic() + 
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(IAV_label) + ggtitle("D") +
+    scale_y_continuous(expand = c(0,0))+ 
+    coord_flip()
+  
+nINGn<-ggplot(data=filter(medIBM, metric=="n_gr_fmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_bar(stat="identity",fill="gray")+
+    theme_classic() + 
+    theme(text=element_text(family="Times"))+ 
+    xlab("") + ylab(NING_label) + ggtitle("E") +
+    scale_y_continuous(expand = c(0,0))+
+    coord_flip()
+  
+nEDn<-ggplot(data=filter(medIBM, metric=="n_less_05_bmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_bar(stat="identity",fill="gray")+
+    theme_classic() + 
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(NED_label) + ggtitle("F") +
+    scale_y_continuous(expand = c(0,0))+ 
+    coord_flip()
+  
+p1n <- grid.arrange(pSSBn,pFn,pCn,pIAVn,nINGn,nEDn,nrow=3)
+ggsave("Figure_1_new.pdf",plot=p1n,device="pdf",width=7,height=8)
 }
 
 # Alternative 1 for Figure 1
 # add points showing medians for each of the 16 scenarios
-# shortcut just putting new dots on top of orig figure - need to use correct bars if go with this approach
-# ignoring bottom two plots for the moment
 {
-pSSBalt1 <- pSSB +
+pSSBalt1 <- pSSBn +
   geom_point(data=filter(medIBMScen, metric=="avg_ssb_ssbmsy"), aes(x=IBMlab, y=medval))
-pFalt1 <- pF +
+pFalt1 <- pFn +
   geom_point(data=filter(medIBMScen, metric=="avg_f_fmsy"), aes(x=IBMlab, y=medval))
-pCalt1 <- pC +
+pCalt1 <- pCn +
   geom_point(data=filter(medIBMScen, metric=="avg_catch_msy"), aes(x=IBMlab, y=medval))
-pIAValt1 <- pIAV +
+pIAValt1 <- pIAVn +
   geom_point(data=filter(medIBMScen, metric=="iav_catch"), aes(x=IBMlab, y=medval))
-p1alt1 <- grid.arrange(pSSBalt1,pFalt1,pCalt1,pIAValt1,pOFG,pOFD,nrow=3)
+nINGalt1 <- nINGn +
+  geom_point(data=filter(medIBMScen, metric=="n_gr_fmsy"), aes(x=IBMlab, y=medval))
+nEDalt1 <- nEDn +
+  geom_point(data=filter(medIBMScen, metric=="n_less_05_bmsy"), aes(x=IBMlab, y=medval))  
+p1alt1 <- grid.arrange(pSSBalt1,pFalt1,pCalt1,pIAValt1,nINGalt1,nEDalt1,nrow=3)
 ggsave("Figure_1_alt1.pdf",plot=p1alt1,device="pdf",width=7,height=8)
 }
 
@@ -244,6 +308,53 @@ ggsave("Figure_1_alt2.pdf",plot=p1alt2,device="pdf",width=7,height=8)
   p1alt3 <- grid.arrange(pSSBalt3,pFalt3,pCalt3,pIAValt3,pINGalt3,pEDalt3,nrow=3)
   ggsave("Figure_1_alt3.pdf",plot=p1alt3,device="pdf",width=7,height=8)
 }
+
+# Alternative 4 boxplots showing only interquartile range and median
+# have to adjust the upper range of values by hand, need to figure out a better way to do this if want to go with it
+{
+  pSSBalt4 <- ggplot(data=filter(sims, metric=="avg_ssb_ssbmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=value)) +
+    geom_boxplot(outlier.shape = NA, coef = 0, fill="light gray") +
+    theme_classic() +
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(SSB_label) + ggtitle("A")+
+    geom_hline(yintercept = 1) +
+    coord_flip(ylim = c(0,3.5), expand=FALSE) 
+  pFalt4 <- ggplot(data=filter(sims, metric=="avg_f_fmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=value)) +
+    geom_boxplot(outlier.shape = NA, coef = 0, fill="light gray") +
+    theme_classic() +
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(F_label) + ggtitle("B")+
+    geom_hline(yintercept = 1) +
+    coord_flip(ylim = c(0,9), expand=FALSE) 
+  pCalt4 <- ggplot(data=filter(sims, metric=="avg_catch_msy"), aes(x=factor(IBMlab,level=IBM_order_new), y=value)) +
+    geom_boxplot(outlier.shape = NA, coef = 0, fill="light gray") +
+    theme_classic() +
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(C_label) + ggtitle("C")+
+    geom_hline(yintercept = 1) +
+    coord_flip(ylim = c(0,2), expand=FALSE) 
+  pIAValt4 <- ggplot(data=filter(sims, metric=="iav_catch"), aes(x=factor(IBMlab,level=IBM_order_new), y=value)) +
+    geom_boxplot(outlier.shape = NA, coef = 0, fill="light gray") +
+    theme_classic() +
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(IAV_label) + ggtitle("D")+
+    coord_flip(ylim = c(0,1), expand=FALSE) 
+  pINGalt4 <- ggplot(data=filter(sims, metric=="n_gr_fmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=value)) +
+    geom_boxplot(outlier.shape = NA, coef = 0, fill="light gray") +
+    theme_classic() +
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(NING_label) + ggtitle("E")+
+    coord_flip(ylim = c(0,26), expand=FALSE) 
+  pEDalt4 <- ggplot(data=filter(sims, metric=="n_less_05_bmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=value)) +
+    geom_boxplot(outlier.shape = NA, coef = 0, fill="light gray") +
+    theme_classic() +
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(NED_label) + ggtitle("F")+
+    coord_flip(ylim = c(0,26), expand=FALSE) 
+  p1alt4 <- grid.arrange(pSSBalt4,pFalt4,pCalt4,pIAValt4,pINGalt4,pEDalt4,nrow=3)
+  ggsave("Figure_1_alt4.pdf",plot=p1alt4,device="pdf",width=7,height=8)
+}
+
 # Figure 2 --------------------------------------------------------------- 
 # Median long term C/MSY vs SSB/SSBmsy
 {
