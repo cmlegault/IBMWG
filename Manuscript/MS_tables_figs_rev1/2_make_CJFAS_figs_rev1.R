@@ -69,6 +69,12 @@ medlong <- sims %>%
   pivot_wider(names_from = metric, values_from = medval) %>%
   mutate(retro_type = ifelse(substr(Scenlab, 1, 1)=="C", "Catch", "M"))
 
+# medians by retro type and F history
+medretro_Fhist <- sims %>%
+  group_by(IBMlab, retro_type, Fhist, metric) %>%
+  summarize(medval = median(value)) %>%
+  mutate(F_history = ifelse(Fhist==1, "Fmsy", "2.5 x Fmsy"),
+         Retro_source = retro_type)
 
 # Figure labels for each PM
 SSB_label <-expression(paste("SSB / ",SSB[MSY],sep = ""))
@@ -418,9 +424,10 @@ point_cols <- c("black","dark gray")
 
 # Figure 3 ---------------------------------------------------------------
 # PMs by F history and Retro source
+# something wrong with the bottom two plots - not matching the fig in the submitted MS
+point_cols <- c("black","dark gray")
 {
 #quartz() # can only run this on Mac
-point_cols <- c("black","dark gray")
 pSSB_retro<-ggplot(data=retro_Fhist, aes(x=factor(IBM,level=IBM_order), y=SSB)) +
   geom_point((aes(colour = Retro_source, shape=F_history)))+
   theme_classic() + 
@@ -473,9 +480,68 @@ pOFD_retro<-ggplot(data=retro_Fhist, aes(x=factor(IBM,level=IBM_order), y=PED)) 
   scale_color_manual(values=point_cols)+
   coord_flip()
 
-p2 <-ggarrange(pSSB_retro,pF_retro,pC_retro,pIAV_retro,pOFG_retro,pOFD_retro, 
+p3 <-ggarrange(pSSB_retro,pF_retro,pC_retro,pIAV_retro,pOFG_retro,pOFD_retro, 
                ncol=2, nrow=3, common.legend = TRUE, legend="bottom")
-ggsave("Figure_3_orig.pdf",plot=p2,device="pdf",width=7,height=8)
+ggsave("Figure_3_orig.pdf",plot=p3,device="pdf",width=7,height=8)
+}
+
+# new version of Figure 3
+{
+  #quartz() # can only run this on Mac
+  pSSB_retronew<-ggplot(data=filter(medretro_Fhist, metric=="avg_ssb_ssbmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_point((aes(colour = Retro_source, shape=F_history)))+
+    theme_classic() + 
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(SSB_label) + ggtitle("A")+
+    geom_hline(yintercept = 1) +
+    scale_color_manual(values=point_cols)+
+    coord_flip()
+  
+  pF_retronew<-ggplot(data=filter(medretro_Fhist, metric=="avg_f_fmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_point((aes(colour = Retro_source, shape=F_history)))+
+    theme_classic() + 
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(F_label) + ggtitle("B")+
+    geom_hline(yintercept = 1) +
+    scale_color_manual(values=point_cols)+
+    coord_flip()
+  
+  pC_retronew<-ggplot(data=filter(medretro_Fhist, metric=="avg_catch_msy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_point((aes(colour = Retro_source, shape=F_history)))+
+    theme_classic() + 
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(C_label) + ggtitle("C")+
+    geom_hline(yintercept = 1) +
+    scale_color_manual(values=point_cols)+
+    coord_flip()
+  
+  pIAV_retronew<-ggplot(data=filter(medretro_Fhist, metric=="iav_catch"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_point((aes(colour = Retro_source, shape=F_history)))+
+    theme_classic() + 
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(IAV_label) + ggtitle("D")+
+    scale_color_manual(values=point_cols)+
+    coord_flip()
+  
+  nING_retronew<-ggplot(data=filter(medretro_Fhist, metric=="n_gr_fmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_point((aes(colour = Retro_source, shape=F_history)))+
+    theme_classic() + 
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(NING_label) + ggtitle("E")+
+    scale_color_manual(values=point_cols)+
+    coord_flip()
+  
+  nED_retronew<-ggplot(data=filter(medretro_Fhist, metric=="n_less_05_bmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_point((aes(colour = Retro_source, shape=F_history)))+
+    theme_classic() + 
+    theme(text=element_text(family="Times"))+
+    xlab("") + ylab(NED_label) + ggtitle("F")+
+    scale_color_manual(values=point_cols)+
+    coord_flip()
+  
+  p3n <-ggarrange(pSSB_retronew,pF_retronew,pC_retronew,pIAV_retronew,nING_retronew,nED_retronew, 
+                 ncol=2, nrow=3, common.legend = TRUE, legend="bottom")
+  ggsave("Figure_3_new.pdf",plot=p3n,device="pdf",width=7,height=8)
 }
 
 # Figure 4 ---------------------------------------------------------------
