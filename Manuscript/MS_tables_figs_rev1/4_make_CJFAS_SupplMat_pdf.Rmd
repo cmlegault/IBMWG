@@ -1,0 +1,153 @@
+---
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+\newpage
+
+# Supplemental Materials for Data Rich but Model Resistant: An Evaluation of Data-Limited Methods to Manage Fisheries with Failed Age-based Stock Assessments
+
+  
+Christopher M. Legault^1^, John Wiedenmann^2^ Jonathan J. Deroba^1^, Gavin Fay^3^, Timothy J. Miller^1^, Elizabeth N. Brooks^1^, Richard J. Bell^4^, Joseph A. Langan^5^, Jamie M. Cournane^6^, Andrew W. Jones^1^, Brandon Muffley^7^
+
+
+^1^National Marine Fisheries Service, Northeast Fisheries Science Center, Woods Hole, MA, USA  
+^2^Department of Ecology, Evolution and Natural Resources, Rutgers, The State University of New Jersey, New Brunswick, New Jersey, USA  
+^3^University of Massachusetts Dartmouth, School for Marine Science
+and Technology, Massachusetts, USA  
+^4^The Nature Conservancy, Rhode Island, USA  
+^5^University of Rhode Island, Graduate School of Oceanography, Narragansett, RI, USA  
+^6^New England Fishery Management Council, Newburyport, MA, USA  
+^7^Mid-Atlantic Fishery Management Council, Dover, DE, USA  
+
+some text
+
+some more text
+
+```{r loop, echo=FALSE}
+myfile <- list()
+mytext <- list()
+mycount <- 0
+for (i in 1:2){
+  s1 <- ifelse(i==1,"C","M")
+  l1 <- ifelse(i==1,"catch","natural mortality")
+  for (j in 1:2){
+    s2 <- ifelse(j==1,"F","O")
+    l2 <- ifelse(j==1,"reduced to","remaining at 2.5 times")
+    for (k in 1:2){
+      s3 <- k
+      l3 <- ifelse(k==1,"was a single selectivity block","were two selectivity blocks")
+      for (m in 1:2){
+        s4 <- ifelse(m==1,"A","R")
+        l4a <- ifelse(m==1,"no","a")
+        l4b <- ifelse(m==1,"1","0.75")
+        
+        mycount <- mycount + 1
+        myfile[[mycount]] <- paste0(s1,s2,s3,s4,"_C_vs_SSB.png")
+        mytext[[mycount]] <- paste0("\nRelationship between long-term average catch and spawning stock biomass relative to their reference points by method. Each point represents the average for years 21-40 in the feedback period for a single iteration of a scenario. The scenario shown is where ", l1, " was the source of the retrospective pattern with $F$ ", l2, " $F_{MSY}$ in the second half of the base period, there ", l3, ", and where ", l4a, " buffer was applied to the catch advice (catch multiplier = ", l4b, ").")
+      }
+    }
+  }
+}
+```
+
+```{r p1, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[1]]))
+```
+`r mytext[[1]]`
+\newpage
+
+```{r p2, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[2]]))
+```
+`r mytext[[2]]`
+\newpage
+
+```{r p3, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[3]]))
+```
+`r mytext[[3]]`
+\newpage
+
+```{r p4, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[4]]))
+```
+`r mytext[[4]]`
+\newpage
+
+```{r p5, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[5]]))
+```
+`r mytext[[5]]`
+\newpage
+
+```{r p6, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[6]]))
+```
+`r mytext[[6]]`
+\newpage
+
+```{r p7, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[7]]))
+```
+`r mytext[[7]]`
+\newpage
+
+```{r p8, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[8]]))
+```
+`r mytext[[8]]`
+\newpage
+
+```{r p9, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[9]]))
+```
+`r mytext[[9]]`
+\newpage
+
+```{r p10, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[10]]))
+```
+`r mytext[[10]]`
+\newpage
+
+```{r p11, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[11]]))
+```
+`r mytext[[11]]`
+\newpage
+
+```{r p12, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[12]]))
+```
+`r mytext[[12]]`
+\newpage
+
+```{r p13, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[13]]))
+```
+`r mytext[[13]]`
+\newpage
+
+```{r p14, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[14]]))
+```
+`r mytext[[14]]`
+\newpage
+
+```{r p15, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[15]]))
+```
+`r mytext[[15]]`
+\newpage
+
+```{r p16, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[16]]))
+```
+`r mytext[[16]]`
+\newpage
+
