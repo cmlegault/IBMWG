@@ -24,9 +24,25 @@ and Technology, Massachusetts, USA
 ^6^New England Fishery Management Council, Newburyport, MA, USA  
 ^7^Mid-Atlantic Fishery Management Council, Dover, DE, USA  
 
-some text
+*Add Figure 1.2 from report*  (addresses reviewer comment about distribution of Mohn's rho)
+Distribution of 50 Mohn’s rho values for no misspecification (top row), catch misspecification (middle row), and natural mortality misspecification (bottom row) for spawning stock biomass (SSB), fishing mortality rate (Fbar), and recruitment (R). Panels are defined by retrospective type (none, catch, natural mortality), fishing intensity (1=always overfishing, 2=overfishing reducing to Fmsy), and number of selectivity blocks (1 or 2).
 
-some more text
+*Add Figure 1.5 from report* (addresses reviewer comment about scenario set ups)
+Fishing mortality rate (F) during the base period (black line) for the 8 combinations of F history (F = Fmsy in second half of base period, O = overfishing throughout), number of fishery selectivity blocks (1 or 2), and retrospective source (catch or natural mortality, M). The horizontal blue line denotes the F at maximum sustainable yield (Fmsy) computed from conditions in the first year of the base period (1970) while the red dashed horizontal line denotes the Fmsy computed from conditions in the terminal year in the base period (2019).
+
+*Add Figure 1.6 from report* (addresses reviewer comment about scenario set ups)
+Spawning stock biomass (SSB) relative to the SSB at maximum sustainable yield (SSBmsy) computed from the conditions in the terminal year in the base period (2019) with the median value shown as the black line, the interquartile range shown in light grey, and the 95% range shown in dark grey for the 8 combinations of F history (F = Fmsy in second half of base period, O = overfishing throughout), number of fishery selectivity blocks (1 or 2), and retrospective source (catch or natural mortality, M).
+
+*Add Figure 4.15 from report* (addresses reviewer comment about no retro results)
+Mean spawning stock biomass (SSB) relative to the SSB at maximum sustainable yield (SSBmsy) and catch relative to MSY for 3 sources of retrospective pattern (catch, natural mortality (M), and none) and two fishing histories (F and A) in the long term based on 1,000 simulations.
+
+*Possibly include alternative figures to Figure 2 if not included in main MS (show F/Fmsy vs SSB/SSBmsy and C/MSY vs F/Fmsy)* (addresses reviewer comment about Kobe plot)
+Relationship between long-term average spawning biomass and average F (relative to MSY levels) for each method. Each point represents the median for a given scenario, separated by the source of the retrospective pattern (catch or M).
+
+Relationship between long-term average F and average catch (relative to MSY levels) for each method. Each point represents the median for a given scenario, separated by the source of the retrospective pattern (catch or M).
+
+
+*The following figures are similar to Figure 5 in the manuscript but show different scenarios.* (addresses reviewer comment about showing additional scenarios for Figure 5, can really go craazy and add F/Fmsy vs SSB/SSBmsy and Catch/MSY vs F/Fmsy for all 16 scenarios if want to overwhelm readers) 
 
 ```{r loop, echo=FALSE}
 myfile <- list()
