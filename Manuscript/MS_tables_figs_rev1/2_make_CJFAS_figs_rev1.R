@@ -644,7 +644,7 @@ ggsave(filename = "Figure_5_orig.pdf", plot=fig5plot, device="pdf", width=6,heig
 # new Figure 5
 {
   fig5new <- ggplot(simsfig5, aes(x=avg_ssb_ssbmsy, y=avg_catch_msy)) +
-    geom_point() +
+    geom_point(alpha=0.15) +
     geom_vline(xintercept = 1, color="red", linetype="dashed") +
     geom_hline(yintercept = 1, color="red", linetype="dashed") +
     facet_wrap(~factor(IBMlab, level=rev(IBM_order_new))) +
@@ -657,7 +657,7 @@ ggsave(filename = "Figure_5_orig.pdf", plot=fig5plot, device="pdf", width=6,heig
 # Figure 5 alternative 1 (F/Fmsy vs SSB/SSBmsy)
 {
   fig5alt1 <- ggplot(simsfig5, aes(x=avg_ssb_ssbmsy, y=avg_f_fmsy)) +
-    geom_point() +
+    geom_point(alpha=0.15) +
     geom_vline(xintercept = 1, color="red", linetype="dashed") +
     geom_hline(yintercept = 1, color="red", linetype="dashed") +
     facet_wrap(~factor(IBMlab, level=rev(IBM_order_new))) +

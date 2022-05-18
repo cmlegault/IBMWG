@@ -21,7 +21,7 @@ for (i in 1:length(scens)){
   thisdat <- simsbig %>%
     filter(Scenlab == scens[i])
   thisplot <- ggplot(thisdat, aes(x=avg_ssb_ssbmsy, y=avg_catch_msy)) +
-    geom_point() +
+    geom_point(alpha=0.15) +
     geom_vline(xintercept = 1, color="red", linetype="dashed") +
     geom_hline(yintercept = 1, color="red", linetype="dashed") +
     facet_wrap(~factor(IBMlab, level=rev(IBM_order_new))) +
@@ -31,5 +31,18 @@ for (i in 1:length(scens)){
   png(filename = paste0("supplmat/", scens[i], "_C_vs_SSB.png"), width = 6, height = 6, units = "in", res=300)
     print(thisplot)
   dev.off()
+
+  thisplot <- ggplot(thisdat, aes(x=avg_ssb_ssbmsy, y=avg_f_fmsy)) +
+    geom_point(alpha=0.15, color="blue") +
+    geom_vline(xintercept = 1, color="red", linetype="dashed") +
+    geom_hline(yintercept = 1, color="red", linetype="dashed") +
+    facet_wrap(~factor(IBMlab, level=rev(IBM_order_new))) +
+    theme_classic() + 
+    theme(text = element_text(family = "Times")) +
+    labs(x=SSB_label, y=F_label, title=scens[i])
+  png(filename = paste0("supplmat/", scens[i], "_F_vs_SSB.png"), width = 6, height = 6, units = "in", res=300)
+  print(thisplot)
+  dev.off()
+  
 }
 

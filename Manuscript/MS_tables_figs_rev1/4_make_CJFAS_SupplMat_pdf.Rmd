@@ -36,17 +36,12 @@ Spawning stock biomass (SSB) relative to the SSB at maximum sustainable yield (S
 *Add Figure 4.15 from report* (addresses reviewer comment about no retro results)
 Mean spawning stock biomass (SSB) relative to the SSB at maximum sustainable yield (SSBmsy) and catch relative to MSY for 3 sources of retrospective pattern (catch, natural mortality (M), and none) and two fishing histories (F and A) in the long term based on 1,000 simulations.
 
-*Possibly include alternative figures to Figure 2 if not included in main MS (show F/Fmsy vs SSB/SSBmsy and C/MSY vs F/Fmsy)* (addresses reviewer comment about Kobe plot)
-Relationship between long-term average spawning biomass and average F (relative to MSY levels) for each method. Each point represents the median for a given scenario, separated by the source of the retrospective pattern (catch or M).
-
-Relationship between long-term average F and average catch (relative to MSY levels) for each method. Each point represents the median for a given scenario, separated by the source of the retrospective pattern (catch or M).
-
-
-*The following figures are similar to Figure 5 in the manuscript but show different scenarios.* (addresses reviewer comment about showing additional scenarios for Figure 5, can really go craazy and add F/Fmsy vs SSB/SSBmsy and Catch/MSY vs F/Fmsy for all 16 scenarios if want to overwhelm readers) 
 
 ```{r loop, echo=FALSE}
 myfile <- list()
 mytext <- list()
+myfile2 <- list()
+mytext2 <- list()
 mycount <- 0
 for (i in 1:2){
   s1 <- ifelse(i==1,"C","M")
@@ -64,7 +59,9 @@ for (i in 1:2){
         
         mycount <- mycount + 1
         myfile[[mycount]] <- paste0(s1,s2,s3,s4,"_C_vs_SSB.png")
-        mytext[[mycount]] <- paste0("\nRelationship between long-term average catch and spawning stock biomass relative to their reference points by method. Each point represents the average for years 21-40 in the feedback period for a single iteration of a scenario. The scenario shown is where ", l1, " was the source of the retrospective pattern with $F$ ", l2, " $F_{MSY}$ in the second half of the base period, there ", l3, ", and where ", l4a, " buffer was applied to the catch advice (catch multiplier = ", l4b, ").")
+        myfile2[[mycount]] <- paste0(s1,s2,s3,s4,"_F_vs_SSB.png")
+        mytext[[mycount]] <- paste0("\nFigure S", mycount+4, ". Relationship between long-term average catch and spawning stock biomass relative to their reference points by method. Each point represents the average for years 21-40 in the feedback period for a single iteration of a scenario. The scenario shown is where ", l1, " was the source of the retrospective pattern with $F$ ", l2, " $F_{MSY}$ in the second half of the base period, there ", l3, ", and where ", l4a, " buffer was applied to the catch advice (catch multiplier = ", l4b, ").")
+        mytext2[[mycount]] <- paste0("\nFigure S", mycount+4+16,". Relationship between long-term average fishing mortality rate and spawning stock biomass relative to their reference points by method. Each point represents the average for years 21-40 in the feedback period for a single iteration of a scenario. The scenario shown is where ", l1, " was the source of the retrospective pattern with $F$ ", l2, " $F_{MSY}$ in the second half of the base period, there ", l3, ", and where ", l4a, " buffer was applied to the catch advice (catch multiplier = ", l4b, ").")
       }
     }
   }
@@ -165,5 +162,101 @@ knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[15]]))
 knitr::include_graphics(file.path(getwd(),"supplmat",myfile[[16]]))
 ```
 `r mytext[[16]]`
+\newpage
+
+```{r p21, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[1]]))
+```
+`r mytext2[[1]]`
+\newpage
+
+```{r p22, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[2]]))
+```
+`r mytext2[[2]]`
+\newpage
+
+```{r p23, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[3]]))
+```
+`r mytext2[[3]]`
+\newpage
+
+```{r p24, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[4]]))
+```
+`r mytext2[[4]]`
+\newpage
+
+```{r p25, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[5]]))
+```
+`r mytext2[[5]]`
+\newpage
+
+```{r p26, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[6]]))
+```
+`r mytext2[[6]]`
+\newpage
+
+```{r p27, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[7]]))
+```
+`r mytext2[[7]]`
+\newpage
+
+```{r p28, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[8]]))
+```
+`r mytext2[[8]]`
+\newpage
+
+```{r p29, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[9]]))
+```
+`r mytext2[[9]]`
+\newpage
+
+```{r p210, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[10]]))
+```
+`r mytext2[[10]]`
+\newpage
+
+```{r p211, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[11]]))
+```
+`r mytext2[[11]]`
+\newpage
+
+```{r p212, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[12]]))
+```
+`r mytext2[[12]]`
+\newpage
+
+```{r p213, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[13]]))
+```
+`r mytext2[[13]]`
+\newpage
+
+```{r p214, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[14]]))
+```
+`r mytext2[[14]]`
+\newpage
+
+```{r p215, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[15]]))
+```
+`r mytext2[[15]]`
+\newpage
+
+```{r p216, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat",myfile2[[16]]))
+```
+`r mytext2[[16]]`
 \newpage
 
