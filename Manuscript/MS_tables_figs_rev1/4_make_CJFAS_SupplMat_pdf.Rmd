@@ -36,6 +36,13 @@ Spawning stock biomass (SSB) relative to the SSB at maximum sustainable yield (S
 *Add Figure 4.15 from report* (addresses reviewer comment about no retro results)
 Mean spawning stock biomass (SSB) relative to the SSB at maximum sustainable yield (SSBmsy) and catch relative to MSY for 3 sources of retrospective pattern (catch, natural mortality (M), and none) and two fishing histories (F and A) in the long term based on 1,000 simulations.
 
+```{r pcaplot, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
+knitr::include_graphics(file.path(getwd(),"supplmat","pca.png"))
+```
+
+Figure S5. Principal components analysis of the median values of the metrics shown in Figure 1.
+\newpage
+
 
 ```{r loop, echo=FALSE}
 myfile <- list()
@@ -60,8 +67,8 @@ for (i in 1:2){
         mycount <- mycount + 1
         myfile[[mycount]] <- paste0(s1,s2,s3,s4,"_C_vs_SSB.png")
         myfile2[[mycount]] <- paste0(s1,s2,s3,s4,"_F_vs_SSB.png")
-        mytext[[mycount]] <- paste0("\nFigure S", mycount+4, ". Relationship between long-term average catch and spawning stock biomass relative to their reference points by method. Each point represents the average for years 21-40 in the feedback period for a single iteration of a scenario. The scenario shown is where ", l1, " was the source of the retrospective pattern with $F$ ", l2, " $F_{MSY}$ in the second half of the base period, there ", l3, ", and where ", l4a, " buffer was applied to the catch advice (catch multiplier = ", l4b, ").")
-        mytext2[[mycount]] <- paste0("\nFigure S", mycount+4+16,". Relationship between long-term average fishing mortality rate and spawning stock biomass relative to their reference points by method. Each point represents the average for years 21-40 in the feedback period for a single iteration of a scenario. The scenario shown is where ", l1, " was the source of the retrospective pattern with $F$ ", l2, " $F_{MSY}$ in the second half of the base period, there ", l3, ", and where ", l4a, " buffer was applied to the catch advice (catch multiplier = ", l4b, ").")
+        mytext[[mycount]] <- paste0("\nFigure S", mycount+5, ". Relationship between long-term average catch and spawning stock biomass relative to their reference points by method. Each point represents the average for years 21-40 in the feedback period for a single iteration of a scenario. The scenario shown is where ", l1, " was the source of the retrospective pattern with $F$ ", l2, " $F_{MSY}$ in the second half of the base period, there ", l3, ", and where ", l4a, " buffer was applied to the catch advice (catch multiplier = ", l4b, ").")
+        mytext2[[mycount]] <- paste0("\nFigure S", mycount+5+16,". Relationship between long-term average fishing mortality rate and spawning stock biomass relative to their reference points by method. Each point represents the average for years 21-40 in the feedback period for a single iteration of a scenario. The scenario shown is where ", l1, " was the source of the retrospective pattern with $F$ ", l2, " $F_{MSY}$ in the second half of the base period, there ", l3, ", and where ", l4a, " buffer was applied to the catch advice (catch multiplier = ", l4b, ").")
       }
     }
   }
