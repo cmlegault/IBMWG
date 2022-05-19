@@ -230,7 +230,7 @@ tabl <- "
         
 |	Factors | Variants
 |:------ |:------
-|	retrospective source | catch, <br> natural mortality, or <br> none
+|	retrospective source | catch or <br> natural mortality
 |	fishing history | Fmsy in second half of base period or <br> overfishing throughout base period (2.5xFmsy)
 |	fishery selectivity blocks | constant selectivity or <br> selectivity changes in second half of base period
 | catch advice multiplier | applied as is from IBM (1) or <br> reduced from IBM (0.75)
