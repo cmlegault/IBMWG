@@ -5,7 +5,7 @@ library(tidyverse)
 
 # rds file available in Google Drive IBMWG/ResultFiles folder
 # copy from Google Drive and place in mydir
-mydir <- "C:/Users/chris.legault/Desktop/myIBMWG/basesims"
+mydir <- "C:\\Users\\chris.legault\\Documents\\Working\\Index-based Research Track 2020\\myIBMWG\\basesims"
 dat <- readRDS(file.path(mydir, "base_sims.rds"))
 dat
 names(dat)
@@ -191,6 +191,10 @@ catch_plots$myrelplot50
 dev.off()
 
 # save pngs
+ggsave(filename = "demonstrations/chris/base_sims/F.png", f_plots$myplot, width = 6.5, height = 6.5, units = "in")
+ggsave(filename = "demonstrations/chris/base_sims/SSB.png", ssb_plots$myplot, width = 6.5, height = 6.5, units = "in")
+
+
 ggsave(filename = "demonstrations/chris/base_sims/f_plots1.png", f_plots$myplot, width = 6.5, height = 6.5, units = "in")
 ggsave(filename = "demonstrations/chris/base_sims/ssb_plots_rel50.png", ssb_plots$myrelplot50, width = 6.5, height = 6.5, units = "in")
 ggsave(filename = "demonstrations/chris/base_sims/f_plots_rel50.png", f_plots$myrelplot50, width = 6.5, height = 6.5, units = "in")

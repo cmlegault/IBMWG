@@ -44,12 +44,12 @@ Figure S2. Fishing mortality rate (F) during the base period (black line) for th
 \newpage
 
 ```{r SSB, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
-knitr::include_graphics(file.path(getwd(),"../../demonstrations/chris/base_sims","ssb_plots_rel50.png"))
+knitr::include_graphics(file.path(getwd(),"../../demonstrations/chris/base_sims","SSB.png"))
 ```
 
-*Figure 1.6 from report (addresses reviewer comment about scenario set ups)*
+*similar to Figure 1.6 from report (addresses reviewer comment about scenario set ups)*
 
-Figure S3. Spawning stock biomass (SSB) relative to the SSB at maximum sustainable yield (SSBmsy) computed from the conditions in the terminal year in the base period (2019) with the median value shown as the black line, the interquartile range shown in light grey, and the 95% range shown in dark grey for the 8 combinations of F history (F = Fmsy in second half of base period, O = overfishing throughout), number of fishery selectivity blocks (1 or 2), and retrospective source (catch or natural mortality, M).
+Figure S3. Spawning stock biomass (SSB) during the base period (black line) for the 8 combinations of F history (F = Fmsy in second half of base period, O = overfishing throughout), number of fishery selectivity blocks (1 or 2), and retrospective source (catch or natural mortality, M). The horizontal blue line denotes the F at maximum sustainable yield (Fmsy) computed from conditions in the first year of the base period (1970) while the red dashed horizontal line denotes the Fmsy computed from conditions in the terminal year in the base period (2019).
 \newpage
 
 ```{r retrofeed, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
