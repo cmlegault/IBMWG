@@ -248,28 +248,52 @@ cat(tabl) # output the table in a format good for HTML/PDF/docx conversion
 
 \pagebreak
 
-## Figures
+## List of Figures
 
-```{r PMsallscenarios, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in', fig.cap="Inner quartiles and medians for all performance measures across all scenarios and runs for each method. Vertical lines are shown at a value of 1 for the performance measures that are relative to the MSY reference points (A,B,C)."}
+```{r figcaps, echo=FALSE}
+figcap1 <- "Inner quartiles and medians for all performance measures across all scenarios and runs for each method. Vertical lines are shown at a value of 1 for the performance measures that are relative to the MSY reference points (A,B,C)."
+
+figcap2 <- "Relationship between long-term average spawning biomass and average catch (relative to MSY levels) for each method. Each point represents the median for a given scenario, separated by the source of the retrospective pattern (catch or M)."
+
+figcap3 <- "Median performance measures for each method, separated by the source of the retrospective error (catch = black, M = gray) and the exploitation history in the base period (always overfishing at $2.5 x F_{MSY}$ (circle), or $F$ reduced to $F_{MSY}$ during base period (triangle)). Vertical lines are shown at a value of 1 for the performance measures that are relative to the MSY reference points (A,B,C), and at a value of 0.5 for the probability of overfishing (E)."
+
+figcap4 <- "Median $F / F_{MSY}$ for each method, with results separated by the exploitation history in the base period (always overfishing at $2.5 x F_{MSY}$ (circle), or $F$ reduced to $F_{MSY}$ during base period (triangle)) showing A) short- (gray) versus long-term (black) values, and B) with (black) or without (gray) a buffer applied when setting the catch (catch multiplier = 0.75 or 1)."
+
+figcap5 <- "Relationship between long-term average catch and spawning stock biomass relative to their reference points by method. Each point represents the average for years 21-40 in the feedback period for a single iteration of a scenario. The scenario shown is where catch was the source of the retrospective pattern with $F$ reduced to $F_{MSY}$ in the second half of the base period, there was a single selectivity block, and where no buffer was applied to the catch advice (catch multiplier = 1)."
+  
+```
+
+Figure 1. `r figcap1`
+
+Figure 2. `r figcap2`
+
+Figure 3. `r figcap3`
+
+Figure 4. `r figcap4`
+
+Figure 5. `r figcap5`
+
+
+```{r PMsallscenarios, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in', fig.cap=figcap1}
 knitr::include_graphics(file.path(getwd(),"MS_tables_figs_rev1/final_ms_figs","Figure_1.pdf"))
 ```
 
 
-```{r SSmsyvsCMSY, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in', fig.cap="Relationship between long-term average spawning biomass and average catch (relative to MSY levels) for each method. Each point represents the median for a given scenario, separated by the source of the retrospective pattern (catch or M)."}
+```{r SSmsyvsCMSY, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in', fig.cap=figcap2}
 knitr::include_graphics(file.path(getwd(),"MS_tables_figs_rev1/final_ms_figs","Figure_2.pdf"))
 ```
 
 
-```{r PMsbyretroF, echo=FALSE, message=FALSE, warnings=FALSE, out.width='6in', fig.cap="Median performance measures for each method, separated by the source of the retrospective error (catch = black, M = gray) and the exploitation history in the base period (always overfishing at $2.5 x F_{MSY}$ (circle), or $F$ reduced to $F_{MSY}$ during base period (triangle)). Vertical lines are shown at a value of 1 for the performance measures that are relative to the MSY reference points (A,B,C), and at a value of 0.5 for the probability of overfishing (E)."}
+```{r PMsbyretroF, echo=FALSE, message=FALSE, warnings=FALSE, out.width='6in', fig.cap=figcap3}
 knitr::include_graphics(file.path(getwd(),"MS_tables_figs_rev1/final_ms_figs","Figure_3.pdf"))
 ```
 
 
-```{r FFmsybyscenario, echo=FALSE, message=FALSE, warnings=FALSE, out.width='6in', fig.cap="Median $F / F_{MSY}$ for each method, with results separated by the exploitation history in the base period (always overfishing at $2.5 x F_{MSY}$ (circle), or $F$ reduced to $F_{MSY}$ during base period (triangle)) showing A) short- (gray) versus long-term (black) values, and B) with (black) or without (gray) a buffer applied when setting the catch (catch multiplier = 0.75 or 1)."}
+```{r FFmsybyscenario, echo=FALSE, message=FALSE, warnings=FALSE, out.width='6in', fig.cap=figcap4}
 knitr::include_graphics(file.path(getwd(),"MS_tables_figs_rev1/final_ms_figs","Figure_4.pdf"))
 ```
 
 
-```{r linearvsdiffuse, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in', fig.cap="Relationship between long-term average catch and spawning stock biomass relative to their reference points by method. Each point represents the average for years 21-40 in the feedback period for a single iteration of a scenario. The scenario shown is where catch was the source of the retrospective pattern with $F$ reduced to $F_{MSY}$ in the second half of the base period, there was a single selectivity block, and where no buffer was applied to the catch advice (catch multiplier = 1)."}
+```{r linearvsdiffuse, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in', fig.cap=figcap5}
 knitr::include_graphics(file.path(getwd(),"MS_tables_figs_rev1/final_ms_figs","Figure_5.pdf"))
 ```
