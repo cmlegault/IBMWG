@@ -25,25 +25,28 @@ and Technology, Massachusetts, USA
 ^7^Mid-Atlantic Fishery Management Council, Dover, DE, USA  
 
 
+We provide additional details of the simulation study (Figures S1-S4) and results (Figures S5-S37) for readers seeking more granular results of the 16 scenarios. The distribution of Mohn's rho values is shown in Figure S1, illustrating that we achieved a median rho of 0.5 for SSB. The difference in true $F_{MSY}$ relative to the fishing history scenarios is shown in Figure S2; this provides some insight into the choice for which reference point was used for calculating overfishing. A similar plot for spawning stock biomass in shown in Figure S3 demonstrating the starting conditions for the feedback portion of the simulations. Retrospective patterns continued in the feedback portion of the closed-loop simulations, as seen in two realizations for both sources of the retrospective pattern in Figure S4. An alternative way of viewing the median results from Figure 1 in a more summarized approach that does not include uncertainty from the 1000 realizations is seen in the plot of the first two principal components of Figure S5. Plots similar to Figure 5 are seen in Figures S6-S21, showing the catch and spawning stock biomass relative to their MSY reference points for each of the 1000 realizations with each figure representing a different scenario. Figures S22-S37 are similar to Figures S6-S21 except that the y-axis is now fishing mortality relative to $F_{MSY}$, making them similar to Kobe plots. 
+
+
 ```{r retrores, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
 knitr::include_graphics(file.path(getwd(),"../../demonstrations/tim","retro_results_plots.png"))
 ```
 
-Figure S1. Distribution of 50 Mohn’s rho values for no misspecification (top row), catch misspecification (middle row), and natural mortality misspecification (bottom row) for spawning stock biomass (SSB), fishing mortality rate (Fbar), and recruitment (R). Panels are defined by retrospective type (none, catch, natural mortality), fishing intensity (1=always overfishing, 2=overfishing reducing to Fmsy), and number of selectivity blocks (1 or 2).
+Figure S1. Distribution of 50 Mohn’s rho values for no misspecification (top row), catch misspecification (middle row), and natural mortality misspecification (bottom row) for spawning stock biomass (SSB), fishing mortality rate (Fbar), and recruitment (R). Panels are defined by retrospective type (none, catch, natural mortality), fishing intensity (1=always overfishing, 2=overfishing reducing to $F_{MSY}$), and number of selectivity blocks (1 or 2).
 \newpage
 
 ```{r F, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
 knitr::include_graphics(file.path(getwd(),"../../demonstrations/chris/base_sims","F.png"))
 ```
 
-Figure S2. Fishing mortality rate (F) during the base period (black line) for the 8 combinations of F history (F = Fmsy in second half of base period, O = overfishing throughout), number of fishery selectivity blocks (1 or 2), and retrospective source (catch or natural mortality, M). The horizontal blue line denotes the F at maximum sustainable yield (Fmsy) computed from conditions in the first year of the base period (1970) while the red dashed horizontal line denotes the Fmsy computed from conditions in the terminal year in the base period (2019).
+Figure S2. Fishing mortality rate (F) during the base period (black line) for the 8 combinations of F history (F = $F_{MSY}$ in second half of base period, O = overfishing throughout), number of fishery selectivity blocks (1 or 2), and retrospective source (catch or natural mortality, M). The horizontal blue line denotes the F at maximum sustainable yield ($F_{MSY}$) computed from conditions in the first year of the base period (1970) while the red dashed horizontal line denotes the $F_{MSY}$ computed from conditions in the terminal year in the base period (2019).
 \newpage
 
 ```{r SSB, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
 knitr::include_graphics(file.path(getwd(),"../../demonstrations/chris/base_sims","SSB.png"))
 ```
 
-Figure S3. Spawning stock biomass (SSB) during the base period (black line) for the 8 combinations of F history (F = Fmsy in second half of base period, O = overfishing throughout), number of fishery selectivity blocks (1 or 2), and retrospective source (catch or natural mortality, M). The horizontal blue line denotes the F at maximum sustainable yield (Fmsy) computed from conditions in the first year of the base period (1970) while the red dashed horizontal line denotes the Fmsy computed from conditions in the terminal year in the base period (2019).
+Figure S3. Spawning stock biomass (SSB) during the base period (black line) for the 8 combinations of F history (F = $F_{MSY}$ in second half of base period, O = overfishing throughout), number of fishery selectivity blocks (1 or 2), and retrospective source (catch or natural mortality, M). The horizontal blue line denotes the F at maximum sustainable yield ($F_{MSY}$) computed from conditions in the first year of the base period (1970) while the red dashed horizontal line denotes the $F_{MSY}$ computed from conditions in the terminal year in the base period (2019).
 \newpage
 
 ```{r retrofeed, echo=FALSE, message=FALSE, warnings=FALSE, out.width='7in'}
