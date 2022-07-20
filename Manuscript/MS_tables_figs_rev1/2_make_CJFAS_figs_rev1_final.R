@@ -209,22 +209,28 @@ point_cols <- c("black","dark gray")
 # F / Fmsy by Cmult, and  Short vs Long
 # new Figure 4
 {
-  pF_time_Fhistnew<-ggplot(data=filter(medtime_Fhist, metric=="avg_f_fmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
-    geom_point((aes(colour = Period, shape=F_history)))+
+  pF_time_Fhistnew <- ggplot(data=filter(medtime_Fhist, metric=="avg_f_fmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
+    geom_point((aes(fill = Period, shape=F_history)))+
     theme_classic() + 
     theme(text=element_text(family="Times"))+
     xlab("") + ylab(F_label) + ggtitle("A")+
     geom_hline(yintercept = 1) +
-    scale_color_manual(values=point_cols)+
+    scale_fill_manual(values=point_cols)+
+    scale_shape_manual(values = c(21, 24)) +
+    guides(fill = guide_legend(override.aes = list(shape = 22) ),
+           shape = guide_legend(override.aes = list(fill = "white") ) ) +
     coord_flip()
   
   pF_Cmult_Fhistnew<-ggplot(data=filter(medCmult_Fhist, metric=="avg_f_fmsy"), aes(x=factor(IBMlab,level=IBM_order_new), y=medval)) +
-    geom_point((aes(colour = Catch_mult, shape=F_history)))+
+    geom_point((aes(fill = Catch_mult, shape=F_history)))+
     theme_classic() + 
     theme(text=element_text(family="Times"))+
     xlab("") + ylab(F_label) + ggtitle("B")+
     geom_hline(yintercept = 1) +
-    scale_color_manual(values=point_cols)+
+    scale_fill_manual(values=point_cols)+
+    scale_shape_manual(values = c(21, 24)) +
+    guides(fill = guide_legend(override.aes = list(shape = 22) ),
+           shape = guide_legend(override.aes = list(fill = "white") ) ) +
     coord_flip()
   
   p4new <- grid.arrange(pF_time_Fhistnew,pF_Cmult_Fhistnew,nrow=2)
